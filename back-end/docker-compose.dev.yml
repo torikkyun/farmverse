@@ -1,0 +1,26 @@
+services:
+  mysql:
+    image: mysql
+    container_name: mysql_dev
+    restart: always
+    ports:
+      - ${MYSQL_PORT}:3306
+    env_file:
+      - .env.development.local
+    volumes:
+      - ./mysql_data:/var/lib/mysql
+
+  postgresql:
+    image: postgres
+    container_name: postgres_dev
+    restart: always
+    ports:
+      - ${POSTGRES_PORT}:5432
+    env_file:
+      - .env.development.local
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+
+volumes:
+  mysql_data:
+  postgres_data:
