@@ -1,5 +1,9 @@
-
-import { Injectable, BadRequestException, ConflictException, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  ConflictException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { LoginDto, RegisterDto } from './dto/auth.dto';
 import { UsersService } from 'src/models/users/users.service';
 import { JwtService } from '@nestjs/jwt';
@@ -17,12 +21,21 @@ export class AuthService {
   ) {}
 
   async resetPassword(resetPasswordDto: ResetPasswordDto) {
-    const user = await this.usersService.findByResetToken(resetPasswordDto.token);
-    if (!user || !user.resetPasswordExpires || user.resetPasswordExpires < new Date()) {
+    const user = await this.usersService.findByResetToken(
+      resetPasswordDto.token,
+    );
+    if (
+      !user ||
+      !user.resetPasswordExpires ||
+      user.resetPasswordExpires < new Date()
+    ) {
       throw new BadRequestException('Token không hợp lệ hoặc đã hết hạn');
     }
     const hashPassword = await bcrypt.hash(resetPasswordDto.newPassword, 10);
-    await this.usersService.updatePasswordAndClearResetToken(user.id, hashPassword);
+    await this.usersService.updatePasswordAndClearResetToken(
+      user.id,
+      hashPassword,
+    );
     return { message: 'Đặt lại mật khẩu thành công' };
   }
 
@@ -30,15 +43,26 @@ export class AuthService {
     const user = await this.usersService.findByEmail(forgotPasswordDto.email);
     if (!user) {
       // Không tiết lộ user tồn tại hay không
-      return { message: 'Nếu email tồn tại, hướng dẫn đặt lại mật khẩu đã được gửi.' };
+      return {
+        message: 'Nếu email tồn tại, hướng dẫn đặt lại mật khẩu đã được gửi.',
+      };
     }
     const resetToken = randomBytes(32).toString('hex');
     const resetExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 phút
-    await this.usersService.setResetPasswordToken(user.id, resetToken, resetExpires);
-    await this.mailService.sendResetPasswordEmail(user.email, resetToken, user.name);
-    return { message: 'Nếu email tồn tại, hướng dẫn đặt lại mật khẩu đã được gửi.' };
+    await this.usersService.setResetPasswordToken(
+      user.id,
+      resetToken,
+      resetExpires,
+    );
+    await this.mailService.sendResetPasswordEmail(
+      user.email,
+      resetToken,
+      user.name,
+    );
+    return {
+      message: 'Nếu email tồn tại, hướng dẫn đặt lại mật khẩu đã được gửi.',
+    };
   }
-
 
   async login(loginDto: LoginDto) {
     const user = await this.usersService.findByEmail(loginDto.email);
