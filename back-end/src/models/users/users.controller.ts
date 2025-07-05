@@ -13,7 +13,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from 'generated/prisma';
 import { ApiTags } from '@nestjs/swagger';
 
-@Controller('users')
+@Controller('api/users')
 @ApiTags('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}

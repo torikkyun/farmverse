@@ -1,0 +1,106 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("MONGODB_URL")
+}
+
+enum UserRole {
+  FARMER
+  ADMIN
+  TENANT
+}
+
+enum ItemType {
+  FERTILIZER
+  TREEROOT
+}
+
+enum TreeRootInstance {
+  GROWING
+  HARVESTED
+  CANCELED
+}
+
+model User {
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  email       String        @unique
+  password    String
+  phone       String        @unique
+  role        UserRole      @default(TENANT)
+  avatar      String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  Farm        Farm?
+  Transaction Transaction[]
+}
+
+model Farm {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  location    String
+  size        Float
+  description String?
+  images      String[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  owner       User          @relation(fields: [ownerId], references: [id])
+  ownerId     String        @unique @db.ObjectId
+  Schedule    Schedule?
+  Item        Item[]
+  Transaction Transaction[]
+}
+
+model Schedule {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  tasks     String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  farm   Farm   @relation(fields: [farmId], references: [id])
+  farmId String @unique @db.ObjectId
+}
+
+model Item {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  type        ItemType
+  description String?
+  image       String[]
+  price       Float
+  quantity    Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  farm        Farm          @relation(fields: [farmId], references: [id])
+  farmId      String        @db.ObjectId
+  Transaction Transaction[]
+}
+
+model Transaction {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  type        ItemType
+  quantity    Int?
+  totalPrice  Float
+  includesIot Boolean?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  buyer   User    @relation(fields: [buyerId], references: [id])
+  buyerId String  @db.ObjectId
+  item    Item    @relation(fields: [itemId], references: [id])
+  itemId  String  @db.ObjectId
+  Farm    Farm?   @relation(fields: [farmId], references: [id])
+  farmId  String? @db.ObjectId
+}

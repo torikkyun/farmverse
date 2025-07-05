@@ -10,8 +10,8 @@ import { AuthModule } from './authentication/auth.module';
       envFilePath: [`.env.${process.env.NODE_ENV}.local`],
       expandVariables: true,
     }),
-    UsersModule,
     AuthModule,
+    UsersModule,
   ],
 })
 export class AppModule {}
