@@ -1,3 +1,34 @@
+  async setResetPasswordToken(userId: string, token: string, expires: Date) {
+    return await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        resetPasswordToken: token,
+        resetPasswordExpires: expires,
+      },
+    });
+  }
+
+  async findByResetToken(token: string) {
+    return await this.prisma.user.findFirst({
+      where: {
+        resetPasswordToken: token,
+        resetPasswordExpires: {
+          gt: new Date(),
+        },
+      },
+    });
+  }
+
+  async updatePasswordAndClearResetToken(userId: string, hashPassword: string) {
+    return await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        password: hashPassword,
+        resetPasswordToken: null,
+        resetPasswordExpires: null,
+      },
+    });
+  }
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';

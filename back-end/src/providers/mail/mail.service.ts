@@ -1,3 +1,15 @@
+  async sendResetPasswordEmail(email: string, token: string, name: string) {
+    const resetUrl = `${this.configService.get('FRONTEND_URL')}/reset-password?token=${token}`;
+    await this.mailerService.sendMail({
+      to: email,
+      subject: 'Đặt lại mật khẩu - FarmVerse',
+      template: 'reset-password',
+      context: {
+        name,
+        resetUrl,
+      },
+    });
+  }
 import { Injectable } from '@nestjs/common';
 import { MailerService } from '@nestjs-modules/mailer';
 import { ConfigService } from '@nestjs/config';
@@ -33,6 +45,18 @@ export class MailService {
       context: {
         name,
         loginUrl,
+      },
+    });
+  }
+  async sendResetPasswordEmail(email: string, token: string, name: string) {
+    const resetUrl = `${this.configService.get('FRONTEND_URL')}/reset-password?token=${token}`;
+    await this.mailerService.sendMail({
+      to: email,
+      subject: 'Đặt lại mật khẩu - FarmVerse',
+      template: 'reset-password',
+      context: {
+        name,
+        resetUrl,
       },
     });
   }

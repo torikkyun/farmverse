@@ -1,3 +1,27 @@
+import { ForgotPasswordDto, ResetPasswordDto } from './dto/forgot-password.dto';
+import { randomBytes } from 'crypto';
+  async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
+    const user = await this.usersService.findByEmail(forgotPasswordDto.email);
+    if (!user) {
+      // Không tiết lộ user tồn tại hay không
+      return { message: 'Nếu email tồn tại, hướng dẫn đặt lại mật khẩu đã được gửi.' };
+    }
+    const resetToken = randomBytes(32).toString('hex');
+    const resetExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 phút
+    await this.usersService.setResetPasswordToken(user.id, resetToken, resetExpires);
+    await this.mailService.sendResetPasswordEmail(user.email, resetToken, user.name);
+    return { message: 'Nếu email tồn tại, hướng dẫn đặt lại mật khẩu đã được gửi.' };
+  }
+
+  async resetPassword(resetPasswordDto: ResetPasswordDto) {
+    const user = await this.usersService.findByResetToken(resetPasswordDto.token);
+    if (!user || !user.resetPasswordExpires || user.resetPasswordExpires < new Date()) {
+      throw new BadRequestException('Token không hợp lệ hoặc đã hết hạn');
+    }
+    const hashPassword = await bcrypt.hash(resetPasswordDto.newPassword, 10);
+    await this.usersService.updatePasswordAndClearResetToken(user.id, hashPassword);
+    return { message: 'Đặt lại mật khẩu thành công' };
+  }
 import {
   BadRequestException,
   ConflictException,
