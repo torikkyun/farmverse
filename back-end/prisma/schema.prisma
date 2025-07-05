@@ -32,17 +32,20 @@ enum TreeRootInstance {
 }
 
 model User {
-  id          String        @id @default(auto()) @map("_id") @db.ObjectId
-  name        String
-  email       String        @unique
-  password    String
-  phone       String        @unique
-  role        UserRole      @default(TENANT)
-  avatar      String?
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  Farm        Farm?
-  Transaction Transaction[]
+  id                       String        @id @default(auto()) @map("_id") @db.ObjectId
+  name                     String
+  email                    String        @unique
+  password                 String
+  phone                    String?       @unique
+  role                     UserRole      @default(TENANT)
+  avatar                   String?
+  isEmailVerified          Boolean       @default(false)
+  emailVerificationToken   String?
+  emailVerificationExpires DateTime?
+  createdAt                DateTime      @default(now())
+  updatedAt                DateTime      @updatedAt
+  Farm                     Farm?
+  Transaction              Transaction[]
 }
 
 model Farm {

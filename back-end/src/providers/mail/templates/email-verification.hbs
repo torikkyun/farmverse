@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Xác thực email</title>
+</head>
+
+<body>
+  <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+    <h2>Xin chào {{name}},</h2>
+    <p>Cảm ơn bạn đã đăng ký tài khoản FarmVerse!</p>
+    <p>Vui lòng click vào nút bên dưới để xác thực email của bạn:</p>
+    <a href="{{verificationUrl}}"
+      style="display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;">
+      Xác thực Email
+    </a>
+    <p>Hoặc copy link này vào trình duyệt:</p>
+    <p>{{verificationUrl}}</p>
+    <p>Link này sẽ hết hạn sau 24 giờ.</p>
+    <p>Trân trọng,<br>FarmVerse Team</p>
+  </div>
+</body>
+
+</html>

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   UnauthorizedException,
@@ -7,24 +8,25 @@ import { LoginDto, RegisterDto } from './dto/auth.dto';
 import { UsersService } from 'src/models/users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { MailService } from 'src/providers/mail/mail.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
     private readonly usersService: UsersService,
+    private readonly mailService: MailService,
   ) {}
-
-  signToken(userId: string) {
-    const payload = { id: userId };
-    return this.jwtService.sign(payload);
-  }
 
   async login(loginDto: LoginDto) {
     const user = await this.usersService.findByEmail(loginDto.email);
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
+    if (!user.isEmailVerified) {
+      throw new UnauthorizedException('Please verify your email first');
+    }
+
     const isPasswordValid = await bcrypt.compare(
       loginDto.password,
       user.password,
@@ -32,8 +34,16 @@ export class AuthService {
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid password');
     }
-    const accessToken = this.signToken(user.id);
-    return { accessToken };
+    const payload = { id: user.id };
+    const accessToken = this.jwtService.sign(payload);
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...userWithoutPassword } = user;
+
+    return {
+      accessToken,
+      user: userWithoutPassword,
+    };
   }
 
   async register(registerDto: RegisterDto) {
@@ -41,9 +51,60 @@ export class AuthService {
     if (existingUser) {
       throw new ConflictException('Email already exists');
     }
-    const password = await bcrypt.hash(registerDto.password, 10);
-    const user = await this.usersService.create({ ...registerDto, password });
-    const accessToken = this.signToken(user.id);
-    return { accessToken };
+    const hashPassword = await bcrypt.hash(registerDto.password, 10);
+    const user = await this.usersService.create({
+      ...registerDto,
+      password: hashPassword,
+    });
+    if (user.emailVerificationToken) {
+      await this.mailService.sendEmailVerification(
+        user.email,
+        user.emailVerificationToken,
+        user.name,
+      );
+    }
+    // const payload = { id: user.id };
+    // const accessToken = this.jwtService.sign(payload);
+
+    // // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    // const { password, ...userWithoutPassword } = user;
+
+    // return { accessToken, user: userWithoutPassword };
+    return {
+      message:
+        'Registration successful. Please check your email to verify your account.',
+      email: user.email,
+    };
+  }
+
+  async verifyEmail(token: string) {
+    const user = await this.usersService.verifyEmail(token);
+    if (!user) {
+      throw new BadRequestException('Invalid or expired verification token');
+    }
+
+    // Gửi email chào mừng
+    await this.mailService.sendWelcomeEmail(user.email, user.name);
+
+    return { message: 'Email verified successfully' };
+  }
+
+  async resendVerificationEmail(email: string) {
+    const user = await this.usersService.findByEmail(email);
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    if (user.isEmailVerified) {
+      throw new BadRequestException('Email already verified');
+    }
+    if (user.emailVerificationToken) {
+      await this.mailService.sendEmailVerification(
+        user.email,
+        user.emailVerificationToken,
+        user.name,
+      );
+    }
+    return { message: 'Verification email sent' };
   }
 }

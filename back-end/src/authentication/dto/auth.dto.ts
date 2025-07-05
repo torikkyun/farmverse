@@ -35,7 +35,7 @@ export class RegisterDto extends LoginDto {
   })
   name: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   @MaxLength(15)
   @ApiProperty({
