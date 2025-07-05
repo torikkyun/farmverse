@@ -1,3 +1,15 @@
+
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { User } from 'generated/prisma';
+import { PrismaService } from 'src/providers/prisma.service';
+import { randomBytes } from 'crypto';
+
+@Injectable()
+export class UsersService {
+  constructor(private readonly prisma: PrismaService) {}
+
   async setResetPasswordToken(userId: string, token: string, expires: Date) {
     return await this.prisma.user.update({
       where: { id: userId },
@@ -29,16 +41,6 @@
       },
     });
   }
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { User } from 'generated/prisma';
-import { PrismaService } from 'src/providers/prisma.service';
-import { randomBytes } from 'crypto';
-
-@Injectable()
-export class UsersService {
-  constructor(private readonly prisma: PrismaService) {}
 
   async create(createUserDto: CreateUserDto) {
     // return await this.prisma.user.create({ data: createUserDto });

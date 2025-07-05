@@ -1,5 +1,31 @@
+
+import { Injectable, BadRequestException, ConflictException, UnauthorizedException } from '@nestjs/common';
+import { LoginDto, RegisterDto } from './dto/auth.dto';
+import { UsersService } from 'src/models/users/users.service';
+import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
+import { MailService } from 'src/providers/mail/mail.service';
 import { ForgotPasswordDto, ResetPasswordDto } from './dto/forgot-password.dto';
 import { randomBytes } from 'crypto';
+
+@Injectable()
+export class AuthService {
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly usersService: UsersService,
+    private readonly mailService: MailService,
+  ) {}
+
+  async resetPassword(resetPasswordDto: ResetPasswordDto) {
+    const user = await this.usersService.findByResetToken(resetPasswordDto.token);
+    if (!user || !user.resetPasswordExpires || user.resetPasswordExpires < new Date()) {
+      throw new BadRequestException('Token không hợp lệ hoặc đã hết hạn');
+    }
+    const hashPassword = await bcrypt.hash(resetPasswordDto.newPassword, 10);
+    await this.usersService.updatePasswordAndClearResetToken(user.id, hashPassword);
+    return { message: 'Đặt lại mật khẩu thành công' };
+  }
+
   async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
     const user = await this.usersService.findByEmail(forgotPasswordDto.email);
     if (!user) {
@@ -13,34 +39,6 @@ import { randomBytes } from 'crypto';
     return { message: 'Nếu email tồn tại, hướng dẫn đặt lại mật khẩu đã được gửi.' };
   }
 
-  async resetPassword(resetPasswordDto: ResetPasswordDto) {
-    const user = await this.usersService.findByResetToken(resetPasswordDto.token);
-    if (!user || !user.resetPasswordExpires || user.resetPasswordExpires < new Date()) {
-      throw new BadRequestException('Token không hợp lệ hoặc đã hết hạn');
-    }
-    const hashPassword = await bcrypt.hash(resetPasswordDto.newPassword, 10);
-    await this.usersService.updatePasswordAndClearResetToken(user.id, hashPassword);
-    return { message: 'Đặt lại mật khẩu thành công' };
-  }
-import {
-  BadRequestException,
-  ConflictException,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
-import { LoginDto, RegisterDto } from './dto/auth.dto';
-import { UsersService } from 'src/models/users/users.service';
-import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from 'bcrypt';
-import { MailService } from 'src/providers/mail/mail.service';
-
-@Injectable()
-export class AuthService {
-  constructor(
-    private readonly jwtService: JwtService,
-    private readonly usersService: UsersService,
-    private readonly mailService: MailService,
-  ) {}
 
   async login(loginDto: LoginDto) {
     const user = await this.usersService.findByEmail(loginDto.email);

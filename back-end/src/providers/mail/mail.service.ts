@@ -1,15 +1,6 @@
-  async sendResetPasswordEmail(email: string, token: string, name: string) {
-    const resetUrl = `${this.configService.get('FRONTEND_URL')}/reset-password?token=${token}`;
-    await this.mailerService.sendMail({
-      to: email,
-      subject: 'Đặt lại mật khẩu - FarmVerse',
-      template: 'reset-password',
-      context: {
-        name,
-        resetUrl,
-      },
-    });
-  }
+// ...existing code...
+
+// Đã có hàm sendResetPasswordEmail trong class phía dưới, xóa hàm này ở đầu file
 import { Injectable } from '@nestjs/common';
 import { MailerService } from '@nestjs-modules/mailer';
 import { ConfigService } from '@nestjs/config';
