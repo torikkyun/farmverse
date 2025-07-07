@@ -4,16 +4,16 @@ import {
   ConflictException,
   UnauthorizedException,
 } from '@nestjs/common';
-import {
-  EmailVerificationDto,
-  LoginDto,
-  RegisterDto,
-  ResetPasswordDto,
-} from './dto/auth.dto';
+import { LoginDto, LoginResponseDto } from './dto/login.dto';
 import { UsersService } from 'src/models/users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { MailService } from 'src/providers/mail/mail.service';
+import { RegisterDto } from './dto/register.dto';
+import { EmailVerificationDto } from './dto/email-verification.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+import { plainToInstance } from 'class-transformer';
+import { UserResponseDto } from 'src/common/dto/user-response.dto';
 
 @Injectable()
 export class AuthService {
@@ -23,7 +23,7 @@ export class AuthService {
     private readonly mailService: MailService,
   ) {}
 
-  async login({ email, password }: LoginDto) {
+  async login({ email, password }: LoginDto): Promise<LoginResponseDto> {
     const user = await this.usersService.findByEmail(email);
 
     if (!user) {
@@ -47,7 +47,9 @@ export class AuthService {
 
     return {
       accessToken,
-      user,
+      user: plainToInstance(UserResponseDto, user, {
+        excludeExtraneousValues: true,
+      }),
     };
   }
 
@@ -126,13 +128,17 @@ export class AuthService {
       existingUser.id,
     );
 
-    if (updatedUser.resetPasswordToken) {
-      await this.mailService.sendResetPasswordEmail(
-        updatedUser.email,
-        updatedUser.resetPasswordToken,
-        updatedUser.name,
+    if (!updatedUser.resetPasswordToken) {
+      throw new ConflictException(
+        'Yêu cầu đặt lại mật khẩu đã được gửi. Vui lòng kiểm tra email của bạn',
       );
     }
+
+    await this.mailService.sendResetPasswordEmail(
+      updatedUser.email,
+      updatedUser.resetPasswordToken,
+      updatedUser.name,
+    );
 
     return {
       message:

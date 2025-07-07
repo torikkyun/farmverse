@@ -53,7 +53,7 @@ export class UsersService {
   async findOne(id: string): Promise<User> {
     const user = await this.prisma.user.findUnique({ where: { id } });
     if (!user) {
-      throw new NotFoundException(`User with ID ${id} not found`);
+      throw new NotFoundException(`Không tìm thấy người dùng với ID: ${id}`);
     }
     return user;
   }
@@ -92,7 +92,7 @@ export class UsersService {
     });
 
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException('Không tìm thấy người dùng');
     }
 
     return await this.prisma.user.update({

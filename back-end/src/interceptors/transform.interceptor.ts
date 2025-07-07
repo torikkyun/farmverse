@@ -40,8 +40,6 @@ export class TransformInterceptor<T>
           responseData = data as T;
         } else if (typeof data === 'object' && data !== null) {
           const typedData = data as Record<string, unknown>;
-
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { message: _, ...rest } = typedData;
           responseData = Object.keys(rest).length > 0 ? (rest as T) : null;
         } else {
