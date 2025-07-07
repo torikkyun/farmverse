@@ -6,5 +6,4 @@ export class CreateUserDto {
   password: string;
   phone?: string;
   role: UserRole;
-  avatar?: string;
 }

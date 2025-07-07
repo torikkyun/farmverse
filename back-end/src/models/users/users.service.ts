@@ -9,42 +9,9 @@ import { randomBytes } from 'crypto';
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
-  // async setResetPasswordToken(userId: string, token: string, expires: Date) {
-  //   return await this.prisma.user.update({
-  //     where: { id: userId },
-  //     data: {
-  //       resetPasswordToken: token,
-  //       resetPasswordExpires: expires,
-  //     },
-  //   });
-  // }
-
-  // async findByResetToken(token: string) {
-  //   return await this.prisma.user.findFirst({
-  //     where: {
-  //       resetPasswordToken: token,
-  //       resetPasswordExpires: {
-  //         gt: new Date(),
-  //       },
-  //     },
-  //   });
-  // }
-
-  // async updatePasswordAndClearResetToken(userId: string, hashPassword: string) {
-  //   return await this.prisma.user.update({
-  //     where: { id: userId },
-  //     data: {
-  //       password: hashPassword,
-  //       resetPasswordToken: null,
-  //       resetPasswordExpires: null,
-  //     },
-  //   });
-  // }
-
   async create(createUserDto: CreateUserDto) {
-    // return await this.prisma.user.create({ data: createUserDto });
     const emailVerificationToken = randomBytes(32).toString('hex');
-    const emailVerificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    const emailVerificationExpires = new Date(Date.now() + 15 * 60 * 1000);
 
     return this.prisma.user.create({
       data: {
@@ -99,6 +66,43 @@ export class UsersService {
     const user = await this.findOne(id);
     Object.assign(user, updateUserDto);
     return await this.prisma.user.update({ where: { id }, data: user });
+  }
+
+  async setResetPasswordToken(id: string) {
+    const resetPasswordToken = randomBytes(32).toString('hex');
+    const resetPasswordExpires = new Date(Date.now() + 15 * 60 * 1000);
+
+    return await this.prisma.user.update({
+      where: { id },
+      data: {
+        resetPasswordToken,
+        resetPasswordExpires,
+      },
+    });
+  }
+
+  async updatePasswordAndClearResetToken(token: string, newPassword: string) {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        resetPasswordToken: token,
+        resetPasswordExpires: {
+          gt: new Date(),
+        },
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        password: newPassword,
+        resetPasswordToken: null,
+        resetPasswordExpires: null,
+      },
+    });
   }
 
   async remove(id: string): Promise<void> {

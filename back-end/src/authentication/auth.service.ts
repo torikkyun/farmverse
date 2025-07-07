@@ -4,13 +4,16 @@ import {
   ConflictException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { LoginDto, RegisterDto } from './dto/auth.dto';
+import {
+  EmailVerificationDto,
+  LoginDto,
+  RegisterDto,
+  ResetPasswordDto,
+} from './dto/auth.dto';
 import { UsersService } from 'src/models/users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { MailService } from 'src/providers/mail/mail.service';
-import { ForgotPasswordDto, ResetPasswordDto } from './dto/forgot-password.dto';
-import { randomBytes } from 'crypto';
 
 @Injectable()
 export class AuthService {
@@ -20,90 +23,48 @@ export class AuthService {
     private readonly mailService: MailService,
   ) {}
 
-  // async resetPassword(resetPasswordDto: ResetPasswordDto) {
-  //   const user = await this.usersService.findByResetToken(
-  //     resetPasswordDto.token,
-  //   );
-  //   if (
-  //     !user ||
-  //     !user.resetPasswordExpires ||
-  //     user.resetPasswordExpires < new Date()
-  //   ) {
-  //     throw new BadRequestException('Token không hợp lệ hoặc đã hết hạn');
-  //   }
-  //   const hashPassword = await bcrypt.hash(resetPasswordDto.newPassword, 10);
-  //   await this.usersService.updatePasswordAndClearResetToken(
-  //     user.id,
-  //     hashPassword,
-  //   );
-  //   return { message: 'Đặt lại mật khẩu thành công' };
-  // }
+  async login({ email, password }: LoginDto) {
+    const user = await this.usersService.findByEmail(email);
 
-  // async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
-  //   const user = await this.usersService.findByEmail(forgotPasswordDto.email);
-  //   if (!user) {
-  //     // Không tiết lộ user tồn tại hay không
-  //     return {
-  //       message: 'Nếu email tồn tại, hướng dẫn đặt lại mật khẩu đã được gửi.',
-  //     };
-  //   }
-  //   const resetToken = randomBytes(32).toString('hex');
-  //   const resetExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 phút
-  //   await this.usersService.setResetPasswordToken(
-  //     user.id,
-  //     resetToken,
-  //     resetExpires,
-  //   );
-  //   await this.mailService.sendResetPasswordEmail(
-  //     user.email,
-  //     resetToken,
-  //     user.name,
-  //   );
-  //   return {
-  //     message: 'Nếu email tồn tại, hướng dẫn đặt lại mật khẩu đã được gửi.',
-  //   };
-  // }
-
-  async login(loginDto: LoginDto) {
-    const user = await this.usersService.findByEmail(loginDto.email);
     if (!user) {
       throw new UnauthorizedException('Tài khoản không tồn tại');
     }
+
     if (!user.isEmailVerified) {
       throw new UnauthorizedException(
         'Vui lòng xác minh email của bạn trước khi đăng nhập',
       );
     }
 
-    const isPasswordValid = await bcrypt.compare(
-      loginDto.password,
-      user.password,
-    );
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
     if (!isPasswordValid) {
       throw new UnauthorizedException('Mật khẩu không chính xác');
     }
+
     const payload = { id: user.id };
     const accessToken = this.jwtService.sign(payload);
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, ...userWithoutPassword } = user;
-
     return {
       accessToken,
-      user: userWithoutPassword,
+      user,
     };
   }
 
-  async register(registerDto: RegisterDto) {
-    const existingUser = await this.usersService.findByEmail(registerDto.email);
+  async register({ email, password, ...registerDto }: RegisterDto) {
+    const existingUser = await this.usersService.findByEmail(email);
+
     if (existingUser) {
       throw new ConflictException('Email đã tồn tại trong hệ thống');
     }
-    const hashPassword = await bcrypt.hash(registerDto.password, 10);
+
+    const hashPassword = await bcrypt.hash(password, 10);
     const user = await this.usersService.create({
-      ...registerDto,
+      email,
       password: hashPassword,
+      ...registerDto,
     });
+
     if (user.emailVerificationToken) {
       await this.mailService.sendEmailVerification(
         user.email,
@@ -114,24 +75,25 @@ export class AuthService {
 
     return {
       message:
-        'Đăng ký thành công. Vui lòng kiểm tra email để xác thực tài khoản.',
+        'Email đăng ký thành công. Vui lòng kiểm tra hộp thư của bạn để xác thực tài khoản.',
       email: user.email,
     };
   }
 
   async verifyEmail(token: string) {
     const user = await this.usersService.verifyEmail(token);
+
     if (!user) {
       throw new BadRequestException('Mã xác thực không hợp lệ hoặc đã hết hạn');
     }
 
     await this.mailService.sendWelcomeEmail(user.email, user.name);
-
-    return { message: 'Xác thực email thành công' };
+    return { message: 'Xác thực email thành công', email: user.email };
   }
 
-  async resendVerificationEmail(email: string) {
+  async resendVerificationEmail({ email }: EmailVerificationDto) {
     const user = await this.usersService.findByEmail(email);
+
     if (!user) {
       throw new BadRequestException('Không tìm thấy người dùng');
     }
@@ -139,13 +101,74 @@ export class AuthService {
     if (user.isEmailVerified) {
       throw new BadRequestException('Email đã được xác thực');
     }
-    if (user.emailVerificationToken) {
-      await this.mailService.sendEmailVerification(
-        user.email,
-        user.emailVerificationToken,
-        user.name,
+
+    if (!user.emailVerificationToken) {
+      throw new BadRequestException('Người dùng không có mã xác thực email');
+    }
+
+    await this.mailService.sendEmailVerification(
+      user.email,
+      user.emailVerificationToken,
+      user.name,
+    );
+
+    return { message: 'Đã gửi lại email xác thực', email: user.email };
+  }
+
+  async forgotPassword({ email }: EmailVerificationDto) {
+    const existingUser = await this.usersService.findByEmail(email);
+
+    if (!existingUser) {
+      throw new BadRequestException('Không tìm thấy người dùng');
+    }
+
+    const updatedUser = await this.usersService.setResetPasswordToken(
+      existingUser.id,
+    );
+
+    if (updatedUser.resetPasswordToken) {
+      await this.mailService.sendResetPasswordEmail(
+        updatedUser.email,
+        updatedUser.resetPasswordToken,
+        updatedUser.name,
       );
     }
-    return { message: 'Đã gửi lại email xác thực' };
+
+    return {
+      message:
+        'Email đặt lại mật khẩu đã được gửi. Vui lòng kiểm tra hộp thư của bạn',
+      email: updatedUser.email,
+    };
+  }
+
+  async resetPassword(token: string, { newPassword }: ResetPasswordDto) {
+    const hashPassword = await bcrypt.hash(newPassword, 10);
+
+    const user = await this.usersService.updatePasswordAndClearResetToken(
+      token,
+      hashPassword,
+    );
+
+    return { message: 'Đặt lại mật khẩu thành công', email: user.email };
+  }
+
+  async resendResetPassword({ email }: EmailVerificationDto) {
+    const user = await this.usersService.findByEmail(email);
+
+    if (!user) {
+      throw new BadRequestException('Không tìm thấy người dùng');
+    }
+
+    if (!user.resetPasswordToken) {
+      throw new BadRequestException('Không có mã đặt lại mật khẩu để gửi lại');
+    }
+
+    await this.mailService.sendResetPasswordEmail(
+      user.email,
+      user.resetPasswordToken,
+      user.name,
+    );
+
+    return { message: 'Đã gửi lại email đặt lại mật khẩu', email: user.email };
   }
 }

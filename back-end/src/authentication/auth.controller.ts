@@ -1,7 +1,11 @@
 import { Controller, Post, Body, Get, Query } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { LoginDto, RegisterDto } from './dto/auth.dto';
-import { ForgotPasswordDto, ResetPasswordDto } from './dto/forgot-password.dto';
+import {
+  EmailVerificationDto,
+  LoginDto,
+  RegisterDto,
+  ResetPasswordDto,
+} from './dto/auth.dto';
 import { ApiTags } from '@nestjs/swagger';
 
 @Controller('api/auth')
@@ -20,22 +24,32 @@ export class AuthController {
   }
 
   @Get('verify-email')
-  async verifyEmail(@Query('token') token: string) {
+  verifyEmail(@Query('token') token: string) {
     return this.authService.verifyEmail(token);
   }
 
-  @Post('resend-verification')
-  async resendVerificationEmail(@Body('email') email: string) {
-    return this.authService.resendVerificationEmail(email);
+  @Post('resend-verification-email')
+  resendVerificationEmail(@Body() emailVerificationDto: EmailVerificationDto) {
+    return this.authService.resendVerificationEmail(emailVerificationDto);
   }
 
-  // @Post('forgot-password')
-  // async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
-  //   return this.authService.forgotPassword(forgotPasswordDto);
-  // }
+  @Post('forgot-password')
+  forgotPassword(@Body() emailVerificationDto: EmailVerificationDto) {
+    return this.authService.forgotPassword(emailVerificationDto);
+  }
 
-  // @Post('reset-password')
-  // async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
-  //   return this.authService.resetPassword(resetPasswordDto);
-  // }
+  @Post('reset-password')
+  resetPassword(
+    @Query('token') token: string,
+    @Body() resetPasswordDto: ResetPasswordDto,
+  ) {
+    return this.authService.resetPassword(token, resetPasswordDto);
+  }
+
+  @Post('resend-reset-password')
+  async resendResetPassword(
+    @Body() emailVerificationDto: EmailVerificationDto,
+  ) {
+    return this.authService.resendResetPassword(emailVerificationDto);
+  }
 }

@@ -4,14 +4,21 @@ import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class MailService {
+  private readonly frontendUrl: string;
+
   constructor(
     private readonly mailerService: MailerService,
     private readonly configService: ConfigService,
-  ) {}
+  ) {
+    const frontendUrl = this.configService.get<string>('FRONTEND_URL');
+    if (!frontendUrl) {
+      throw new Error('FRONTEND_URL is not defined in the configuration');
+    }
+    this.frontendUrl = frontendUrl;
+  }
 
   async sendEmailVerification(email: string, token: string, name: string) {
-    const verificationUrl = `${this.configService.get('FRONTEND_URL')}/api/auth/verify-email?token=${token}`;
-
+    const verificationUrl = `${this.frontendUrl}/api/auth/verify-email?token=${token}`;
     await this.mailerService.sendMail({
       to: email,
       subject: 'Xác thực email - FarmVerse',
@@ -24,8 +31,7 @@ export class MailService {
   }
 
   async sendWelcomeEmail(email: string, name: string) {
-    const loginUrl = `${this.configService.get('FRONTEND_URL')}`;
-
+    const loginUrl = `${this.frontendUrl}`;
     await this.mailerService.sendMail({
       to: email,
       subject: 'Chào mừng đến với FarmVerse!',
@@ -38,7 +44,7 @@ export class MailService {
   }
 
   async sendResetPasswordEmail(email: string, token: string, name: string) {
-    const resetUrl = `${this.configService.get('FRONTEND_URL')}/reset-password?token=${token}`;
+    const resetUrl = `${this.frontendUrl}/reset-password?token=${token}`;
     await this.mailerService.sendMail({
       to: email,
       subject: 'Đặt lại mật khẩu - FarmVerse',

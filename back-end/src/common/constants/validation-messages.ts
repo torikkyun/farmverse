@@ -1,4 +1,4 @@
-export const ValidationMessages = {
+export const AuthMessages = {
   EMAIL: {
     NOT_EMPTY: 'Email không được để trống',
     INVALID_FORMAT: 'Email không đúng định dạng',
@@ -15,6 +15,7 @@ export const ValidationMessages = {
   },
   PHONE: {
     MAX_LENGTH: 'Số điện thoại không được vượt quá 15 ký tự',
+    MIN_LENGTH: 'Số điện thoại phải có ít nhất 10 ký tự',
     MUST_BE_STRING: 'Số điện thoại phải là chuỗi ký tự',
   },
   ROLE: {
