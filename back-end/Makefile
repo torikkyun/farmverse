@@ -19,5 +19,14 @@ migrate-nosql:
 migrate-sql:
 	pnpm migrate:sql
 
+seed:
+	pnpm seed
+
+reset:
+	pnpm reset
+
+studio-dev:
+	pnpm studio:dev
+
 dev:
 	pnpm start:dev

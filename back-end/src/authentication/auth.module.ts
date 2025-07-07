@@ -15,12 +15,17 @@ import { MailProviderModule } from 'src/providers/mail/mail.module';
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET'),
-        signOptions: {
-          expiresIn: configService.get<string>('JWT_EXPIRATION') || '1h',
-        },
-      }),
+      useFactory: (configService: ConfigService) => {
+        const secret = configService.get<string>('JWT_SECRET');
+        const expiration = configService.get<string>('JWT_EXPIRATION');
+
+        return {
+          secret: secret || 'defaultSecretKey',
+          signOptions: {
+            expiresIn: expiration || '1h',
+          },
+        };
+      },
       inject: [ConfigService],
     }),
   ],
