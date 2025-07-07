@@ -21,5 +21,8 @@ export class LoginResponseDto {
   })
   accessToken: string;
 
+  @ApiProperty({
+    type: UserResponseDto,
+  })
   user: UserResponseDto;
 }
