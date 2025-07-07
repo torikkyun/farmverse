@@ -10,26 +10,21 @@ import { MailService } from './mail.service';
     MailerModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => {
-        const isDev = process.env.NODE_ENV === 'development';
-        const templateDir = isDev
-          ? join(__dirname, '..', '..', 'providers', 'mail', 'templates')
-          : join(__dirname, 'templates');
-
         return {
           transport: {
             host: configService.get<string>('MAIL_HOST'),
-            port: configService.get<number>('MAIL_PORT') ?? 587,
+            port: configService.get<number>('MAIL_PORT'),
             secure: false,
             auth: {
-              user: configService.get<string>('MAIL_USER') ?? 'user',
-              pass: configService.get<string>('MAIL_PASS') ?? 'pass',
+              user: configService.get<string>('MAIL_USER'),
+              pass: configService.get<string>('MAIL_PASS'),
             },
           },
           defaults: {
             from: `"${configService.get<string>('MAIL_FROM_NAME')}" <${configService.get<string>('MAIL_FROM_EMAIL')}>`,
           },
           template: {
-            dir: templateDir,
+            dir: join(__dirname, '..', '..', 'providers', 'mail', 'templates'),
             adapter: new HandlebarsAdapter(),
             options: {
               strict: true,

@@ -8,7 +8,7 @@ import { MailProviderModule } from './providers/mail/mail.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ['.env', `.env.${process.env.NODE_ENV}`, `.env.${process.env.NODE_ENV}.local`],
+      envFilePath: [`.env.${process.env.NODE_ENV}.local`],
       expandVariables: true,
     }),
     AuthModule,

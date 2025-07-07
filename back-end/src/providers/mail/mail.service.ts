@@ -1,6 +1,3 @@
-// ...existing code...
-
-// Đã có hàm sendResetPasswordEmail trong class phía dưới, xóa hàm này ở đầu file
 import { Injectable } from '@nestjs/common';
 import { MailerService } from '@nestjs-modules/mailer';
 import { ConfigService } from '@nestjs/config';
@@ -27,7 +24,7 @@ export class MailService {
   }
 
   async sendWelcomeEmail(email: string, name: string) {
-    const loginUrl = `${this.configService.get('FRONTEND_URL')}/api/auth/login`;
+    const loginUrl = `${this.configService.get('FRONTEND_URL')}`;
 
     await this.mailerService.sendMail({
       to: email,
@@ -39,6 +36,7 @@ export class MailService {
       },
     });
   }
+
   async sendResetPasswordEmail(email: string, token: string, name: string) {
     const resetUrl = `${this.configService.get('FRONTEND_URL')}/reset-password?token=${token}`;
     await this.mailerService.sendMail({

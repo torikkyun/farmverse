@@ -9,42 +9,42 @@ import { randomBytes } from 'crypto';
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async setResetPasswordToken(userId: string, token: string, expires: Date) {
-    return await this.prisma.user.update({
-      where: { id: userId },
-      data: {
-        resetPasswordToken: token,
-        resetPasswordExpires: expires,
-      },
-    });
-  }
+  // async setResetPasswordToken(userId: string, token: string, expires: Date) {
+  //   return await this.prisma.user.update({
+  //     where: { id: userId },
+  //     data: {
+  //       resetPasswordToken: token,
+  //       resetPasswordExpires: expires,
+  //     },
+  //   });
+  // }
 
-  async findByResetToken(token: string) {
-    return await this.prisma.user.findFirst({
-      where: {
-        resetPasswordToken: token,
-        resetPasswordExpires: {
-          gt: new Date(),
-        },
-      },
-    });
-  }
+  // async findByResetToken(token: string) {
+  //   return await this.prisma.user.findFirst({
+  //     where: {
+  //       resetPasswordToken: token,
+  //       resetPasswordExpires: {
+  //         gt: new Date(),
+  //       },
+  //     },
+  //   });
+  // }
 
-  async updatePasswordAndClearResetToken(userId: string, hashPassword: string) {
-    return await this.prisma.user.update({
-      where: { id: userId },
-      data: {
-        password: hashPassword,
-        resetPasswordToken: null,
-        resetPasswordExpires: null,
-      },
-    });
-  }
+  // async updatePasswordAndClearResetToken(userId: string, hashPassword: string) {
+  //   return await this.prisma.user.update({
+  //     where: { id: userId },
+  //     data: {
+  //       password: hashPassword,
+  //       resetPasswordToken: null,
+  //       resetPasswordExpires: null,
+  //     },
+  //   });
+  // }
 
   async create(createUserDto: CreateUserDto) {
     // return await this.prisma.user.create({ data: createUserDto });
     const emailVerificationToken = randomBytes(32).toString('hex');
-    const emailVerificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+    const emailVerificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
     return this.prisma.user.create({
       data: {

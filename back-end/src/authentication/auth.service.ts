@@ -20,57 +20,59 @@ export class AuthService {
     private readonly mailService: MailService,
   ) {}
 
-  async resetPassword(resetPasswordDto: ResetPasswordDto) {
-    const user = await this.usersService.findByResetToken(
-      resetPasswordDto.token,
-    );
-    if (
-      !user ||
-      !user.resetPasswordExpires ||
-      user.resetPasswordExpires < new Date()
-    ) {
-      throw new BadRequestException('Token không hợp lệ hoặc đã hết hạn');
-    }
-    const hashPassword = await bcrypt.hash(resetPasswordDto.newPassword, 10);
-    await this.usersService.updatePasswordAndClearResetToken(
-      user.id,
-      hashPassword,
-    );
-    return { message: 'Đặt lại mật khẩu thành công' };
-  }
+  // async resetPassword(resetPasswordDto: ResetPasswordDto) {
+  //   const user = await this.usersService.findByResetToken(
+  //     resetPasswordDto.token,
+  //   );
+  //   if (
+  //     !user ||
+  //     !user.resetPasswordExpires ||
+  //     user.resetPasswordExpires < new Date()
+  //   ) {
+  //     throw new BadRequestException('Token không hợp lệ hoặc đã hết hạn');
+  //   }
+  //   const hashPassword = await bcrypt.hash(resetPasswordDto.newPassword, 10);
+  //   await this.usersService.updatePasswordAndClearResetToken(
+  //     user.id,
+  //     hashPassword,
+  //   );
+  //   return { message: 'Đặt lại mật khẩu thành công' };
+  // }
 
-  async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
-    const user = await this.usersService.findByEmail(forgotPasswordDto.email);
-    if (!user) {
-      // Không tiết lộ user tồn tại hay không
-      return {
-        message: 'Nếu email tồn tại, hướng dẫn đặt lại mật khẩu đã được gửi.',
-      };
-    }
-    const resetToken = randomBytes(32).toString('hex');
-    const resetExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 phút
-    await this.usersService.setResetPasswordToken(
-      user.id,
-      resetToken,
-      resetExpires,
-    );
-    await this.mailService.sendResetPasswordEmail(
-      user.email,
-      resetToken,
-      user.name,
-    );
-    return {
-      message: 'Nếu email tồn tại, hướng dẫn đặt lại mật khẩu đã được gửi.',
-    };
-  }
+  // async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
+  //   const user = await this.usersService.findByEmail(forgotPasswordDto.email);
+  //   if (!user) {
+  //     // Không tiết lộ user tồn tại hay không
+  //     return {
+  //       message: 'Nếu email tồn tại, hướng dẫn đặt lại mật khẩu đã được gửi.',
+  //     };
+  //   }
+  //   const resetToken = randomBytes(32).toString('hex');
+  //   const resetExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 phút
+  //   await this.usersService.setResetPasswordToken(
+  //     user.id,
+  //     resetToken,
+  //     resetExpires,
+  //   );
+  //   await this.mailService.sendResetPasswordEmail(
+  //     user.email,
+  //     resetToken,
+  //     user.name,
+  //   );
+  //   return {
+  //     message: 'Nếu email tồn tại, hướng dẫn đặt lại mật khẩu đã được gửi.',
+  //   };
+  // }
 
   async login(loginDto: LoginDto) {
     const user = await this.usersService.findByEmail(loginDto.email);
     if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException('Tài khoản không tồn tại');
     }
     if (!user.isEmailVerified) {
-      throw new UnauthorizedException('Please verify your email first');
+      throw new UnauthorizedException(
+        'Vui lòng xác minh email của bạn trước khi đăng nhập',
+      );
     }
 
     const isPasswordValid = await bcrypt.compare(
@@ -78,7 +80,7 @@ export class AuthService {
       user.password,
     );
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid password');
+      throw new UnauthorizedException('Mật khẩu không chính xác');
     }
     const payload = { id: user.id };
     const accessToken = this.jwtService.sign(payload);
@@ -95,7 +97,7 @@ export class AuthService {
   async register(registerDto: RegisterDto) {
     const existingUser = await this.usersService.findByEmail(registerDto.email);
     if (existingUser) {
-      throw new ConflictException('Email already exists');
+      throw new ConflictException('Email đã tồn tại trong hệ thống');
     }
     const hashPassword = await bcrypt.hash(registerDto.password, 10);
     const user = await this.usersService.create({
@@ -109,16 +111,10 @@ export class AuthService {
         user.name,
       );
     }
-    // const payload = { id: user.id };
-    // const accessToken = this.jwtService.sign(payload);
 
-    // // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    // const { password, ...userWithoutPassword } = user;
-
-    // return { accessToken, user: userWithoutPassword };
     return {
       message:
-        'Registration successful. Please check your email to verify your account.',
+        'Đăng ký thành công. Vui lòng kiểm tra email để xác thực tài khoản.',
       email: user.email,
     };
   }
@@ -126,23 +122,22 @@ export class AuthService {
   async verifyEmail(token: string) {
     const user = await this.usersService.verifyEmail(token);
     if (!user) {
-      throw new BadRequestException('Invalid or expired verification token');
+      throw new BadRequestException('Mã xác thực không hợp lệ hoặc đã hết hạn');
     }
 
-    // Gửi email chào mừng
     await this.mailService.sendWelcomeEmail(user.email, user.name);
 
-    return { message: 'Email verified successfully' };
+    return { message: 'Xác thực email thành công' };
   }
 
   async resendVerificationEmail(email: string) {
     const user = await this.usersService.findByEmail(email);
     if (!user) {
-      throw new BadRequestException('User not found');
+      throw new BadRequestException('Không tìm thấy người dùng');
     }
 
     if (user.isEmailVerified) {
-      throw new BadRequestException('Email already verified');
+      throw new BadRequestException('Email đã được xác thực');
     }
     if (user.emailVerificationToken) {
       await this.mailService.sendEmailVerification(
@@ -151,6 +146,6 @@ export class AuthService {
         user.name,
       );
     }
-    return { message: 'Verification email sent' };
+    return { message: 'Đã gửi lại email xác thực' };
   }
 }

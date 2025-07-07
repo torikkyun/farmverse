@@ -29,13 +29,13 @@ export class AuthController {
     return this.authService.resendVerificationEmail(email);
   }
 
-  @Post('forgot-password')
-  async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
-    return this.authService.forgotPassword(forgotPasswordDto);
-  }
+  // @Post('forgot-password')
+  // async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
+  //   return this.authService.forgotPassword(forgotPasswordDto);
+  // }
 
-  @Post('reset-password')
-  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
-    return this.authService.resetPassword(resetPasswordDto);
-  }
+  // @Post('reset-password')
+  // async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+  //   return this.authService.resetPassword(resetPasswordDto);
+  // }
 }
