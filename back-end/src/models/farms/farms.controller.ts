@@ -11,8 +11,10 @@ import { FarmsService } from './farms.service';
 import { CreateFarmDto } from './dto/create-farm.dto';
 import { UpdateFarmDto } from './dto/update-farm.dto';
 import { Public } from 'src/common/decorators/public.decorator';
+import { ApiTags } from '@nestjs/swagger';
 
-@Controller('farms')
+@Controller('api/farms')
+@ApiTags('farms')
 export class FarmsController {
   constructor(private readonly farmsService: FarmsService) {}
 

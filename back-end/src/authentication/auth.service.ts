@@ -50,7 +50,9 @@ export class AuthService {
     const user = await this.findByEmail(email);
 
     if (!user) {
-      throw new UnauthorizedException('Tài khoản không tồn tại');
+      throw new UnauthorizedException({
+        message: 'Email hoặc mật khẩu không đúng',
+      });
     }
 
     const payload = { id: user.id };

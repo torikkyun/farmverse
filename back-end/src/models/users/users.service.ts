@@ -1,11 +1,12 @@
-import { Injectable, NotFoundException, Search } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { Prisma, User, UserRole } from 'generated/prisma';
+import { Prisma } from 'generated/prisma';
 import { PrismaService } from 'src/providers/prisma.service';
 import { UserResponseDto } from 'src/common/dto/user-response.dto';
 import { plainToInstance } from 'class-transformer';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { SearchUsersQueryDto } from './dto/search-user.dto';
+import * as bcrypt from 'bcrypt';
 import {
   PaginationMetaDto,
   PaginationResponseDto,
@@ -68,12 +69,9 @@ export class UsersService {
     { id }: { id: string },
     updateUserDto: UpdateUserDto,
   ): Promise<UserResponseDto> {
-    const user = await this.findOne(id);
-    Object.assign(user, updateUserDto);
-
     const updatedUser = await this.prisma.user.update({
       where: { id },
-      data: user,
+      data: updateUserDto,
     });
 
     return plainToInstance(UserResponseDto, updatedUser, {
@@ -99,7 +97,7 @@ export class UsersService {
 
     const updatedUser = await this.prisma.user.update({
       where: { id },
-      data: { password: newPassword },
+      data: { password: await bcrypt.hash(newPassword, 10) },
     });
 
     return {

@@ -1,4 +1,12 @@
-import { Controller, Post, Body, Get, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  Query,
+  UseGuards,
+  ValidationPipe,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto, LoginResponseDto } from './dto/login.dto';
 import { ApiTags } from '@nestjs/swagger';
@@ -16,12 +24,14 @@ export class AuthController {
 
   @Post('login')
   @UseGuards(LocalGuard)
-  login(@Body() loginDto: LoginDto): Promise<LoginResponseDto> {
+  login(
+    @Body(new ValidationPipe()) loginDto: LoginDto,
+  ): Promise<LoginResponseDto> {
     return this.authService.login(loginDto);
   }
 
   @Post('register')
-  register(@Body() registerDto: RegisterDto) {
+  register(@Body(new ValidationPipe()) registerDto: RegisterDto) {
     return this.authService.register(registerDto);
   }
 
@@ -31,26 +41,30 @@ export class AuthController {
   }
 
   @Post('resend-verification-email')
-  resendVerificationEmail(@Body() emailVerificationDto: EmailVerificationDto) {
+  resendVerificationEmail(
+    @Body(new ValidationPipe()) emailVerificationDto: EmailVerificationDto,
+  ) {
     return this.authService.resendVerificationEmail(emailVerificationDto);
   }
 
   @Post('forgot-password')
-  forgotPassword(@Body() emailVerificationDto: EmailVerificationDto) {
+  forgotPassword(
+    @Body(new ValidationPipe()) emailVerificationDto: EmailVerificationDto,
+  ) {
     return this.authService.forgotPassword(emailVerificationDto);
   }
 
   @Post('reset-password')
   resetPassword(
     @Query('token') token: string,
-    @Body() resetPasswordDto: ResetPasswordDto,
+    @Body(new ValidationPipe()) resetPasswordDto: ResetPasswordDto,
   ) {
     return this.authService.resetPassword(token, resetPasswordDto);
   }
 
   @Post('resend-reset-password')
   async resendResetPassword(
-    @Body() emailVerificationDto: EmailVerificationDto,
+    @Body(new ValidationPipe()) emailVerificationDto: EmailVerificationDto,
   ) {
     return this.authService.resendResetPassword(emailVerificationDto);
   }

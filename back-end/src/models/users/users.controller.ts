@@ -10,14 +10,9 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { User } from 'generated/prisma';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import {
-  PaginationMetaDto,
-  PaginationResponseDto,
-} from 'src/common/dto/pagination.dto';
+import { PaginationResponseDto } from 'src/common/dto/pagination.dto';
 import { UserResponseDto } from 'src/common/dto/user-response.dto';
-import { plainToInstance } from 'class-transformer';
 import { SearchUsersQueryDto } from './dto/search-user.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';

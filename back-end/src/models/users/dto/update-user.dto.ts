@@ -23,6 +23,7 @@ export class UpdateUserDto {
   })
   phone?: string;
 
+  @IsOptional()
   @IsString()
   @ApiProperty({
     example: 'https://example.com/avatar.jpg',
