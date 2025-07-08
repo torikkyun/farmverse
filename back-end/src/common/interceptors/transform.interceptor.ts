@@ -40,6 +40,7 @@ export class TransformInterceptor<T>
           responseData = data as T;
         } else if (typeof data === 'object' && data !== null) {
           const typedData = data as Record<string, unknown>;
+          message = typedData.message as string;
           const { message: _, ...rest } = typedData;
           responseData = Object.keys(rest).length > 0 ? (rest as T) : null;
         } else {

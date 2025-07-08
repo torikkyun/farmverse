@@ -3,9 +3,9 @@ import {
   BadRequestException,
   ConflictException,
   UnauthorizedException,
+  NotFoundException,
 } from '@nestjs/common';
 import { LoginDto, LoginResponseDto } from './dto/login.dto';
-import { UsersService } from 'src/models/users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { MailService } from 'src/providers/mail/mail.service';
@@ -14,36 +14,47 @@ import { EmailVerificationDto } from './dto/email-verification.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { plainToInstance } from 'class-transformer';
 import { UserResponseDto } from 'src/common/dto/user-response.dto';
+import { User } from 'generated/prisma';
+import { PrismaService } from 'src/providers/prisma.service';
+import { randomBytes } from 'crypto';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly usersService: UsersService,
     private readonly mailService: MailService,
+    private readonly prisma: PrismaService,
   ) {}
 
-  async login({ email, password }: LoginDto): Promise<LoginResponseDto> {
-    const user = await this.usersService.findByEmail(email);
+  private createToken() {
+    const token = randomBytes(32).toString('hex');
+    const expires = new Date(Date.now() + 15 * 60 * 1000); // 15 phút
+    return { token, expires };
+  }
+
+  private async findByEmail(email: string): Promise<User | null> {
+    return await this.prisma.user.findUnique({ where: { email } });
+  }
+
+  async validateUser(email: string, password: string): Promise<User | null> {
+    const user = await this.findByEmail(email);
+
+    if (user && (await bcrypt.compare(password, user.password))) {
+      return user;
+    }
+
+    return null;
+  }
+
+  async login({ email }: LoginDto): Promise<LoginResponseDto> {
+    const user = await this.findByEmail(email);
 
     if (!user) {
       throw new UnauthorizedException('Tài khoản không tồn tại');
     }
 
-    if (!user.isEmailVerified) {
-      throw new UnauthorizedException(
-        'Vui lòng xác minh email của bạn trước khi đăng nhập',
-      );
-    }
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-
-    if (!isPasswordValid) {
-      throw new UnauthorizedException('Mật khẩu không chính xác');
-    }
-
     const payload = { id: user.id };
-    const accessToken = this.jwtService.sign(payload);
+    const accessToken = await this.jwtService.signAsync(payload);
 
     return {
       accessToken,
@@ -54,26 +65,37 @@ export class AuthService {
   }
 
   async register({ email, password, ...registerDto }: RegisterDto) {
-    const existingUser = await this.usersService.findByEmail(email);
+    const existingUser = await this.findByEmail(email);
 
     if (existingUser) {
       throw new ConflictException('Email đã tồn tại trong hệ thống');
     }
 
     const hashPassword = await bcrypt.hash(password, 10);
-    const user = await this.usersService.create({
-      email,
-      password: hashPassword,
-      ...registerDto,
+    const { token: emailVerificationToken, expires: emailVerificationExpires } =
+      this.createToken();
+
+    const user = await this.prisma.user.create({
+      data: {
+        email,
+        password: hashPassword,
+        ...registerDto,
+        emailVerificationToken,
+        emailVerificationExpires,
+      },
     });
 
-    if (user.emailVerificationToken) {
-      await this.mailService.sendEmailVerification(
-        user.email,
-        user.emailVerificationToken,
-        user.name,
+    if (!user.emailVerificationToken) {
+      throw new ConflictException(
+        'Không thể tạo tài khoản. Vui lòng thử lại sau',
       );
     }
+
+    await this.mailService.sendEmailVerification(
+      user.email,
+      user.emailVerificationToken,
+      user.name,
+    );
 
     return {
       message:
@@ -83,7 +105,27 @@ export class AuthService {
   }
 
   async verifyEmail(token: string) {
-    const user = await this.usersService.verifyEmail(token);
+    const user = await this.prisma.user.findFirst({
+      where: {
+        emailVerificationToken: token,
+        emailVerificationExpires: {
+          gt: new Date(),
+        },
+      },
+    });
+
+    if (!user) {
+      return null;
+    }
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        isEmailVerified: true,
+        emailVerificationToken: null,
+        emailVerificationExpires: null,
+      },
+    });
 
     if (!user) {
       throw new BadRequestException('Mã xác thực không hợp lệ hoặc đã hết hạn');
@@ -94,7 +136,7 @@ export class AuthService {
   }
 
   async resendVerificationEmail({ email }: EmailVerificationDto) {
-    const user = await this.usersService.findByEmail(email);
+    const user = await this.findByEmail(email);
 
     if (!user) {
       throw new BadRequestException('Không tìm thấy người dùng');
@@ -118,15 +160,22 @@ export class AuthService {
   }
 
   async forgotPassword({ email }: EmailVerificationDto) {
-    const existingUser = await this.usersService.findByEmail(email);
+    const existingUser = await this.findByEmail(email);
 
     if (!existingUser) {
       throw new BadRequestException('Không tìm thấy người dùng');
     }
 
-    const updatedUser = await this.usersService.setResetPasswordToken(
-      existingUser.id,
-    );
+    const { token: resetPasswordToken, expires: resetPasswordExpires } =
+      this.createToken();
+
+    const updatedUser = await this.prisma.user.update({
+      where: { id: existingUser.id },
+      data: {
+        resetPasswordToken,
+        resetPasswordExpires,
+      },
+    });
 
     if (!updatedUser.resetPasswordToken) {
       throw new ConflictException(
@@ -150,16 +199,33 @@ export class AuthService {
   async resetPassword(token: string, { newPassword }: ResetPasswordDto) {
     const hashPassword = await bcrypt.hash(newPassword, 10);
 
-    const user = await this.usersService.updatePasswordAndClearResetToken(
-      token,
-      hashPassword,
-    );
+    const user = await this.prisma.user.findFirst({
+      where: {
+        resetPasswordToken: token,
+        resetPasswordExpires: {
+          gt: new Date(),
+        },
+      },
+    });
 
-    return { message: 'Đặt lại mật khẩu thành công', email: user.email };
+    if (!user) {
+      throw new NotFoundException('Không tìm thấy người dùng');
+    }
+
+    const updatedUser = await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        password: hashPassword,
+        resetPasswordToken: null,
+        resetPasswordExpires: null,
+      },
+    });
+
+    return { message: 'Đặt lại mật khẩu thành công', email: updatedUser.email };
   }
 
   async resendResetPassword({ email }: EmailVerificationDto) {
-    const user = await this.usersService.findByEmail(email);
+    const user = await this.findByEmail(email);
 
     if (!user) {
       throw new BadRequestException('Không tìm thấy người dùng');

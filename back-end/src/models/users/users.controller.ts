@@ -1,48 +1,71 @@
 import {
   Controller,
   Get,
-  Post,
   Body,
   Patch,
   Param,
   Delete,
+  Query,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from 'generated/prisma';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import {
+  PaginationMetaDto,
+  PaginationResponseDto,
+} from 'src/common/dto/pagination.dto';
+import { UserResponseDto } from 'src/common/dto/user-response.dto';
+import { plainToInstance } from 'class-transformer';
+import { SearchUsersQueryDto } from './dto/search-user.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import { CurrentUser } from 'src/common/decorators/current-user.decorator';
+import { ValidationPipe } from 'src/common/pipes/validation.pipe';
+import { Public } from 'src/common/decorators/public.decorator';
+import { LocalGuard } from 'src/common/guards/local.guard';
 
 @Controller('api/users')
 @ApiTags('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post()
-  create(@Body() createUserDto: CreateUserDto): Promise<User> {
-    return this.usersService.create(createUserDto);
-  }
-
   @Get()
-  findAll() {
-    return this.usersService.findAll();
+  @Public()
+  findAll(
+    @Query(new ValidationPipe()) searchUsersQueryDto: SearchUsersQueryDto,
+  ): Promise<PaginationResponseDto<UserResponseDto>> {
+    return this.usersService.findAll(searchUsersQueryDto);
   }
 
   @Get(':userId')
-  findOne(@Param('userId') userId: string): Promise<User> {
+  @Public()
+  findOne(@Param('userId') userId: string): Promise<UserResponseDto> {
     return this.usersService.findOne(userId);
   }
 
-  @Patch(':userId')
+  @Patch()
+  @ApiBearerAuth()
   update(
-    @Param('userId') userId: string,
-    @Body() updateUserDto: UpdateUserDto,
-  ): Promise<User> {
-    return this.usersService.update(userId, updateUserDto);
+    @CurrentUser() user: { id: string },
+    @Body(new ValidationPipe()) updateUserDto: UpdateUserDto,
+  ): Promise<UserResponseDto> {
+    return this.usersService.update(user, updateUserDto);
   }
 
-  @Delete(':userId')
-  remove(@Param('userId') userId: string): Promise<void> {
-    return this.usersService.remove(userId);
+  @Patch('change-password')
+  @UseGuards(LocalGuard)
+  @ApiBearerAuth()
+  changePassword(
+    @CurrentUser() user: { id: string },
+    @Body(new ValidationPipe()) changePasswordDto: ChangePasswordDto,
+  ): Promise<{ message: string; user: UserResponseDto }> {
+    return this.usersService.changePassword(user, changePasswordDto);
   }
+
+  // @Delete()
+  // @ApiBearerAuth()
+  // remove(@CurrentUser() { id }: User) {
+  //   console.log(id);
+  // }
 }

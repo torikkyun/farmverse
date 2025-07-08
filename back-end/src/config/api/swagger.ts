@@ -9,6 +9,13 @@ export function setupSwagger(app: INestApplication) {
     .setTitle(configService.get('SWAGGER_TITLE') ?? 'Nest Boilerplate')
     .setDescription('Made with ❤️ by @torikkyun')
     .setVersion('1.0')
+    .addBearerAuth({
+      name: 'Authorization',
+      bearerFormat: 'Bearer',
+      scheme: 'Bearer',
+      type: 'http',
+      in: 'Header',
+    })
     .build();
 
   const documentFactory = () => SwaggerModule.createDocument(app, config);

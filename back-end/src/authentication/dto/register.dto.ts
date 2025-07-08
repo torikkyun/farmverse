@@ -14,6 +14,8 @@ import { UserRole } from 'generated/prisma';
 export class RegisterDto extends LoginDto {
   @IsNotEmpty({ message: AuthMessages.NAME.NOT_EMPTY })
   @IsString({ message: AuthMessages.NAME.MUST_BE_STRING })
+  @MaxLength(50, { message: AuthMessages.NAME.MAX_LENGTH })
+  @MinLength(2, { message: AuthMessages.NAME.MIN_LENGTH })
   @ApiProperty({
     example: 'Trần Đình Phúc Đức',
   })
@@ -26,7 +28,7 @@ export class RegisterDto extends LoginDto {
   @ApiProperty({
     example: '0123456789',
   })
-  phone: string;
+  phone?: string;
 
   @IsNotEmpty({ message: AuthMessages.ROLE.NOT_EMPTY })
   @IsString({ message: AuthMessages.ROLE.MUST_BE_STRING })

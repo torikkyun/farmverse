@@ -12,6 +12,8 @@ export const AuthMessages = {
   NAME: {
     NOT_EMPTY: 'Tên không được để trống',
     MUST_BE_STRING: 'Tên phải là chuỗi ký tự',
+    MAX_LENGTH: 'Tên không được vượt quá 50 ký tự',
+    MIN_LENGTH: 'Tên phải có ít nhất 2 ký tự',
   },
   PHONE: {
     MAX_LENGTH: 'Số điện thoại không được vượt quá 15 ký tự',
