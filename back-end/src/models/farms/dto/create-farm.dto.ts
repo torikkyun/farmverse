@@ -1,20 +1,70 @@
-import { IsNumber, IsOptional, IsString } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
+import {
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  MaxLength,
+  MinLength,
+  Min,
+  IsArray,
+  IsUrl,
+  ArrayNotEmpty,
+  ValidateNested,
+} from 'class-validator';
+import { FarmValidationMessages } from 'src/common/constants/farm-validation-msg';
 
 export class CreateFarmDto {
-  @IsString()
+  @IsString({ message: FarmValidationMessages.NAME.MUST_BE_STRING })
+  @IsNotEmpty({ message: FarmValidationMessages.NAME.NOT_EMPTY })
+  @MaxLength(50, { message: FarmValidationMessages.NAME.MAX_LENGTH })
+  @MinLength(2, { message: FarmValidationMessages.NAME.MIN_LENGTH })
+  @ApiProperty({
+    example: 'Farmverse',
+    required: true,
+  })
   name: string;
 
   @IsOptional()
-  @IsString()
+  @IsString({ message: FarmValidationMessages.DESCRIPTION.MUST_BE_STRING })
+  @MaxLength(500, { message: FarmValidationMessages.DESCRIPTION.MAX_LENGTH })
+  @ApiPropertyOptional({
+    example: 'Trang trại nông nghiệp công nghệ cao',
+    required: false,
+  })
   description?: string;
 
-  @IsString()
+  @IsString({ message: FarmValidationMessages.LOCATION.MUST_BE_STRING })
+  @IsNotEmpty({ message: FarmValidationMessages.LOCATION.NOT_EMPTY })
+  @MaxLength(100, { message: FarmValidationMessages.LOCATION.MAX_LENGTH })
+  @MinLength(5, { message: FarmValidationMessages.LOCATION.MIN_LENGTH })
+  @ApiProperty({
+    example: 'Hà Nội, Việt Nam',
+    required: true,
+  })
   location: string;
 
-  @IsNumber()
+  @IsNumber({}, { message: FarmValidationMessages.SIZE.MUST_BE_NUMBER })
+  @IsNotEmpty({ message: FarmValidationMessages.SIZE.NOT_EMPTY })
+  @Min(0.1, { message: FarmValidationMessages.SIZE.MIN_VALUE })
+  @ApiProperty({
+    example: 100,
+    required: true,
+  })
   size: number;
 
   @IsOptional()
-  @IsString({ each: true })
-  images?: string[];
+  @IsArray({ message: FarmValidationMessages.IMAGES.MUST_BE_ARRAY })
+  @ArrayNotEmpty({ message: FarmValidationMessages.IMAGES.ARRAY_NOT_EMPTY })
+  @Type(() => String)
+  @IsUrl({}, { each: true, message: FarmValidationMessages.IMAGES.MUST_BE_URL })
+  @ApiProperty({
+    example: [
+      'https://example.com/image1.jpg',
+      'https://example.com/image2.jpg',
+    ],
+    required: false,
+  })
+  images: string[];
 }

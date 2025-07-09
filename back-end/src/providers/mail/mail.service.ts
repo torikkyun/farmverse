@@ -17,15 +17,14 @@ export class MailService {
     this.frontendUrl = frontendUrl;
   }
 
-  async sendEmailVerification(email: string, token: string, name: string) {
-    const verificationUrl = `${this.frontendUrl}/api/auth/verify-email?token=${token}`;
+  async sendEmailVerification(email: string, otp: string, name: string) {
     await this.mailerService.sendMail({
       to: email,
       subject: 'Xác thực email - FarmVerse',
       template: 'email-verification',
       context: {
         name,
-        verificationUrl,
+        otp,
       },
     });
   }

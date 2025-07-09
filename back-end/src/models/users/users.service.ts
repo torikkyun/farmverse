@@ -83,12 +83,6 @@ export class UsersService {
     { id }: { id: string },
     { newPassword, confirmNewPassword }: ChangePasswordDto,
   ): Promise<{ message: string; user: UserResponseDto }> {
-    const user = await this.prisma.user.findUnique({ where: { id } });
-
-    if (!user) {
-      throw new NotFoundException('Không tìm thấy người dùng');
-    }
-
     if (newPassword !== confirmNewPassword) {
       throw new NotFoundException(
         'Mật khẩu mới và xác nhận mật khẩu không khớp',

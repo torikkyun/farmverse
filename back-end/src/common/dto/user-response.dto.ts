@@ -3,27 +3,27 @@ import { UserRole } from 'generated/prisma';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UserResponseDto {
-  @ApiProperty()
   @Expose()
+  @ApiProperty()
   id: string;
 
-  @ApiProperty()
   @Expose()
+  @ApiProperty()
   name: string;
 
-  @ApiProperty()
   @Expose()
+  @ApiProperty()
   email: string;
 
-  @ApiProperty()
   @Expose()
+  @ApiProperty()
   phone?: string;
 
-  @ApiProperty()
   @Expose()
+  @ApiProperty()
   role: UserRole;
 
-  @ApiProperty()
   @Expose()
+  @ApiProperty()
   avatar?: string;
 }

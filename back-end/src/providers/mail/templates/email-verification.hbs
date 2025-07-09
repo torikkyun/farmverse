@@ -10,14 +10,9 @@
   <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
     <h2>Xin chào {{name}},</h2>
     <p>Cảm ơn bạn đã đăng ký tài khoản FarmVerse!</p>
-    <p>Vui lòng click vào nút bên dưới để xác thực email của bạn:</p>
-    <a href="{{verificationUrl}}"
-      style="display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;">
-      Xác thực Email
-    </a>
-    <p>Hoặc copy link này vào trình duyệt:</p>
-    <p>{{verificationUrl}}</p>
-    <p>Link này sẽ hết hạn sau 24 giờ.</p>
+    <p>Mã OTP của bạn để xác thực email là:</p>
+    <h3 style="color: #4CAF50;">{{otp}}</h3>
+    <p>Mã OTP này sẽ hết hạn sau 15 phút.</p>
     <p>Trân trọng,<br>Farmverse Team</p>
   </div>
 </body>

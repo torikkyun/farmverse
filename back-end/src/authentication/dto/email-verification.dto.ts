@@ -1,10 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsNotEmpty } from 'class-validator';
-import { UserMessages } from 'src/common/constants/validation-messages';
+import { UserValidationMessages } from 'src/common/constants/user-validation-msg';
 
 export class EmailVerificationDto {
-  @IsNotEmpty({ message: UserMessages.EMAIL.NOT_EMPTY })
-  @IsEmail({}, { message: UserMessages.EMAIL.INVALID_FORMAT })
+  @IsNotEmpty({ message: UserValidationMessages.EMAIL.NOT_EMPTY })
+  @IsEmail({}, { message: UserValidationMessages.EMAIL.INVALID_FORMAT })
   @ApiProperty({
     example: 'farmer@gmail.com',
   })

@@ -15,6 +15,7 @@ import { EmailVerificationDto } from './dto/email-verification.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { LocalGuard } from 'src/common/guards/local.guard';
 import { Public } from 'src/common/decorators/public.decorator';
+import { AccountVerificationDto } from './dto/account-verification.dto';
 
 @Controller('api/auth')
 @Public()
@@ -36,8 +37,10 @@ export class AuthController {
   }
 
   @Get('verify-email')
-  verifyEmail(@Query('token') token: string) {
-    return this.authService.verifyEmail(token);
+  verifyEmail(
+    @Body(new ValidationPipe()) accountVerificationDto: AccountVerificationDto,
+  ) {
+    return this.authService.verifyEmail(accountVerificationDto);
   }
 
   @Post('resend-verification-email')
@@ -56,10 +59,9 @@ export class AuthController {
 
   @Post('reset-password')
   resetPassword(
-    @Query('token') token: string,
     @Body(new ValidationPipe()) resetPasswordDto: ResetPasswordDto,
   ) {
-    return this.authService.resetPassword(token, resetPasswordDto);
+    return this.authService.resetPassword(resetPasswordDto);
   }
 
   @Post('resend-reset-password')

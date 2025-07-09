@@ -17,6 +17,7 @@ import { UserResponseDto } from 'src/common/dto/user-response.dto';
 import { User } from 'generated/prisma';
 import { PrismaService } from 'src/providers/prisma.service';
 import { randomBytes } from 'crypto';
+import { AccountVerificationDto } from './dto/account-verification.dto';
 
 @Injectable()
 export class AuthService {
@@ -26,10 +27,10 @@ export class AuthService {
     private readonly prisma: PrismaService,
   ) {}
 
-  private createToken() {
-    const token = randomBytes(32).toString('hex');
-    const expires = new Date(Date.now() + 15 * 60 * 1000); // 15 phút
-    return { token, expires };
+  private createOtp(): { otp: string; expires: Date } {
+    const otp = randomBytes(3).toString('hex');
+    const expires = new Date(Date.now() + 15 * 60 * 1000);
+    return { otp, expires };
   }
 
   private async findByEmail(email: string): Promise<User | null> {
@@ -55,7 +56,7 @@ export class AuthService {
       });
     }
 
-    const payload = { id: user.id };
+    const payload = { id: user.id, role: user.role };
     const accessToken = await this.jwtService.signAsync(payload);
 
     return {
@@ -73,21 +74,20 @@ export class AuthService {
       throw new ConflictException('Email đã tồn tại trong hệ thống');
     }
 
+    const { otp, expires } = this.createOtp();
     const hashPassword = await bcrypt.hash(password, 10);
-    const { token: emailVerificationToken, expires: emailVerificationExpires } =
-      this.createToken();
 
     const user = await this.prisma.user.create({
       data: {
         email,
         password: hashPassword,
         ...registerDto,
-        emailVerificationToken,
-        emailVerificationExpires,
+        otp: otp,
+        optExpires: expires,
       },
     });
 
-    if (!user.emailVerificationToken) {
+    if (!user.otp) {
       throw new ConflictException(
         'Không thể tạo tài khoản. Vui lòng thử lại sau',
       );
@@ -95,7 +95,7 @@ export class AuthService {
 
     await this.mailService.sendEmailVerification(
       user.email,
-      user.emailVerificationToken,
+      user.otp,
       user.name,
     );
 
@@ -106,11 +106,11 @@ export class AuthService {
     };
   }
 
-  async verifyEmail(token: string) {
+  async verifyEmail({ otp }: AccountVerificationDto) {
     const user = await this.prisma.user.findFirst({
       where: {
-        emailVerificationToken: token,
-        emailVerificationExpires: {
+        otp: otp,
+        optExpires: {
           gt: new Date(),
         },
       },
@@ -124,8 +124,8 @@ export class AuthService {
       where: { id: user.id },
       data: {
         isEmailVerified: true,
-        emailVerificationToken: null,
-        emailVerificationExpires: null,
+        otp: null,
+        optExpires: null,
       },
     });
 
@@ -148,13 +148,13 @@ export class AuthService {
       throw new BadRequestException('Email đã được xác thực');
     }
 
-    if (!user.emailVerificationToken) {
+    if (!user.otp) {
       throw new BadRequestException('Người dùng không có mã xác thực email');
     }
 
     await this.mailService.sendEmailVerification(
       user.email,
-      user.emailVerificationToken,
+      user.otp,
       user.name,
     );
 
@@ -168,18 +168,18 @@ export class AuthService {
       throw new BadRequestException('Không tìm thấy người dùng');
     }
 
-    const { token: resetPasswordToken, expires: resetPasswordExpires } =
-      this.createToken();
+    const { otp: resetPasswordOtp, expires: resetPasswordOtpExpires } =
+      this.createOtp();
 
     const updatedUser = await this.prisma.user.update({
       where: { id: existingUser.id },
       data: {
-        resetPasswordToken,
-        resetPasswordExpires,
+        resetPasswordOtp,
+        resetPasswordOtpExpires,
       },
     });
 
-    if (!updatedUser.resetPasswordToken) {
+    if (!updatedUser.resetPasswordOtp) {
       throw new ConflictException(
         'Yêu cầu đặt lại mật khẩu đã được gửi. Vui lòng kiểm tra email của bạn',
       );
@@ -187,7 +187,7 @@ export class AuthService {
 
     await this.mailService.sendResetPasswordEmail(
       updatedUser.email,
-      updatedUser.resetPasswordToken,
+      updatedUser.resetPasswordOtp,
       updatedUser.name,
     );
 
@@ -198,13 +198,13 @@ export class AuthService {
     };
   }
 
-  async resetPassword(token: string, { newPassword }: ResetPasswordDto) {
+  async resetPassword({ otp, newPassword }: ResetPasswordDto) {
     const hashPassword = await bcrypt.hash(newPassword, 10);
 
     const user = await this.prisma.user.findFirst({
       where: {
-        resetPasswordToken: token,
-        resetPasswordExpires: {
+        resetPasswordOtp: otp,
+        resetPasswordOtpExpires: {
           gt: new Date(),
         },
       },
@@ -218,8 +218,8 @@ export class AuthService {
       where: { id: user.id },
       data: {
         password: hashPassword,
-        resetPasswordToken: null,
-        resetPasswordExpires: null,
+        resetPasswordOtp: null,
+        resetPasswordOtpExpires: null,
       },
     });
 
@@ -233,13 +233,13 @@ export class AuthService {
       throw new BadRequestException('Không tìm thấy người dùng');
     }
 
-    if (!user.resetPasswordToken) {
+    if (!user.resetPasswordOtp) {
       throw new BadRequestException('Không có mã đặt lại mật khẩu để gửi lại');
     }
 
     await this.mailService.sendResetPasswordEmail(
       user.email,
-      user.resetPasswordToken,
+      user.resetPasswordOtp,
       user.name,
     );
 

@@ -1,4 +1,4 @@
-export const UserMessages = {
+export const UserValidationMessages = {
   EMAIL: {
     NOT_EMPTY: 'Email không được để trống',
     INVALID_FORMAT: 'Email không đúng định dạng',
@@ -25,6 +25,13 @@ export const UserMessages = {
     NOT_EMPTY: 'Vai trò không được để trống',
     MUST_BE_STRING: 'Vai trò phải là chuỗi ký tự',
   },
+  AVATAR: {
+    MUST_BE_URL: 'Đường dẫn hình đại diện phải là URL hợp lệ',
+    MUST_BE_STRING: 'Đường dẫn hình đại diện phải là chuỗi ký tự',
+  },
+  OTP: {
+    NOT_EMPTY: 'Mã OTP không được để trống',
+    MUST_BE_STRING: 'Mã OTP phải là chuỗi ký tự',
+    LENGTH: 'Mã OTP phải có đúng 6 ký tự',
+  },
 };
-
-export const FarmMessages = {};

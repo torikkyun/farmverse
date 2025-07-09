@@ -1,12 +1,18 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
-import { UserMessages } from 'src/common/constants/validation-messages';
+import {
+  IsOptional,
+  IsString,
+  IsUrl,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
+import { UserValidationMessages } from 'src/common/constants/user-validation-msg';
 
 export class UpdateUserDto {
   @IsOptional()
-  @IsString({ message: UserMessages.NAME.MUST_BE_STRING })
-  @MaxLength(50, { message: UserMessages.NAME.MAX_LENGTH })
-  @MinLength(2, { message: UserMessages.NAME.MIN_LENGTH })
+  @IsString({ message: UserValidationMessages.NAME.MUST_BE_STRING })
+  @MaxLength(50, { message: UserValidationMessages.NAME.MAX_LENGTH })
+  @MinLength(2, { message: UserValidationMessages.NAME.MIN_LENGTH })
   @ApiProperty({
     example: 'John Doe',
     required: false,
@@ -14,9 +20,9 @@ export class UpdateUserDto {
   name?: string;
 
   @IsOptional()
-  @IsString({ message: UserMessages.PHONE.MUST_BE_STRING })
-  @MaxLength(15, { message: UserMessages.PHONE.MAX_LENGTH })
-  @MinLength(10, { message: UserMessages.PHONE.MIN_LENGTH })
+  @IsString({ message: UserValidationMessages.PHONE.MUST_BE_STRING })
+  @MaxLength(15, { message: UserValidationMessages.PHONE.MAX_LENGTH })
+  @MinLength(10, { message: UserValidationMessages.PHONE.MIN_LENGTH })
   @ApiProperty({
     example: '0123456789',
     required: false,
@@ -24,7 +30,7 @@ export class UpdateUserDto {
   phone?: string;
 
   @IsOptional()
-  @IsString()
+  @IsUrl({}, { message: UserValidationMessages.AVATAR.MUST_BE_URL })
   @ApiProperty({
     example: 'https://example.com/avatar.jpg',
     required: false,

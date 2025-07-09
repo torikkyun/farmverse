@@ -1,28 +1,33 @@
 import { ApiProperty } from '@nestjs/swagger/dist/decorators/api-property.decorator';
-import { Expose } from 'class-transformer/types/decorators/expose.decorator';
+import { Expose } from 'class-transformer';
+import { UserResponseDto } from './user-response.dto';
 
 export class FarmResponseDto {
-  @ApiProperty()
   @Expose()
+  @ApiProperty()
   id: string;
 
-  @ApiProperty()
   @Expose()
+  @ApiProperty()
   name: string;
 
-  @ApiProperty()
   @Expose()
+  @ApiProperty()
   description?: string;
 
-  @ApiProperty()
   @Expose()
+  @ApiProperty()
   location: string;
 
-  @ApiProperty()
   @Expose()
+  @ApiProperty()
   size: number;
 
-  @ApiProperty()
   @Expose()
+  @ApiProperty()
   images: string[];
+
+  @Expose()
+  @ApiProperty({ type: UserResponseDto })
+  owner: UserResponseDto;
 }
