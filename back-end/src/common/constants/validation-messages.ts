@@ -1,4 +1,4 @@
-export const AuthMessages = {
+export const UserMessages = {
   EMAIL: {
     NOT_EMPTY: 'Email không được để trống',
     INVALID_FORMAT: 'Email không đúng định dạng',
@@ -26,3 +26,5 @@ export const AuthMessages = {
     MUST_BE_STRING: 'Vai trò phải là chuỗi ký tự',
   },
 };
+
+export const FarmMessages = {};

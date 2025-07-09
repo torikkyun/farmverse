@@ -7,6 +7,7 @@ import { FarmsModule } from './models/farms/farms.module';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtGuard } from './common/guards/jwt.guard';
 import { JwtStrategy } from './authentication/strategies/jwt.strategy';
+import { ItemsModule } from './models/items/items.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { JwtStrategy } from './authentication/strategies/jwt.strategy';
     MailProviderModule,
     UsersModule,
     FarmsModule,
+    ItemsModule,
   ],
   providers: [
     {

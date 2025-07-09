@@ -7,33 +7,33 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
-import { AuthMessages } from 'src/common/constants/validation-messages';
+import { UserMessages } from 'src/common/constants/validation-messages';
 import { LoginDto } from './login.dto';
 import { UserRole } from 'generated/prisma';
 
 export class RegisterDto extends LoginDto {
-  @IsNotEmpty({ message: AuthMessages.NAME.NOT_EMPTY })
-  @IsString({ message: AuthMessages.NAME.MUST_BE_STRING })
-  @MaxLength(50, { message: AuthMessages.NAME.MAX_LENGTH })
-  @MinLength(2, { message: AuthMessages.NAME.MIN_LENGTH })
+  @IsNotEmpty({ message: UserMessages.NAME.NOT_EMPTY })
+  @IsString({ message: UserMessages.NAME.MUST_BE_STRING })
+  @MaxLength(50, { message: UserMessages.NAME.MAX_LENGTH })
+  @MinLength(2, { message: UserMessages.NAME.MIN_LENGTH })
   @ApiProperty({
     example: 'Trần Đình Phúc Đức',
   })
   name: string;
 
   @IsOptional()
-  @IsString({ message: AuthMessages.PHONE.MUST_BE_STRING })
-  @MaxLength(15, { message: AuthMessages.PHONE.MAX_LENGTH })
-  @MinLength(10, { message: AuthMessages.PHONE.MIN_LENGTH })
+  @IsString({ message: UserMessages.PHONE.MUST_BE_STRING })
+  @MaxLength(15, { message: UserMessages.PHONE.MAX_LENGTH })
+  @MinLength(10, { message: UserMessages.PHONE.MIN_LENGTH })
   @ApiProperty({
     example: '0123456789',
   })
   phone?: string;
 
-  @IsNotEmpty({ message: AuthMessages.ROLE.NOT_EMPTY })
-  @IsString({ message: AuthMessages.ROLE.MUST_BE_STRING })
+  @IsNotEmpty({ message: UserMessages.ROLE.NOT_EMPTY })
+  @IsString({ message: UserMessages.ROLE.MUST_BE_STRING })
   @IsEnum(UserRole, {
-    message: AuthMessages.ROLE.INVALID,
+    message: UserMessages.ROLE.INVALID,
   })
   @ApiProperty({
     example: 'FARMER',

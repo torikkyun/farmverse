@@ -12,6 +12,8 @@ import { CreateFarmDto } from './dto/create-farm.dto';
 import { UpdateFarmDto } from './dto/update-farm.dto';
 import { Public } from 'src/common/decorators/public.decorator';
 import { ApiTags } from '@nestjs/swagger';
+import { FarmResponseDto } from 'src/common/dto/farm-response.dto';
+import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 
 @Controller('api/farms')
 @ApiTags('farms')
@@ -32,14 +34,18 @@ export class FarmsController {
     };
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.farmsService.findOne(+id);
+  @Get(':farmId')
+  @Public()
+  findOne(@Param('farmId') farmId: string): Promise<FarmResponseDto> {
+    return this.farmsService.findOne(farmId);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateFarmDto: UpdateFarmDto) {
-    return this.farmsService.update(+id, updateFarmDto);
+  @Patch()
+  update(
+    @CurrentUser() user: { id: string },
+    @Body() updateFarmDto: UpdateFarmDto,
+  ) {
+    return this.farmsService.update(user, updateFarmDto);
   }
 
   @Delete(':id')

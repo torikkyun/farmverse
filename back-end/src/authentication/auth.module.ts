@@ -28,6 +28,5 @@ import { LocalStrategy } from './strategies/local.strategy';
   ],
   controllers: [AuthController],
   providers: [AuthService, PrismaService, LocalStrategy, JwtStrategy],
-  exports: [JwtModule],
 })
 export class AuthModule {}
