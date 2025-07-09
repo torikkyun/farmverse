@@ -120,3 +120,11 @@
     @apply bg-background text-foreground;
   }
 }
+
+.bg-primary {
+  background-color: #000;
+}
+
+.text-primary-foreground {
+  color: #fff;
+}

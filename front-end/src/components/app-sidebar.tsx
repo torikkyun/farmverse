@@ -10,6 +10,8 @@ import {
   CircleUser
 } from "lucide-react";
 
+import Link from "next/link";
+
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
 import {
@@ -67,10 +69,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               asChild
               className="data-[slot=sidebar-menu-button]:!p-5"
             >
-              <a href="#">
+              <Link href="/dashboard">
                 <Tractor className="!size-5" />
                 <span className="text-base font-semibold">Farmverse</span>
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
