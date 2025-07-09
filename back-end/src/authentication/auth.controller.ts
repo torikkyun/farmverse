@@ -3,7 +3,6 @@ import {
   Post,
   Body,
   Get,
-  Query,
   UseGuards,
   ValidationPipe,
 } from '@nestjs/common';

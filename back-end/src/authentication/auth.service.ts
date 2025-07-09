@@ -82,8 +82,8 @@ export class AuthService {
         email,
         password: hashPassword,
         ...registerDto,
-        otp: otp,
-        optExpires: expires,
+        otp,
+        otpExpires: expires,
       },
     });
 
@@ -110,7 +110,7 @@ export class AuthService {
     const user = await this.prisma.user.findFirst({
       where: {
         otp: otp,
-        optExpires: {
+        otpExpires: {
           gt: new Date(),
         },
       },
@@ -125,7 +125,7 @@ export class AuthService {
       data: {
         isEmailVerified: true,
         otp: null,
-        optExpires: null,
+        otpExpires: null,
       },
     });
 
