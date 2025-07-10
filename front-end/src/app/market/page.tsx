@@ -1,62 +1,102 @@
+"use client";
+
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { Card } from "@/components/ui/card";
+import Link from "next/link";
 
 const featuredCollections = [
   {
     title: "DDUST by jiwa",
-    image: "/images/ddust.jpg",
-    price: "0.0599 ETH",
-    change: "",
+    img: "/images/ddust.jpg",
+    floor: "0.0536",
+    change: -32.8,
     verified: true,
   },
   {
     title: "Pepemons",
-    image: "/images/pepemons.jpg",
-    price: "0.0589 ETH",
-    change: "",
-    verified: false,
+    img: "/images/pepemons.jpg",
+    floor: "0.0549",
+    change: -19.9,
+    verified: true,
   },
   {
     title: "DeePle Stuff",
-    image: "/images/deeple.jpg",
-    price: "0.0025 ETH",
-    change: "-10.8%",
+    img: "/images/deeple.jpg",
+    floor: "0.0025",
+    change: -10.8,
     verified: true,
   },
   {
     title: "Anichess Ethernals",
-    image: "/images/anichess.jpg",
-    price: "0.365 ETH",
-    change: "-9.2%",
-    verified: true,
-  },
-  {
-    title: "Pixcape Genesis Pass",
-    image: "/images/pixcape.jpg",
-    price: "0.04 ETH",
-    change: "+0.3%",
+    img: "/images/anichess.jpg",
+    floor: "0.367",
+    change: -8.3,
     verified: true,
   },
 ];
 
-const trendingCollections = [
+const trendingTokens = [
   {
-    title: "Axie",
-    image: "/images/axie.jpg",
-    price: "5.00 RON",
-    change: "-10.7%",
-    verified: true,
+    name: "Chill ...",
+    symbol: "CHILL",
+    price: "$0.02",
+    change: 136.9,
+    img: "/images/chill.png",
   },
   {
-    title: "NBA Top Shot",
-    image: "/images/nba-top-shot.jpg",
-    price: "0.93 FLOW",
-    change: "+10.6%",
-    verified: true,
+    name: "Alt...",
+    symbol: "ALT",
+    price: "$0.05",
+    change: 100.3,
+    img: "/images/alt.png",
+    badge: "MỚI",
   },
-  // Thêm các bộ sưu tập khác...
+  {
+    name: "Use...",
+    symbol: "USELESS",
+    price: "$0.32",
+    change: 45.8,
+    img: "/images/useless.png",
+  },
+  {
+    name: "Kled AI",
+    symbol: "KLED",
+    price: "$0.01",
+    change: 36,
+    img: "/images/kled.png",
+  },
+  {
+    name: "Kori",
+    symbol: "KORI",
+    price: "$0.02",
+    change: 101.5,
+    img: "/images/kori.png",
+  },
+  {
+    name: "Sta...",
+    symbol: "STARTUP",
+    price: "$0.04",
+    change: 56.8,
+    img: "/images/startup.png",
+  },
+  {
+    name: "IKUN",
+    symbol: "IKUN",
+    price: "$0.02",
+    change: 42.9,
+    img: "/images/ikun.png",
+  },
+  {
+    name: "House...",
+    symbol: "House",
+    price: "$0.02",
+    change: 32.2,
+    img: "/images/house.png",
+  },
 ];
 
 export default function MarketPage() {
@@ -72,253 +112,111 @@ export default function MarketPage() {
       <AppSidebar variant="inset" />
       <SidebarInset>
         <SiteHeader />
-        <div className="flex flex-1 flex-col bg-[#181a20] min-h-screen px-6">
-          {/* Banner */}
-          <div className="w-full rounded-2xl overflow-hidden mt-6 mb-10 relative bg-black shadow-lg min-h-[340px]">
-            <img
-              src="/images/parallel-banner.jpg"
-              alt="Parallel Alpha"
-              className="w-full h-[340px] object-cover opacity-80"
-            />
-            <div className="absolute left-12 bottom-12 text-white z-10">
-              <h2 className="text-5xl font-bold flex items-center gap-2 drop-shadow-lg">
-                Parallel Alpha
-                <span className="inline-block bg-blue-600 rounded-full w-6 h-6 text-xs flex items-center justify-center ml-2">
-                  ✔
-                </span>
-              </h2>
-              <div className="text-base mt-3 flex items-center gap-2">
-                By <span className="font-semibold">Parallel</span>
-                <span className="w-1 h-1 bg-[#8b949e] rounded-full inline-block"></span>
-                <span className="text-xs text-[#8b949e]">Verified</span>
-              </div>
-              <div className="flex gap-5 mt-8">
-                <div className="bg-[#23262f] rounded-lg px-6 py-3 text-xs min-w-[110px]">
-                  <div className="text-[#8b949e] font-mono tracking-wider">
-                    FLOOR PRICE
-                  </div>
-                  <div className="font-bold text-base mt-1">0.0005 ETH</div>
-                </div>
-                <div className="bg-[#23262f] rounded-lg px-6 py-3 text-xs min-w-[110px]">
-                  <div className="text-[#8b949e] font-mono tracking-wider">
-                    ITEMS
-                  </div>
-                  <div className="font-bold text-base mt-1">5,855,182</div>
-                </div>
-                <div className="bg-[#23262f] rounded-lg px-6 py-3 text-xs min-w-[110px]">
-                  <div className="text-[#8b949e] font-mono tracking-wider">
-                    TOTAL VOLUME
-                  </div>
-                  <div className="font-bold text-base mt-1">77.9K ETH</div>
-                </div>
-                <div className="bg-[#23262f] rounded-lg px-6 py-3 text-xs min-w-[110px]">
-                  <div className="text-[#8b949e] font-mono tracking-wider">
-                    LISTED
-                  </div>
-                  <div className="font-bold text-base mt-1">50%</div>
-                </div>
-              </div>
-            </div>
-            {/* Carousel dots */}
-            <div className="absolute left-1/2 -translate-x-1/2 bottom-6 flex gap-2 z-10">
-              <span className="w-4 h-1.5 rounded bg-white/80"></span>
-              <span className="w-4 h-1.5 rounded bg-white/40"></span>
-              <span className="w-4 h-1.5 rounded bg-white/40"></span>
-              <span className="w-4 h-1.5 rounded bg-white/40"></span>
-              <span className="w-4 h-1.5 rounded bg-white/40"></span>
-            </div>
-            {/* Mini cards right */}
-            <div className="absolute right-10 bottom-10 flex gap-3 z-10">
-              <div className="w-16 h-24 bg-[#23262f] rounded-lg overflow-hidden border border-[#23262f]">
-                <img
-                  src="/images/mini1.jpg"
-                  alt=""
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="w-16 h-24 bg-[#23262f] rounded-lg overflow-hidden border border-[#23262f]">
-                <img
-                  src="/images/mini2.jpg"
-                  alt=""
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="w-16 h-24 bg-[#23262f] rounded-lg overflow-hidden border border-[#23262f]">
-                <img
-                  src="/images/mini3.jpg"
-                  alt=""
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Tabs filter */}
-          <div className="flex gap-2 mb-8">
-            {[
-              "All",
-              "Gaming",
-              "Art",
-              "PFPs",
-              "Memberships",
-              "Music",
-              "Photography",
-            ].map((tab, idx) => (
-              <button
-                key={tab}
-                className={`px-5 py-2 rounded-lg text-sm font-medium border border-transparent transition ${
-                  idx === 0
-                    ? "bg-white/10 text-white shadow"
-                    : "bg-[#23262f] text-[#8b949e] hover:bg-white/10 hover:text-white"
-                }`}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
-
-          {/* Featured Collections */}
-          <div>
-            <h3 className="text-xl font-semibold text-white mb-1">
-              Featured Collections
-            </h3>
-            <div className="text-sm text-[#8b949e] mb-5">
-              This week's curated collections
-            </div>
-            <div className="flex gap-6 overflow-x-auto pb-2">
-              {featuredCollections.map((col) => (
-                <Card
-                  key={col.title}
-                  className="min-w-[260px] bg-[#23262f] rounded-2xl overflow-hidden shadow-lg border border-[#23262f] hover:border-white/10 transition"
+        <div className="flex flex-1 flex-col bg-background m-7">
+          <div className="@container/main flex flex-1 flex-col gap-2">
+            <h2 className="text-2xl font-bold text-primary mb-1">
+              Các trang trại nổi bật
+            </h2>
+            <p className="text-muted-foreground mb-5">
+              Những trang trại nổi bật nhất tuần của Farmverse
+            </p>
+            <div className="flex gap-6 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-muted-foreground/30">
+              {featuredCollections.map((col, idx) => (
+                <Link
+                  key={idx}
+                  href={`/product/${col.title
+                    .toLowerCase()
+                    .replace(/\s+/g, "-")}`}
+                  className="block"
                 >
-                  <img
-                    src={col.image}
-                    alt={col.title}
-                    className="w-full h-36 object-cover"
-                  />
-                  <div className="p-4">
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold text-white truncate">
-                        {col.title}
-                      </span>
-                      {col.verified && (
-                        <span className="inline-block bg-blue-600 rounded-full w-4 h-4 text-[10px] flex items-center justify-center">
-                          ✔
-                        </span>
-                      )}
-                    </div>
-                    <div className="text-xs text-[#8b949e] mt-1">
-                      Floor price: {col.price}{" "}
-                      {col.change && (
-                        <span
-                          className={
-                            col.change.startsWith("+")
-                              ? "text-green-400"
-                              : "text-red-400"
-                          }
-                        >
-                          {col.change}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </Card>
+                  <Card className="w-80 min-w-[320px] bg-card border border-muted-foreground/10 hover:scale-[1.03] transition-transform duration-200 overflow-x-hidden">
+                    <CardContent className="p-0">
+                      <img
+                        src={col.img}
+                        alt={col.title}
+                        className="rounded-t-xl h-44 w-full object-cover"
+                      />
+                      <div className="p-4">
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold text-base">
+                            {col.title}
+                          </span>
+                          {col.verified && (
+                            <Badge
+                              variant="secondary"
+                              className="px-1 py-0.5 text-xs"
+                            >
+                              ✔
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 mt-2 text-sm">
+                          <span className="text-muted-foreground">Giá:</span>
+                          <span className="font-medium">{col.floor} ETH</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
               ))}
             </div>
           </div>
 
-          {/* Trending Tokens (placeholder) */}
+          {/* Token xu hướng */}
           <div className="mt-12">
-            <h3 className="text-xl font-semibold text-white mb-1">
-              Trending Tokens
-            </h3>
-            <div className="text-sm text-[#8b949e] mb-5">
-              Here are some trending tokens...
-            </div>
-            {/* Add your trending tokens component or table here */}
-            <div className="bg-[#23262f] rounded-2xl p-8 text-white text-center opacity-60">
-              Coming soon...
-            </div>
-          </div>
-
-          {/* Trending Collections */}
-          <div className="mt-12">
-            <h3 className="text-xl font-semibold text-white mb-1">
-              Trending Collections
-            </h3>
-            <div className="text-sm text-[#8b949e] mb-5">
-              Highest sales in the past hour
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {trendingCollections.map((col) => (
-                <Card
-                  key={col.title}
-                  className="bg-[#23262f] rounded-xl overflow-hidden flex items-center gap-3 p-3 border border-[#23262f] hover:border-white/10 transition"
-                >
-                  <img
-                    src={col.image}
-                    alt={col.title}
-                    className="w-12 h-12 rounded object-cover"
-                  />
-                  <div>
-                    <div className="flex items-center gap-1">
-                      <span className="font-semibold text-white">
-                        {col.title}
-                      </span>
-                      {col.verified && (
-                        <span className="inline-block bg-blue-600 rounded-full w-4 h-4 text-[10px] flex items-center justify-center ml-1">
-                          ✔
-                        </span>
-                      )}
-                    </div>
-                    <div className="text-xs text-[#8b949e]">
-                      {col.price}{" "}
-                      <span
-                        className={
-                          col.change.startsWith("+")
-                            ? "text-green-400"
-                            : "text-red-400"
-                        }
-                      >
-                        {col.change}
-                      </span>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          </div>
-
-          {/* NFT 101 */}
-          <div className="mt-16">
-            <h3 className="text-xl font-semibold text-white mb-1">NFT 101</h3>
-            <div className="text-sm text-[#8b949e] mb-5">
-              Learn about NFTs, Web3, and more.
-            </div>
-            <div className="flex gap-4 overflow-x-auto pb-2">
-              {[
-                { title: "What is an NFT?", image: "/images/nft101-1.png" },
-                { title: "How to buy an NFT", image: "/images/nft101-2.png" },
-                { title: "What is minting?", image: "/images/nft101-3.png" },
-                {
-                  title: "How to stay protected in web3",
-                  image: "/images/nft101-4.png",
-                },
-                {
-                  title: "How to create an NFT on OpenSea",
-                  image: "/images/nft101-5.png",
-                },
-              ].map((item) => (
-                <div
-                  key={item.title}
-                  className="min-w-[220px] bg-[#23262f] rounded-xl overflow-hidden shadow p-3"
-                >
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    className="w-full h-28 object-cover rounded mb-2"
-                  />
-                  <div className="text-white font-medium">{item.title}</div>
+            <h2 className="text-2xl font-bold text-primary mb-1">
+              Các cây trồng xu hướng
+            </h2>
+            <p className="text-muted-foreground mb-5">
+              Top cây trồng phổ biến nhất trong nhất 24h qua
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5">
+              {trendingTokens.map((token, idx) => (
+                <div key={idx} className="relative group">
+                  <Link
+                    href={`/product/${token.symbol.toLowerCase()}`}
+                    className="block"
+                  >
+                    <Card className="bg-card border border-muted-foreground/10 shadow-md hover:shadow-xl transition-shadow group-hover:ring-2 group-hover:ring-primary/60">
+                      <CardContent className="flex items-center gap-3 p-3">
+                        <Avatar className="h-12 w-12 border border-muted-foreground/20">
+                          <AvatarImage src={token.img} alt={token.symbol} />
+                          <AvatarFallback>{token.symbol[0]}</AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1 truncate">
+                            <span className="font-semibold truncate">
+                              {token.name}
+                            </span>
+                            {token.badge && (
+                              <Badge
+                                variant="outline"
+                                className="ml-1 text-xs border-green-500 text-green-600"
+                              >
+                                {token.badge}
+                              </Badge>
+                            )}
+                          </div>
+                          <div className="text-xs text-muted-foreground truncate">
+                            {token.symbol}
+                          </div>
+                        </div>
+                        <div className="text-right min-w-[70px]">
+                          <div className="font-medium">{token.price}</div>
+                          <div
+                            className={
+                              token.change > 0
+                                ? "text-green-500"
+                                : "text-red-500"
+                            }
+                          >
+                            {token.change > 0 ? "+" : ""}
+                            {token.change}%
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
                 </div>
               ))}
             </div>
