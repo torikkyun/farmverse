@@ -1,6 +1,14 @@
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 export default function FarmPage() {
   return (
@@ -15,124 +23,140 @@ export default function FarmPage() {
       <AppSidebar variant="inset" />
       <SidebarInset>
         <SiteHeader />
-        <div className="flex flex-1 flex-col">
-          <div className="@container/main flex flex-1 flex-col gap-2">
-            <div className="flex flex-col md:flex-row md:items-center justify-between mb-4">
-              <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight flex items-center gap-2">
-                <svg width="32" height="32" fill="none" viewBox="0 0 24 24">
-                  <path
-                    fill="#60a5fa"
-                    d="M12 2C7.03 2 2.5 6.03 2.5 11c0 4.97 4.53 9 9.5 9s9.5-4.03 9.5-9c0-4.97-4.53-9-9.5-9Zm0 16c-3.87 0-7-3.13-7-7 0-3.87 3.13-7 7-7s7 3.13 7 7c0 3.87-3.13 7-7 7Z"
-                  />
-                  <path
-                    fill="#60a5fa"
-                    d="M12 6a5 5 0 1 0 0 10A5 5 0 0 0 12 6Zm0 8a3 3 0 1 1 0-6 3 3 0 0 1 0 6Z"
-                  />
-                </svg>
-                Quản lý Nông Trại NFT (Admin)
-              </h1>
-              <button className="bg-gradient-to-r from-blue-500 to-green-400 text-white font-bold px-6 py-2 rounded-full shadow-lg hover:scale-105 transition">
-                + Thêm NFT mới
-              </button>
+        <div className="w-full flex flex-1 flex-col bg-white dark:bg-black min-h-screen transition-colors">
+          <div className="w-[900px] px-2 sm:px-4 py-6 flex-1 flex flex-col gap-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex flex-col sm:flex-row items-center gap-3 mb-4">
+                <button className="bg-black dark:bg-white text-white dark:text-black font-bold px-6 py-2 rounded-full shadow hover:scale-105 transition border border-black dark:border-white whitespace-nowrap">
+                  + Thêm nông trại mới
+                </button>
+                <input
+                  type="text"
+                  placeholder="Tìm kiếm nông trại, chủ nông trại..."
+                  className="flex-1 min-w-[200px] sm:min-w-[320px] px-4 py-2 rounded-full bg-gray-100 dark:bg-neutral-900 text-black dark:text-white border border-gray-300 dark:border-neutral-700 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white transition"
+                />
+                <select className="w-auto px-4 py-2 rounded-full bg-gray-100 dark:bg-neutral-900 text-black dark:text-white border border-gray-300 dark:border-neutral-700 focus:outline-none">
+                  <option>Lọc theo trạng thái</option>
+                  <option>Đang hoạt động</option>
+                  <option>Tạm dừng</option>
+                  <option>Đã đóng</option>
+                </select>
+              </div>
             </div>
-            <div className="flex flex-col md:flex-row md:items-center gap-2 mb-4">
-              <input
-                type="text"
-                placeholder="Tìm kiếm NFT, chủ sở hữu..."
-                className="flex-1 px-4 py-2 rounded-lg bg-[#23272f] text-white border border-blue-900/30 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <select className="px-3 py-2 rounded-lg bg-[#23272f] text-white border border-blue-900/30 focus:outline-none">
-                <option>Lọc theo trạng thái</option>
-                <option>Đang bán</option>
-                <option>Đã bán</option>
-                <option>Ẩn</option>
-              </select>
-            </div>
-            <div className="overflow-x-auto rounded-xl shadow-lg border border-blue-900/30 bg-[#18191A]">
-              <table className="min-w-full text-sm text-left text-white">
-                <thead>
-                  <tr className="bg-[#23272f] text-blue-300">
-                    <th className="px-4 py-3">Ảnh</th>
-                    <th className="px-4 py-3">Tên NFT</th>
-                    <th className="px-4 py-3">Chủ sở hữu</th>
-                    <th className="px-4 py-3">Sản lượng</th>
-                    <th className="px-4 py-3">Cấp</th>
-                    <th className="px-4 py-3">Giá</th>
-                    <th className="px-4 py-3">Trạng thái</th>
-                    <th className="px-4 py-3">Hành động</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {[...Array(8)].map((_, i) => (
-                    <tr
-                      key={i}
-                      className="border-t border-blue-900/20 hover:bg-[#23272f] transition"
-                    >
-                      <td className="px-4 py-3">
-                        <img
-                          src={`https://api.dicebear.com/7.x/bottts/svg?seed=farm${i}`}
-                          alt="NFT"
-                          className="w-10 h-10 rounded-lg border-2 border-blue-500 object-cover"
-                        />
-                      </td>
-                      <td className="px-4 py-3 font-bold">Vật phẩm #{i + 1}</td>
-                      <td className="px-4 py-3">
-                        <span className="inline-flex items-center gap-2">
+            <div className="rounded-xl shadow border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900">
+              <div className="overflow-x-auto">
+                <Table className="min-w-full">
+                  <TableHeader>
+                    <TableRow className="bg-gray-100 dark:bg-neutral-800 text-black dark:text-white">
+                      <TableHead className="px-4 py-3 font-semibold whitespace-nowrap w-20">
+                        Ảnh
+                      </TableHead>
+                      <TableHead className="px-4 py-3 font-semibold whitespace-nowrap text-center">
+                        Tên nông trại
+                      </TableHead>
+                      <TableHead className="px-4 py-3 font-semibold whitespace-nowrap text-center">
+                        Chủ nông trại
+                      </TableHead>
+                      <TableHead className="px-4 py-3 font-semibold whitespace-nowrap text-center">
+                        Địa chỉ
+                      </TableHead>
+                      <TableHead className="px-4 py-3 font-semibold whitespace-nowrap text-center">
+                        Diện tích (ha)
+                      </TableHead>
+                      <TableHead className="px-4 py-3 font-semibold whitespace-nowrap text-center">
+                        Sản lượng (tấn/năm)
+                      </TableHead>
+                      <TableHead className="px-4 py-3 font-semibold whitespace-nowrap text-center">
+                        Trạng thái
+                      </TableHead>
+                      <TableHead className="px-4 py-3 font-semibold whitespace-nowrap text-center">
+                        Hành động
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {[...Array(8)].map((_, i) => (
+                      <TableRow
+                        key={i}
+                        className="border-t border-gray-100 dark:border-neutral-800 hover:bg-gray-50 dark:hover:bg-neutral-800 transition"
+                      >
+                        <TableCell className="px-4 py-3 whitespace-nowrap w-20">
                           <img
-                            src={`https://api.dicebear.com/7.x/adventurer/svg?seed=owner${i}`}
-                            alt="owner"
-                            className="w-6 h-6 rounded-full border border-blue-400"
+                            src={`https://api.dicebear.com/7.x/shapes/svg?seed=farm${i}`}
+                            alt="Farm"
+                            className="w-10 h-10 rounded-lg border border-gray-300 dark:border-neutral-700 object-cover"
                           />
-                          user{i + 1}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">120</td>
-                      <td className="px-4 py-3">
-                        <span className="bg-gradient-to-r from-blue-500 to-green-400 text-xs px-2 py-0.5 rounded-full text-white font-bold shadow">
-                          SR
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-green-400 font-bold">
-                        0.{i + 2} ETH
-                      </td>
-                      <td className="px-4 py-3">
-                        <span
-                          className={`px-2 py-1 rounded-full text-xs font-bold shadow
-                ${
-                  i % 3 === 0
-                    ? "bg-green-600/80"
-                    : i % 3 === 1
-                    ? "bg-yellow-500/80"
-                    : "bg-gray-500/60"
-                }
-              `}
-                        >
-                          {i % 3 === 0
-                            ? "Đang bán"
-                            : i % 3 === 1
-                            ? "Đã bán"
-                            : "Ẩn"}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <button className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-full text-xs font-bold transition mr-2">
-                          Sửa
-                        </button>
-                        <button className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-full text-xs font-bold transition">
-                          Xoá
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              {/* Phân trang giả lập */}
-              <div className="flex justify-end items-center gap-2 px-4 py-3 bg-[#23272f] border-t border-blue-900/20">
-                <button className="px-3 py-1 rounded bg-blue-600 text-white font-bold hover:bg-blue-700 transition">
+                        </TableCell>
+                        <TableCell className="px-4 py-3 font-bold text-black dark:text-white whitespace-nowrap">
+                          Nông trại #{i + 1}
+                        </TableCell>
+                        <TableCell className="px-4 py-3 whitespace-nowrap">
+                          <span className="inline-flex items-center gap-2">
+                            <img
+                              src={`https://api.dicebear.com/7.x/adventurer/svg?seed=owner${i}`}
+                              alt="owner"
+                              className="w-6 h-6 rounded-full border border-gray-300 dark:border-neutral-700"
+                            />
+                            <span className="text-black dark:text-white">
+                              Chủ{i + 1}
+                            </span>
+                          </span>
+                        </TableCell>
+                        <TableCell className="px-4 py-3 text-black dark:text-white whitespace-nowrap">
+                          Thôn {i + 1}, Xã ABC
+                        </TableCell>
+                        <TableCell className="px-4 py-3 text-black dark:text-white whitespace-nowrap text-center">
+                          {(i + 2) * 5}
+                        </TableCell>
+                        <TableCell className="px-4 py-3 text-black dark:text-white whitespace-nowrap text-center">
+                          {(i + 1) * 20}
+                        </TableCell>
+                        <TableCell className="px-4 py-3 whitespace-nowrap text-center">
+                          <span
+                            className={`px-3 py-1 rounded-full text-xs font-bold shadow whitespace-nowrap
+                              ${
+                                i % 3 === 0
+                                  ? "bg-black text-white dark:bg-white dark:text-black"
+                                  : i % 3 === 1
+                                  ? "bg-gray-300 text-black dark:bg-neutral-700 dark:text-white"
+                                  : "bg-gray-100 text-black dark:bg-neutral-800 dark:text-white"
+                              }
+                            `}
+                          >
+                            {i % 3 === 0
+                              ? "Đang hoạt động"
+                              : i % 3 === 1
+                              ? "Tạm dừng"
+                              : "Đã đóng"}
+                          </span>
+                        </TableCell>
+                        <TableCell className="px-4 py-3 flex gap-2 whitespace-nowrap justify-center">
+                          <button className="bg-black dark:bg-white text-white dark:text-black px-3 py-1 rounded-full text-xs font-bold border border-black dark:border-white hover:scale-105 transition">
+                            Sửa
+                          </button>
+                          <button className="bg-white dark:bg-black text-black dark:text-white px-3 py-1 rounded-full text-xs font-bold border border-black dark:border-white hover:scale-105 transition">
+                            Xoá
+                          </button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+            {/* Phân trang */}
+            <div className="flex flex-col items-center gap-2 py-4 bg-white dark:bg-neutral-900 border-t border-gray-200 dark:border-neutral-800 rounded-b-xl shadow-sm">
+              <div className="flex items-center gap-2">
+                <button
+                  className="px-3 py-1.5 rounded-full text-xs bg-black dark:bg-white text-white dark:text-black font-semibold border border-black dark:border-white shadow hover:bg-gray-800 dark:hover:bg-gray-200 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled
+                >
                   Trước
                 </button>
-                <span className="text-white/80">1 / 5</span>
-                <button className="px-3 py-1 rounded bg-blue-600 text-white font-bold hover:bg-blue-700 transition">
+                <span className="px-2.5 py-1 rounded-full bg-gray-100 dark:bg-neutral-800 text-black dark:text-white font-semibold text-xs shadow border border-gray-200 dark:border-neutral-700">
+                  1 / 5
+                </span>
+                <button className="px-3 py-1.5 rounded-full text-xs bg-black dark:bg-white text-white dark:text-black font-semibold border border-black dark:border-white shadow hover:bg-gray-800 dark:hover:bg-gray-200 transition">
                   Sau
                 </button>
               </div>
