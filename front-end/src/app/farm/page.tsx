@@ -24,7 +24,7 @@ export default function FarmPage() {
       <SidebarInset>
         <SiteHeader />
         <div className="w-full flex flex-1 flex-col bg-white dark:bg-black min-h-screen transition-colors">
-          <div className="w-[900px] px-2 sm:px-4 py-6 flex-1 flex flex-col gap-6">
+          <div className="w-full px-2 sm:px-4 py-6 flex-1 flex flex-col gap-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex flex-col sm:flex-row items-center gap-3 mb-4">
                 <button className="bg-black dark:bg-white text-white dark:text-black font-bold px-6 py-2 rounded-full shadow hover:scale-105 transition border border-black dark:border-white whitespace-nowrap">
