@@ -8,7 +8,7 @@ import { plainToInstance } from 'class-transformer';
 import { FarmResponseDto } from 'src/common/dto/farm-response.dto';
 
 @Injectable()
-export class ScheduleService {
+export class SchedulesService {
   constructor(private readonly prisma: PrismaService) {}
 
   private toScheduleResponse(schedule: any): ScheduleResponseDto {

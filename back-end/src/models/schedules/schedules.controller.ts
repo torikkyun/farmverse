@@ -8,7 +8,7 @@ import {
   Delete,
   Query,
 } from '@nestjs/common';
-import { ScheduleService } from './schedule.service';
+import { SchedulesService } from './schedules.service';
 import { CreateScheduleDto } from './dto/create-schedule.dto';
 import { UpdateScheduleDto } from './dto/update-schedule.dto';
 import { ValidationPipe } from 'src/common/pipes/validation.pipe';
@@ -18,10 +18,10 @@ import { UserRole } from 'generated/prisma';
 import { Public } from 'src/common/decorators/public.decorator';
 import { ScheduleResponseDto } from 'src/common/dto/schedule-response.dto';
 
-@Controller('api/schedule')
-@ApiTags('schedule')
-export class ScheduleController {
-  constructor(private readonly scheduleService: ScheduleService) {}
+@Controller('api/schedules')
+@ApiTags('schedules')
+export class SchedulesController {
+  constructor(private readonly schedulesService: SchedulesService) {}
 
   @Post()
   @ApiBearerAuth()
@@ -29,19 +29,19 @@ export class ScheduleController {
     @CurrentUser() user: { id: string; role: UserRole },
     @Body(new ValidationPipe()) createScheduleDto: CreateScheduleDto,
   ): Promise<ScheduleResponseDto> {
-    return this.scheduleService.create(user, createScheduleDto);
+    return this.schedulesService.create(user, createScheduleDto);
   }
 
   @Get(':scheduleId')
   @Public()
   findOne(@Param('scheduleId') scheduleId: string) {
-    return this.scheduleService.findOne(scheduleId);
+    return this.schedulesService.findOne(scheduleId);
   }
 
   @Get()
   @Public()
   findByFarmId(@Query('farmId') farmId: string) {
-    return this.scheduleService.findByFarmId(farmId);
+    return this.schedulesService.findByFarmId(farmId);
   }
 
   @Patch()
@@ -50,12 +50,12 @@ export class ScheduleController {
     @CurrentUser() user: { id: string; role: UserRole },
     @Body(new ValidationPipe()) updateScheduleDto: UpdateScheduleDto,
   ): Promise<ScheduleResponseDto> {
-    return this.scheduleService.update(user, updateScheduleDto);
+    return this.schedulesService.update(user, updateScheduleDto);
   }
 
   @Delete(':scheduleId')
   @ApiBearerAuth()
   remove(@Param('scheduleId') scheduleId: string) {
-    return this.scheduleService.remove(scheduleId);
+    return this.schedulesService.remove(scheduleId);
   }
 }

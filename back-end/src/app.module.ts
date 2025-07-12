@@ -7,7 +7,7 @@ import { FarmsModule } from './models/farms/farms.module';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtGuard } from './common/guards/jwt.guard';
 import { ItemsModule } from './models/items/items.module';
-import { ScheduleModule } from './models/schedule/schedule.module';
+import { SchedulesModule } from './models/schedules/schedules.module';
 
 @Module({
   imports: [
@@ -21,7 +21,7 @@ import { ScheduleModule } from './models/schedule/schedule.module';
     UsersModule,
     FarmsModule,
     ItemsModule,
-    ScheduleModule,
+    SchedulesModule,
   ],
   providers: [
     {
