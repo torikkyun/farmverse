@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   ConflictException,
   ForbiddenException,
   Injectable,
@@ -39,7 +38,7 @@ export class FarmsService {
   async create(
     { id, role }: { id: string; role: UserRole },
     createFarmDto: CreateFarmDto,
-  ) {
+  ): Promise<{ message: string; farm: FarmResponseDto }> {
     if (role !== UserRole.FARMER) {
       throw new ForbiddenException('Bạn không có quyền tạo trang trại');
     }
@@ -109,7 +108,9 @@ export class FarmsService {
     return this.toFarmResponse(farm);
   }
 
-  async findByOwnerId(ownerId: string) {
+  async findByOwnerId(
+    ownerId: string,
+  ): Promise<{ message: string; farm: FarmResponseDto }> {
     const farm = await this.prisma.farm.findFirst({
       where: { ownerId },
       include: {
@@ -123,10 +124,16 @@ export class FarmsService {
       );
     }
 
-    return this.toFarmResponse(farm);
+    return {
+      message: 'Tìm thấy trang trại thành công',
+      farm: this.toFarmResponse(farm),
+    };
   }
 
-  async update({ id }: { id: string }, updateFarmDto: UpdateFarmDto) {
+  async update(
+    { id }: { id: string },
+    updateFarmDto: UpdateFarmDto,
+  ): Promise<{ message: string; farm: FarmResponseDto }> {
     const farm = await this.prisma.farm.findUnique({ where: { ownerId: id } });
 
     if (!farm) {

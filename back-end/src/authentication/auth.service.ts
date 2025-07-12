@@ -5,7 +5,7 @@ import {
   UnauthorizedException,
   NotFoundException,
 } from '@nestjs/common';
-import { LoginDto, LoginResponseDto } from './dto/login.dto';
+import { LoginDto } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { MailService } from 'src/providers/mail/mail.service';
@@ -47,7 +47,11 @@ export class AuthService {
     return null;
   }
 
-  async login({ email }: LoginDto) {
+  async login({ email }: LoginDto): Promise<{
+    message: string;
+    accessToken: string;
+    user: UserResponseDto;
+  }> {
     const user = await this.findByEmail(email);
 
     if (!user) {
@@ -68,7 +72,10 @@ export class AuthService {
     };
   }
 
-  async register({ email, password, ...registerDto }: RegisterDto) {
+  async register({ email, password, ...registerDto }: RegisterDto): Promise<{
+    message: string;
+    email: string;
+  }> {
     const existingUser = await this.findByEmail(email);
 
     if (existingUser) {
@@ -107,7 +114,10 @@ export class AuthService {
     };
   }
 
-  async verifyEmail({ otp }: AccountVerificationDto) {
+  async verifyEmail({ otp }: AccountVerificationDto): Promise<{
+    message: string;
+    email: string;
+  }> {
     const user = await this.prisma.user.findFirst({
       where: {
         otp: otp,
@@ -134,7 +144,10 @@ export class AuthService {
     return { message: 'Xác thực email thành công', email: user.email };
   }
 
-  async resendVerificationEmail({ email }: EmailVerificationDto) {
+  async resendVerificationEmail({ email }: EmailVerificationDto): Promise<{
+    message: string;
+    email: string;
+  }> {
     const user = await this.findByEmail(email);
 
     if (!user) {
@@ -158,7 +171,10 @@ export class AuthService {
     return { message: 'Đã gửi lại email xác thực', email: user.email };
   }
 
-  async forgotPassword({ email }: EmailVerificationDto) {
+  async forgotPassword({ email }: EmailVerificationDto): Promise<{
+    message: string;
+    email: string;
+  }> {
     const existingUser = await this.findByEmail(email);
 
     if (!existingUser) {
@@ -195,7 +211,10 @@ export class AuthService {
     };
   }
 
-  async resetPassword({ otp, newPassword }: ResetPasswordDto) {
+  async resetPassword({ otp, newPassword }: ResetPasswordDto): Promise<{
+    message: string;
+    email: string;
+  }> {
     const hashPassword = await bcrypt.hash(newPassword, 10);
 
     const user = await this.prisma.user.findFirst({
@@ -223,7 +242,10 @@ export class AuthService {
     return { message: 'Đặt lại mật khẩu thành công', email: updatedUser.email };
   }
 
-  async resendResetPassword({ email }: EmailVerificationDto) {
+  async resendResetPassword({ email }: EmailVerificationDto): Promise<{
+    message: string;
+    email: string;
+  }> {
     const user = await this.findByEmail(email);
 
     if (!user) {

@@ -35,7 +35,9 @@ export class UsersController {
 
   @Get(':userId')
   @Public()
-  findOne(@Param('userId') userId: string): Promise<UserResponseDto> {
+  findOne(
+    @Param('userId') userId: string,
+  ): Promise<{ message: string; user: UserResponseDto }> {
     return this.usersService.findOne(userId);
   }
 
@@ -44,7 +46,7 @@ export class UsersController {
   update(
     @CurrentUser() user: { id: string },
     @Body(new ValidationPipe()) updateUserDto: UpdateUserDto,
-  ): Promise<UserResponseDto> {
+  ): Promise<{ message: string; user: UserResponseDto }> {
     return this.usersService.update(user, updateUserDto);
   }
 

@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateItemDto } from './dto/create-item.dto';
 import { UpdateItemDto } from './dto/update-item.dto';
 import { PrismaService } from 'src/providers/prisma.service';
@@ -41,7 +46,7 @@ export class ItemsService {
   async create(
     { id, role }: { id: string; role: UserRole },
     createItemDto: CreateItemDto,
-  ): Promise<ItemResponseDto> {
+  ): Promise<{ message: string; item: ItemResponseDto }> {
     if (role !== UserRole.FARMER) {
       throw new BadRequestException(
         'Chỉ người nông dân mới có thể tạo vật phẩm',
@@ -67,7 +72,10 @@ export class ItemsService {
       },
     });
 
-    return this.toItemResponse(item);
+    return {
+      message: 'Tạo vật phẩm thành công',
+      item: this.toItemResponse(item),
+    };
   }
 
   async findAll({
@@ -106,26 +114,31 @@ export class ItemsService {
     return new PaginationResponseDto(itemEntities, meta);
   }
 
-  async findOne(id: string): Promise<ItemResponseDto> {
+  async findOne(
+    id: string,
+  ): Promise<{ message: string; item: ItemResponseDto }> {
     const item = await this.prisma.item.findUnique({
       where: { id },
       include: { farm: { include: { owner: true } } },
     });
 
     if (!item) {
-      throw new BadRequestException(`Không tìm thấy vật phẩm với ID: ${id}`);
+      throw new NotFoundException(`Không tìm thấy vật phẩm với ID: ${id}`);
     }
 
-    return this.toItemResponse(item);
+    return {
+      message: 'Lấy vật phẩm thành công',
+      item: this.toItemResponse(item),
+    };
   }
 
   async update(
     { id, role }: { id: string; role: UserRole },
     itemId: string,
     updateItemDto: UpdateItemDto,
-  ) {
+  ): Promise<{ message: string; item: ItemResponseDto }> {
     if (role !== UserRole.FARMER) {
-      throw new BadRequestException(
+      throw new ForbiddenException(
         'Chỉ người nông dân mới có thể cập nhật vật phẩm',
       );
     }
@@ -136,9 +149,7 @@ export class ItemsService {
     });
 
     if (!item) {
-      throw new BadRequestException(
-        `Không tìm thấy vật phẩm với ID: ${itemId}`,
-      );
+      throw new NotFoundException(`Không tìm thấy vật phẩm với ID: ${itemId}`);
     }
 
     const farm = await this.prisma.farm.findUnique({
@@ -147,11 +158,11 @@ export class ItemsService {
     });
 
     if (!farm) {
-      throw new BadRequestException('Không tìm thấy trang trại');
+      throw new NotFoundException('Không tìm thấy trang trại');
     }
 
     if (item.farmId !== farm.id) {
-      throw new BadRequestException(
+      throw new ForbiddenException(
         'Bạn không có quyền cập nhật vật phẩm này vì nó không thuộc trang trại của bạn',
       );
     }
@@ -162,7 +173,10 @@ export class ItemsService {
       include: { farm: { include: { owner: true } } },
     });
 
-    return this.toItemResponse(updatedItem);
+    return {
+      message: 'Cập nhật vật phẩm thành công',
+      item: this.toItemResponse(updatedItem),
+    };
   }
 
   remove(id: string) {

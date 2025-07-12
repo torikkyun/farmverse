@@ -53,30 +53,38 @@ export class UsersService {
     return new PaginationResponseDto(items, meta);
   }
 
-  async findOne(id: string): Promise<UserResponseDto> {
+  async findOne(
+    id: string,
+  ): Promise<{ message: string; user: UserResponseDto }> {
     const user = await this.prisma.user.findUnique({ where: { id } });
 
     if (!user) {
       throw new NotFoundException(`Không tìm thấy người dùng với ID: ${id}`);
     }
 
-    return plainToInstance(UserResponseDto, user, {
-      excludeExtraneousValues: true,
-    });
+    return {
+      message: 'Lấy thông tin người dùng thành công',
+      user: plainToInstance(UserResponseDto, user, {
+        excludeExtraneousValues: true,
+      }),
+    };
   }
 
   async update(
     { id }: { id: string },
     updateUserDto: UpdateUserDto,
-  ): Promise<UserResponseDto> {
+  ): Promise<{ message: string; user: UserResponseDto }> {
     const updatedUser = await this.prisma.user.update({
       where: { id },
       data: updateUserDto,
     });
 
-    return plainToInstance(UserResponseDto, updatedUser, {
-      excludeExtraneousValues: true,
-    });
+    return {
+      message: 'Cập nhật thông tin người dùng thành công',
+      user: plainToInstance(UserResponseDto, updatedUser, {
+        excludeExtraneousValues: true,
+      }),
+    };
   }
 
   async changePassword(

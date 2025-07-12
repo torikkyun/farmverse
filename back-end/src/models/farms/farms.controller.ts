@@ -30,7 +30,7 @@ export class FarmsController {
   create(
     @CurrentUser() user: { id: string; role: UserRole },
     @Body(new ValidationPipe()) createFarmDto: CreateFarmDto,
-  ) {
+  ): Promise<{ message: string; farm: FarmResponseDto }> {
     return this.farmsService.create(user, createFarmDto);
   }
 
@@ -50,7 +50,9 @@ export class FarmsController {
 
   @Get('owner/:ownerId')
   @Public()
-  findByOwnerId(@Param('ownerId') ownerId: string) {
+  findByOwnerId(
+    @Param('ownerId') ownerId: string,
+  ): Promise<{ message: string; farm: FarmResponseDto }> {
     return this.farmsService.findByOwnerId(ownerId);
   }
 
@@ -59,7 +61,7 @@ export class FarmsController {
   update(
     @CurrentUser() user: { id: string },
     @Body() updateFarmDto: UpdateFarmDto,
-  ) {
+  ): Promise<{ message: string; farm: FarmResponseDto }> {
     return this.farmsService.update(user, updateFarmDto);
   }
 

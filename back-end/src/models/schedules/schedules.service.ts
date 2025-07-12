@@ -28,7 +28,7 @@ export class SchedulesService {
   async create(
     { id, role }: { id: string; role: UserRole },
     createScheduleDto: CreateScheduleDto,
-  ): Promise<ScheduleResponseDto> {
+  ): Promise<{ message: string; schedule: ScheduleResponseDto }> {
     if (role !== UserRole.FARMER) {
       throw new BadRequestException(
         'Chỉ có nông dân mới có thể tạo lịch trình nông trại',
@@ -51,10 +51,15 @@ export class SchedulesService {
       },
     });
 
-    return this.toScheduleResponse(schedule);
+    return {
+      message: 'Tạo lịch trình thành công',
+      schedule: this.toScheduleResponse(schedule),
+    };
   }
 
-  async findOne(id: string) {
+  async findOne(
+    id: string,
+  ): Promise<{ message: string; schedule: ScheduleResponseDto }> {
     const schedule = await this.prisma.schedule.findUnique({
       where: { id },
       include: { farm: true },
@@ -64,10 +69,15 @@ export class SchedulesService {
       throw new BadRequestException('Không tìm thấy lịch trình');
     }
 
-    return this.toScheduleResponse(schedule);
+    return {
+      message: 'Lấy lịch trình thành công',
+      schedule: this.toScheduleResponse(schedule),
+    };
   }
 
-  async findByFarmId(farmId: string): Promise<ScheduleResponseDto> {
+  async findByFarmId(
+    farmId: string,
+  ): Promise<{ message: string; schedule: ScheduleResponseDto }> {
     const schedule = await this.prisma.schedule.findFirst({
       where: { farmId },
       include: { farm: true },
@@ -77,13 +87,16 @@ export class SchedulesService {
       throw new Error('Không tìm thấy lịch trình');
     }
 
-    return this.toScheduleResponse(schedule);
+    return {
+      message: 'Lấy lịch trình thành công',
+      schedule: this.toScheduleResponse(schedule),
+    };
   }
 
   async update(
     { id, role }: { id: string; role: UserRole },
     updateScheduleDto: UpdateScheduleDto,
-  ): Promise<ScheduleResponseDto> {
+  ): Promise<{ message: string; schedule: ScheduleResponseDto }> {
     if (role !== UserRole.FARMER) {
       throw new BadRequestException(
         'Chỉ có nông dân mới có thể cập nhật lịch trình nông trại',
@@ -107,7 +120,10 @@ export class SchedulesService {
       },
     });
 
-    return this.toScheduleResponse(schedule);
+    return {
+      message: 'Cập nhật lịch trình thành công',
+      schedule: this.toScheduleResponse(schedule),
+    };
   }
 
   remove(id: string) {
