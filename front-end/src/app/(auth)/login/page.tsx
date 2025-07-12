@@ -1,8 +1,27 @@
-import { Tractor } from "lucide-react"
+"use client";
+import { Tractor } from "lucide-react";
 
-import { LoginForm } from "@/components/login-form"
+import { LoginForm } from "@/components/login-form";
 
 export default function LoginPage() {
+  const apiURL = process.env.NEXT_PUBLIC_API_URL;
+
+  const handleLogin = async ({
+    email,
+    password,
+  }: {
+    email: string;
+    password: string;
+  }) => {
+    const res = await fetch(`${apiURL}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+    if (!res.ok) throw new Error("Đăng nhập thất bại");
+    return res.json();
+  };
+
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
       <div className="flex flex-col gap-4 p-6 md:p-10">
@@ -16,7 +35,7 @@ export default function LoginPage() {
         </div>
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-xs">
-            <LoginForm />
+            <LoginForm onLogin={handleLogin} />
           </div>
         </div>
       </div>
@@ -28,5 +47,5 @@ export default function LoginPage() {
         />
       </div>
     </div>
-  )
+  );
 }
