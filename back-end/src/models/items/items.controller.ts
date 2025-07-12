@@ -6,37 +6,60 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { ItemsService } from './items.service';
 import { CreateItemDto } from './dto/create-item.dto';
 import { UpdateItemDto } from './dto/update-item.dto';
+import { ItemResponseDto } from 'src/common/dto/item-response.dto';
+import { CurrentUser } from 'src/common/decorators/current-user.decorator';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ValidationPipe } from 'src/common/pipes/validation.pipe';
+import { Public } from 'src/common/decorators/public.decorator';
+import { SearchItemsQueryDto } from './dto/search-item.dto';
+import { PaginationResponseDto } from 'src/common/dto/pagination.dto';
+import { UserRole } from 'generated/prisma';
 
-@Controller('items')
+@Controller('api/items')
+@ApiTags('items')
 export class ItemsController {
   constructor(private readonly itemsService: ItemsService) {}
 
   @Post()
-  create(@Body() createItemDto: CreateItemDto) {
-    return this.itemsService.create(createItemDto);
+  @ApiBearerAuth()
+  create(
+    @CurrentUser() user: { id: string; role: UserRole },
+    @Body(new ValidationPipe()) createItemDto: CreateItemDto,
+  ): Promise<ItemResponseDto> {
+    return this.itemsService.create(user, createItemDto);
   }
 
   @Get()
-  findAll() {
-    return this.itemsService.findAll();
+  @Public()
+  findAll(
+    @Query(new ValidationPipe()) searchItemsQueryDto: SearchItemsQueryDto,
+  ): Promise<PaginationResponseDto<ItemResponseDto>> {
+    return this.itemsService.findAll(searchItemsQueryDto);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.itemsService.findOne(+id);
+  @Get(':itemId')
+  @Public()
+  findOne(@Param('itemId') itemId: string) {
+    return this.itemsService.findOne(itemId);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateItemDto: UpdateItemDto) {
-    return this.itemsService.update(+id, updateItemDto);
+  @Patch(':itemId')
+  @ApiBearerAuth()
+  update(
+    @CurrentUser() user: { id: string; role: UserRole },
+    @Param('itemId') itemId: string,
+    @Body(new ValidationPipe()) updateItemDto: UpdateItemDto,
+  ) {
+    return this.itemsService.update(user, itemId, updateItemDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.itemsService.remove(+id);
+  @Delete(':itemId')
+  remove(@Param('itemId') itemId: string) {
+    return this.itemsService.remove(itemId);
   }
 }

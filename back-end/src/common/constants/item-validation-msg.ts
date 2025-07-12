@@ -27,9 +27,4 @@ export const ItemValidationMessages = {
     MUST_BE_NUMBER: 'Số lượng vật phẩm phải là số',
     MIN_VALUE: 'Số lượng vật phẩm phải lớn hơn hoặc bằng 0',
   },
-  OTP: {
-    NOT_EMPTY: 'Mã OTP không được để trống',
-    MUST_BE_STRING: 'Mã OTP phải là chuỗi ký tự',
-    LENGTH: 'Mã OTP phải có đúng 6 ký tự',
-  },
 };

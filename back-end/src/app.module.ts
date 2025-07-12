@@ -6,8 +6,8 @@ import { MailProviderModule } from './providers/mail/mail.module';
 import { FarmsModule } from './models/farms/farms.module';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtGuard } from './common/guards/jwt.guard';
-import { JwtStrategy } from './authentication/strategies/jwt.strategy';
 import { ItemsModule } from './models/items/items.module';
+import { ScheduleModule } from './models/schedule/schedule.module';
 
 @Module({
   imports: [
@@ -21,6 +21,7 @@ import { ItemsModule } from './models/items/items.module';
     UsersModule,
     FarmsModule,
     ItemsModule,
+    ScheduleModule,
   ],
   providers: [
     {

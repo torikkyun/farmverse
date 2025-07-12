@@ -11,7 +11,7 @@ export class SearchUsersQueryDto extends PaginationQueryDto {
 
   @ApiProperty({
     required: false,
-    description: 'Lọc theo vai trò người dùng: FARMER, TENANT, ADMIN',
+    enum: UserRole,
   })
   role?: UserRole;
 }
