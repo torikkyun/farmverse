@@ -46,9 +46,22 @@ export class ItemsService {
       },
     });
 
-    return plainToInstance(ItemResponseDto, item, {
+    const ownerResponse = plainToInstance(UserResponseDto, item.farm.owner, {
       excludeExtraneousValues: true,
     });
+
+    const farmResponse = plainToInstance(FarmResponseDto, item.farm, {
+      excludeExtraneousValues: true,
+    });
+
+    const itemResponse = plainToInstance(ItemResponseDto, item, {
+      excludeExtraneousValues: true,
+    });
+
+    farmResponse.owner = ownerResponse;
+    itemResponse.farm = farmResponse;
+
+    return itemResponse;
   }
 
   async findAll({

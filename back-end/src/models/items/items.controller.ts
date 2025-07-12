@@ -59,6 +59,7 @@ export class ItemsController {
   }
 
   @Delete(':itemId')
+  @ApiBearerAuth()
   remove(@Param('itemId') itemId: string) {
     return this.itemsService.remove(itemId);
   }

@@ -33,7 +33,7 @@ export class ItemResponseDto {
   quantity?: number;
 
   @Expose()
-  @ApiProperty({ type: FarmResponseDto })
   @Type(() => FarmResponseDto)
+  @ApiProperty({ type: FarmResponseDto })
   farm: FarmResponseDto;
 }
