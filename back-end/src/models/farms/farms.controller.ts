@@ -30,7 +30,7 @@ export class FarmsController {
   create(
     @CurrentUser() user: { id: string; role: UserRole },
     @Body(new ValidationPipe()) createFarmDto: CreateFarmDto,
-  ): Promise<FarmResponseDto> {
+  ) {
     return this.farmsService.create(user, createFarmDto);
   }
 

@@ -11,7 +11,6 @@ import {
   IsArray,
   IsUrl,
   ArrayNotEmpty,
-  ValidateNested,
 } from 'class-validator';
 import { FarmValidationMessages } from 'src/common/constants/farm-validation-msg';
 

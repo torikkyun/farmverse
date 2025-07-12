@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -38,9 +39,9 @@ export class FarmsService {
   async create(
     { id, role }: { id: string; role: UserRole },
     createFarmDto: CreateFarmDto,
-  ): Promise<FarmResponseDto> {
+  ) {
     if (role !== UserRole.FARMER) {
-      throw new BadRequestException('Bạn không có quyền tạo trang trại');
+      throw new ForbiddenException('Bạn không có quyền tạo trang trại');
     }
 
     const existingFarm = await this.prisma.farm.findFirst({
@@ -48,7 +49,7 @@ export class FarmsService {
     });
 
     if (existingFarm) {
-      throw new BadRequestException('Bạn đã có trang trại');
+      throw new ConflictException('Bạn đã có trang trại');
     }
 
     const farm = await this.prisma.farm.create({
@@ -58,7 +59,10 @@ export class FarmsService {
       },
     });
 
-    return this.toFarmResponse(farm);
+    return {
+      message: 'Tạo trang trại thành công',
+      farm: this.toFarmResponse(farm),
+    };
   }
 
   async findAll({
@@ -123,18 +127,21 @@ export class FarmsService {
   }
 
   async update({ id }: { id: string }, updateFarmDto: UpdateFarmDto) {
-    const farm = await this.prisma.farm.findUnique({ where: { id } });
+    const farm = await this.prisma.farm.findUnique({ where: { ownerId: id } });
 
     if (!farm) {
       throw new NotFoundException(`Không tìm thấy trang trại với ID: ${id}`);
     }
 
     const updatedFarm = await this.prisma.farm.update({
-      where: { id },
+      where: { ownerId: id },
       data: updateFarmDto,
     });
 
-    return this.toFarmResponse(updatedFarm);
+    return {
+      message: 'Cập nhật trang trại thành công',
+      farm: this.toFarmResponse(updatedFarm),
+    };
   }
 
   remove(id: number) {

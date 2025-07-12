@@ -9,7 +9,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@10.12.4",
+  "packageManager": "pnpm@10.13.1",
   "devDependencies": {
     "@nomicfoundation/hardhat-ignition": "^0.15.12",
     "@nomicfoundation/hardhat-ignition-viem": "^0.15.12",
@@ -20,7 +20,7 @@
     "@types/chai": "^4.3.20",
     "@types/chai-as-promised": "^7.1.8",
     "@types/mocha": "^10.0.10",
-    "@types/node": "^24.0.12",
+    "@types/node": "^24.0.13",
     "chai": "^4.5.0",
     "hardhat": "^2.25.0",
     "hardhat-gas-reporter": "^2.3.0",

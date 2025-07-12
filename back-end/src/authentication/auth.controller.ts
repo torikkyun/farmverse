@@ -24,9 +24,7 @@ export class AuthController {
 
   @Post('login')
   @UseGuards(LocalGuard)
-  login(
-    @Body(new ValidationPipe()) loginDto: LoginDto,
-  ): Promise<LoginResponseDto> {
+  login(@Body(new ValidationPipe()) loginDto: LoginDto) {
     return this.authService.login(loginDto);
   }
 

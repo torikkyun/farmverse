@@ -47,7 +47,7 @@ export class AuthService {
     return null;
   }
 
-  async login({ email }: LoginDto): Promise<LoginResponseDto> {
+  async login({ email }: LoginDto) {
     const user = await this.findByEmail(email);
 
     if (!user) {
@@ -60,6 +60,7 @@ export class AuthService {
     const accessToken = await this.jwtService.signAsync(payload);
 
     return {
+      message: 'Đăng nhập thành công',
       accessToken,
       user: plainToInstance(UserResponseDto, user, {
         excludeExtraneousValues: true,
@@ -117,7 +118,7 @@ export class AuthService {
     });
 
     if (!user) {
-      return null;
+      throw new BadRequestException('Mã xác thực không hợp lệ hoặc đã hết hạn');
     }
 
     await this.prisma.user.update({
@@ -128,10 +129,6 @@ export class AuthService {
         otpExpires: null,
       },
     });
-
-    if (!user) {
-      throw new BadRequestException('Mã xác thực không hợp lệ hoặc đã hết hạn');
-    }
 
     await this.mailService.sendWelcomeEmail(user.email, user.name);
     return { message: 'Xác thực email thành công', email: user.email };
