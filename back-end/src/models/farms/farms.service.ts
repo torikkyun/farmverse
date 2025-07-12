@@ -21,6 +21,20 @@ import { UserResponseDto } from 'src/common/dto/user-response.dto';
 export class FarmsService {
   constructor(private readonly prisma: PrismaService) {}
 
+  private toFarmResponse(farm: any): FarmResponseDto {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const ownerResponse = plainToInstance(UserResponseDto, farm.owner, {
+      excludeExtraneousValues: true,
+    });
+
+    const farmResponse = plainToInstance(FarmResponseDto, farm, {
+      excludeExtraneousValues: true,
+    });
+
+    farmResponse.owner = ownerResponse;
+    return farmResponse;
+  }
+
   async create(
     { id, role }: { id: string; role: UserRole },
     createFarmDto: CreateFarmDto,
@@ -44,9 +58,7 @@ export class FarmsService {
       },
     });
 
-    return plainToInstance(FarmResponseDto, farm, {
-      excludeExtraneousValues: true,
-    });
+    return this.toFarmResponse(farm);
   }
 
   async findAll({
@@ -74,14 +86,7 @@ export class FarmsService {
     const meta = new PaginationMetaDto(page, pageSize, totalItems);
 
     const items = farms.map((farm) => {
-      const ownerResponse = plainToInstance(UserResponseDto, farm.owner, {
-        excludeExtraneousValues: true,
-      });
-      const farmResponse = plainToInstance(FarmResponseDto, farm, {
-        excludeExtraneousValues: true,
-      });
-      farmResponse.owner = ownerResponse;
-      return farmResponse;
+      return this.toFarmResponse(farm);
     });
 
     return new PaginationResponseDto(items, meta);
@@ -97,16 +102,7 @@ export class FarmsService {
       throw new NotFoundException(`Không tìm thấy trang trại với ID: ${id}`);
     }
 
-    const ownerResponse = plainToInstance(UserResponseDto, farm.owner, {
-      excludeExtraneousValues: true,
-    });
-
-    const farmResponse = plainToInstance(FarmResponseDto, farm, {
-      excludeExtraneousValues: true,
-    });
-
-    farmResponse.owner = ownerResponse;
-    return farmResponse;
+    return this.toFarmResponse(farm);
   }
 
   async findByOwnerId(ownerId: string) {
@@ -123,16 +119,7 @@ export class FarmsService {
       );
     }
 
-    const ownerResponse = plainToInstance(UserResponseDto, farm.owner, {
-      excludeExtraneousValues: true,
-    });
-
-    const farmResponse = plainToInstance(FarmResponseDto, farm, {
-      excludeExtraneousValues: true,
-    });
-
-    farmResponse.owner = ownerResponse;
-    return farmResponse;
+    return this.toFarmResponse(farm);
   }
 
   async update({ id }: { id: string }, updateFarmDto: UpdateFarmDto) {
@@ -147,9 +134,7 @@ export class FarmsService {
       data: updateFarmDto,
     });
 
-    return plainToInstance(FarmResponseDto, updatedFarm, {
-      excludeExtraneousValues: true,
-    });
+    return this.toFarmResponse(updatedFarm);
   }
 
   remove(id: number) {

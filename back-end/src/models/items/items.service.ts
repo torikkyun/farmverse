@@ -17,6 +17,27 @@ import { FarmResponseDto } from 'src/common/dto/farm-response.dto';
 export class ItemsService {
   constructor(private readonly prisma: PrismaService) {}
 
+  private toItemResponse(item: any): ItemResponseDto {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const ownerResponse = plainToInstance(UserResponseDto, item.farm.owner, {
+      excludeExtraneousValues: true,
+    });
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const farmResponse = plainToInstance(FarmResponseDto, item.farm, {
+      excludeExtraneousValues: true,
+    });
+
+    const itemResponse = plainToInstance(ItemResponseDto, item, {
+      excludeExtraneousValues: true,
+    });
+
+    farmResponse.owner = ownerResponse;
+    itemResponse.farm = farmResponse;
+
+    return itemResponse;
+  }
+
   async create(
     { id, role }: { id: string; role: UserRole },
     createItemDto: CreateItemDto,
@@ -46,22 +67,7 @@ export class ItemsService {
       },
     });
 
-    const ownerResponse = plainToInstance(UserResponseDto, item.farm.owner, {
-      excludeExtraneousValues: true,
-    });
-
-    const farmResponse = plainToInstance(FarmResponseDto, item.farm, {
-      excludeExtraneousValues: true,
-    });
-
-    const itemResponse = plainToInstance(ItemResponseDto, item, {
-      excludeExtraneousValues: true,
-    });
-
-    farmResponse.owner = ownerResponse;
-    itemResponse.farm = farmResponse;
-
-    return itemResponse;
+    return this.toItemResponse(item);
   }
 
   async findAll({
@@ -94,22 +100,7 @@ export class ItemsService {
     const meta = new PaginationMetaDto(page, pageSize, totalItems);
 
     const itemEntities = items.map((item) => {
-      const ownerResponse = plainToInstance(UserResponseDto, item.farm.owner, {
-        excludeExtraneousValues: true,
-      });
-
-      const farmResponse = plainToInstance(FarmResponseDto, item.farm, {
-        excludeExtraneousValues: true,
-      });
-
-      const itemResponse = plainToInstance(ItemResponseDto, item, {
-        excludeExtraneousValues: true,
-      });
-
-      farmResponse.owner = ownerResponse;
-      itemResponse.farm = farmResponse;
-
-      return itemResponse;
+      return this.toItemResponse(item);
     });
 
     return new PaginationResponseDto(itemEntities, meta);
@@ -125,22 +116,7 @@ export class ItemsService {
       throw new BadRequestException(`Không tìm thấy vật phẩm với ID: ${id}`);
     }
 
-    const ownerResponse = plainToInstance(UserResponseDto, item.farm.owner, {
-      excludeExtraneousValues: true,
-    });
-
-    const farmResponse = plainToInstance(FarmResponseDto, item.farm, {
-      excludeExtraneousValues: true,
-    });
-
-    const itemResponse = plainToInstance(ItemResponseDto, item, {
-      excludeExtraneousValues: true,
-    });
-
-    farmResponse.owner = ownerResponse;
-    itemResponse.farm = farmResponse;
-
-    return itemResponse;
+    return this.toItemResponse(item);
   }
 
   async update(
@@ -186,22 +162,7 @@ export class ItemsService {
       include: { farm: { include: { owner: true } } },
     });
 
-    const ownerResponse = plainToInstance(UserResponseDto, item.farm.owner, {
-      excludeExtraneousValues: true,
-    });
-
-    const farmResponse = plainToInstance(FarmResponseDto, item.farm, {
-      excludeExtraneousValues: true,
-    });
-
-    const itemResponse = plainToInstance(ItemResponseDto, updatedItem, {
-      excludeExtraneousValues: true,
-    });
-
-    farmResponse.owner = ownerResponse;
-    itemResponse.farm = farmResponse;
-
-    return itemResponse;
+    return this.toItemResponse(updatedItem);
   }
 
   remove(id: string) {
