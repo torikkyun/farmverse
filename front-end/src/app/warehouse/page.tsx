@@ -75,9 +75,9 @@ export default function WarehousePage() {
                 <input
                   type="text"
                   placeholder="Tìm kiếm NFT, mã vật phẩm..."
-                  className="flex-1 min-w-[140px] sm:min-w-[220px] px-4 py-2 rounded-full bg-white dark:bg-neutral-900 text-black dark:text-white border border-blue-200 dark:border-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-blue-600 transition shadow-md"
+                  className="flex-1 min-w-[140px] sm:min-w-[220px] px-4 py-2 rounded-full border bg-white dark:bg-neutral-900 text-black dark:text-white focus:outline-none focus:ring-2 transition"
                 />
-                <select className="w-full sm:w-auto px-4 py-2 rounded-full bg-white dark:bg-neutral-900 text-black dark:text-white border border-blue-200 dark:border-blue-700 focus:outline-none shadow-md">
+                <select className="w-full sm:w-auto px-4 py-2 rounded-full bg-white dark:bg-neutral-900 text-black dark:text-white border focus:outline-none">
                   <option>Lọc theo trạng thái</option>
                   <option>Còn hàng</option>
                   <option>Hết hàng</option>
@@ -86,7 +86,7 @@ export default function WarehousePage() {
               </div>
             </div>
             {/* Card danh sách vật phẩm */}
-            <div className="rounded-2xl shadow-2xl border border-blue-200 dark:border-blue-700 bg-white dark:bg-neutral-900">
+            <div className="rounded-2xl bg-white dark:bg-neutral-900">
               <div className="p-6">
                 <div
                   className="
@@ -183,11 +183,19 @@ export default function WarehousePage() {
                     strokeWidth="2"
                     viewBox="0 0 24 24"
                   >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M15 19l-7-7 7-7"
+                    />
                   </svg>
                 </button>
                 <span className="px-4 py-2 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 font-bold text-base shadow border border-blue-200 dark:border-blue-700 tracking-wide flex items-center gap-1">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <svg
+                    className="w-5 h-5"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
                     <circle cx="7" cy="10" r="2.5" />
                     <circle cx="13" cy="10" r="2.5" fillOpacity="0.5" />
                   </svg>
@@ -203,7 +211,11 @@ export default function WarehousePage() {
                     strokeWidth="2"
                     viewBox="0 0 24 24"
                   >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M9 5l7 7-7 7"
+                    />
                   </svg>
                 </button>
               </div>

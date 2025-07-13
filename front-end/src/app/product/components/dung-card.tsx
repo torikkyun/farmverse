@@ -1,16 +1,16 @@
-interface NFTItem {
+interface DungItem {
   id: number;
   image: string;
   name: string;
 }
 
-interface NFTCardProps {
-  item: NFTItem;
+interface DungCardProps {
+  dungs: DungItem;
   selected: boolean;
   onSelect: (id: string) => void;
 }
 
-export default function NFTCard({ item, selected, onSelect }: NFTCardProps) {
+export default function DungCard({ dungs, selected, onSelect }: DungCardProps) {
   return (
     <div
       className={`group bg-white border rounded-2xl p-0 flex flex-col items-stretch text-black relative overflow-hidden shadow-sm hover:shadow-xl transition-all duration-200
@@ -19,16 +19,16 @@ export default function NFTCard({ item, selected, onSelect }: NFTCardProps) {
     >
       <div className="relative">
         <img
-          src={item.image}
-          srcSet={`${item.image} 1x, ${item.image.replace(
+          src={dungs.image}
+          srcSet={`${dungs.image} 1x, ${dungs.image.replace(
             "/200/200",
             "/400/400"
           )} 2x`}
-          alt={item.name}
+          alt={dungs.name}
           className="w-full aspect-[1/1] object-cover rounded-t-2xl border-b border-black/10 transition-all duration-200 group-hover:scale-105 bg-black"
         />
         <button
-          onClick={() => onSelect(String(item.id))}
+          onClick={() => onSelect(String(dungs.id))}
           className={`absolute top-3 right-3 rounded-full w-9 h-9 flex items-center justify-center transition-all duration-200 shadow-lg
             ${
               selected
@@ -43,7 +43,7 @@ export default function NFTCard({ item, selected, onSelect }: NFTCardProps) {
         </button>
       </div>
       <div className="flex-1 flex flex-col px-4 py-3">
-        <div className="font-bold text-base truncate">{item.name}</div>
+        <div className="font-bold text-base truncate">{dungs.name}</div>
       </div>
     </div>
   );

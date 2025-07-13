@@ -4,8 +4,6 @@ interface NFTItem {
   id: number;
   image: string;
   name: string;
-  rank: string;
-  price: string;
 }
 
 interface NFTGridProps {
