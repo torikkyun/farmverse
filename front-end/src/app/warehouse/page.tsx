@@ -3,54 +3,145 @@
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { useState } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { useEffect, useState } from "react";
+import { ItemCard } from "./ItemCard";
+import { ItemFormModal } from "./ItemFormModal";
+import { ItemDetailModal } from "./ItemDetailModal";
+import { ItemSearchBar } from "./ItemSearchBar";
+import { Pagination } from "./Pagination";
 
-const nftItems = [
-  {
-    name: "Hạt giống lúa",
-    code: "SEED-001",
-    amount: 50,
-    unit: "Túi",
-    img: "https://api.dicebear.com/7.x/icons/png?seed=seed&backgroundColor=ffffff,000000&backgroundType=solid",
-  },
-  {
-    name: "Phân bón hữu cơ",
-    code: "FERT-002",
-    amount: 20,
-    unit: "Bao",
-    img: "https://api.dicebear.com/7.x/icons/png?seed=leaf&backgroundColor=ffffff,000000&backgroundType=solid",
-  },
-  {
-    name: "Máy cày mini",
-    code: "TRACTOR-003",
-    amount: 2,
-    unit: "Chiếc",
-    img: "https://api.dicebear.com/7.x/icons/png?seed=tractor&backgroundColor=ffffff,000000&backgroundType=solid",
-  },
-  {
-    name: "Thuốc trừ sâu sinh học",
-    code: "PEST-004",
-    amount: 10,
-    unit: "Chai",
-    img: "https://api.dicebear.com/7.x/icons/png?seed=bottle&backgroundColor=ffffff,000000&backgroundType=solid",
-  },
-  {
-    name: "Nước tưới tự động",
-    code: "WATER-005",
-    amount: 5,
-    unit: "Bộ",
-    img: "https://api.dicebear.com/7.x/icons/png?seed=water&backgroundColor=ffffff,000000&backgroundType=solid",
-  },
-];
+const apiURL = process.env.NEXT_PUBLIC_API_URL;
 
 export default function WarehousePage() {
+  const [items, setItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [meta, setMeta] = useState({
+    currentPage: 1,
+    pageSize: 10,
+    totalItems: 0,
+    totalPages: 1,
+  });
+  const [search, setSearch] = useState("");
+  const [type, setType] = useState("");
+  const [showAdd, setShowAdd] = useState(false);
+  const [addForm, setAddForm] = useState({
+    name: "",
+    type: "",
+    description: "",
+    images: "",
+    price: "",
+    quantity: "",
+  });
+  const [editItem, setEditItem] = useState<any | null>(null);
+  const [showMenu, setShowMenu] = useState<string | null>(null);
+
+  // Lấy danh sách vật phẩm
+  const fetchItems = async (
+    page = 1,
+    pageSize = 10,
+    searchValue = "",
+    typeValue = ""
+  ) => {
+    setLoading(true);
+    try {
+      const url = `${apiURL}/items?page=${page}&pageSize=${pageSize}${
+        searchValue ? `&search=${encodeURIComponent(searchValue)}` : ""
+      }${typeValue ? `&type=${typeValue}` : ""}`;
+      const res = await fetch(url);
+      const json = await res.json();
+      setItems(json.data.items || []);
+      setMeta(json.data.meta || meta);
+    } catch {
+      setItems([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchItems(meta.currentPage, meta.pageSize, search, type);
+    // eslint-disable-next-line
+  }, []);
+
+  const handlePageChange = (next: boolean) => {
+    const newPage = next
+      ? Math.min(meta.currentPage + 1, meta.totalPages)
+      : Math.max(meta.currentPage - 1, 1);
+    fetchItems(newPage, meta.pageSize, search, type);
+    setMeta((m) => ({ ...m, currentPage: newPage }));
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    fetchItems(1, meta.pageSize, search, type);
+    setMeta((m) => ({ ...m, currentPage: 1 }));
+  };
+
+  // Thêm vật phẩm
+  const handleAddItem = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await fetch(`${apiURL}/items`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: addForm.name,
+        type: addForm.type,
+        description: addForm.description,
+        images: addForm.images
+          .split(",")
+          .map((url) => url.trim())
+          .filter(Boolean),
+        price: Number(addForm.price),
+        quantity: Number(addForm.quantity),
+      }),
+    });
+    setShowAdd(false);
+    setAddForm({
+      name: "",
+      type: "",
+      description: "",
+      images: "",
+      price: "",
+      quantity: "",
+    });
+    fetchItems(1, meta.pageSize, search, type);
+    setMeta((m) => ({ ...m, currentPage: 1 }));
+  };
+
+  // Sửa vật phẩm
+  const handleEditItem = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await fetch(`${apiURL}/items/${editItem.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: editItem.name,
+        type: editItem.type,
+        description: editItem.description,
+        images: editItem.images
+          .split(",")
+          .map((url: string) => url.trim())
+          .filter(Boolean),
+        price: Number(editItem.price),
+        quantity: Number(editItem.quantity),
+      }),
+    });
+    setEditItem(null);
+    fetchItems(meta.currentPage, meta.pageSize, search, type);
+  };
+
+  // Xóa vật phẩm
+  const handleDeleteItem = async (id: string) => {
+    await fetch(`${apiURL}/items/${id}`, { method: "DELETE" });
+    fetchItems(meta.currentPage, meta.pageSize, search, type);
+  };
+
   const [open, setOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<(typeof nftItems)[0] | null>(
+  const [selectedItem, setSelectedItem] = useState<(typeof items)[0] | null>(
     null
   );
 
-  const handleOpenModal = (item: (typeof nftItems)[0]) => {
+  const handleOpenModal = (item: (typeof items)[0]) => {
     setSelectedItem(item);
     setOpen(true);
   };
@@ -72,154 +163,69 @@ export default function WarehousePage() {
             {/* Thanh tìm kiếm và lọc */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex flex-col sm:flex-row items-center gap-3 mb-4 w-full">
-                <input
-                  type="text"
-                  placeholder="Tìm kiếm NFT, mã vật phẩm..."
-                  className="flex-1 min-w-[140px] sm:min-w-[220px] px-4 py-2 rounded-full border bg-white dark:bg-neutral-900 text-black dark:text-white focus:outline-none focus:ring-2 transition"
+                <ItemSearchBar
+                  search={search}
+                  setSearch={setSearch}
+                  type={type}
+                  setType={setType}
+                  onSearch={handleSearch}
                 />
-                <select className="w-full sm:w-auto px-4 py-2 rounded-full bg-white dark:bg-neutral-900 text-black dark:text-white border focus:outline-none">
-                  <option>Lọc theo trạng thái</option>
-                  <option>Còn hàng</option>
-                  <option>Hết hàng</option>
-                  <option>Đã xuất kho</option>
-                </select>
               </div>
+              <button
+                className="px-4 py-2 bg-green-600 text-white rounded font-semibold"
+                onClick={() => setShowAdd(true)}
+              >
+                + Thêm vật phẩm
+              </button>
             </div>
             {/* Card danh sách vật phẩm */}
             <div className="rounded-2xl bg-white dark:bg-neutral-900">
               <div className="p-6">
-                <div
-                  className="
-                    grid
-                    grid-cols-1
-                    sm:grid-cols-2
-                    md:grid-cols-3
-                    lg:grid-cols-4
-                    xl:grid-cols-5
-                    gap-8
-                  "
-                >
-                  {nftItems.map((item) => (
-                    <div
-                      key={item.code}
-                      className="flex flex-col items-center w-full bg-white dark:bg-neutral-800 rounded-2xl border border-blue-100 dark:border-blue-800 shadow-lg hover:shadow-2xl hover:scale-[1.03] transition-all duration-200 p-6 cursor-pointer"
-                      onClick={() => handleOpenModal(item)}
-                    >
-                      <img
-                        src={item.img}
-                        alt={item.name}
-                        className="w-24 h-24 rounded-xl border-2 border-blue-300 dark:border-blue-700 object-cover bg-white dark:bg-black mb-4 shadow group-hover:scale-110 transition"
-                      />
-                      <div className="font-bold text-black dark:text-white text-center text-lg mb-1 truncate w-full">
-                        {item.name}
-                      </div>
-                      <div className="text-xs text-blue-700 dark:text-blue-300 mb-1 text-center w-full font-medium">
-                        Mã: {item.code}
-                      </div>
-                      <div className="text-xs text-gray-600 dark:text-gray-300 mb-1 text-center w-full">
-                        Số lượng:{" "}
-                        <span className="font-semibold text-black dark:text-white">
-                          {item.amount}
-                        </span>
-                        <span className="ml-1 text-gray-500 dark:text-gray-300">
-                          {item.unit}
-                        </span>
-                      </div>
-                    </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
+                  {items.map((item) => (
+                    <ItemCard
+                      key={item.id}
+                      item={item}
+                      onEdit={(item: any) =>
+                        setEditItem({
+                          ...item,
+                          images: Array.isArray(item.images)
+                            ? item.images.join(", ")
+                            : item.images || "",
+                        })
+                      }
+                      onDelete={handleDeleteItem}
+                      showMenu={showMenu}
+                      setShowMenu={setShowMenu}
+                      onOpenDetail={handleOpenModal}
+                    />
                   ))}
                 </div>
               </div>
             </div>
-
-            {/* Modal xem chi tiết vật phẩm */}
-            <Dialog open={open} onOpenChange={setOpen}>
-              <DialogContent className="max-w-md p-0">
-                {selectedItem && (
-                  <div className="flex flex-col gap-6 p-8">
-                    <div className="text-2xl font-bold text-blue-700 dark:text-blue-300 uppercase tracking-wide text-center mb-4 drop-shadow">
-                      Thông tin vật phẩm
-                    </div>
-                    <div className="flex flex-col sm:flex-row items-center sm:items-start gap-8">
-                      <img
-                        src={selectedItem.img}
-                        alt={selectedItem.name}
-                        className="w-28 h-28 rounded-2xl border-2 border-blue-300 dark:border-blue-700 object-cover bg-white dark:bg-black shadow-xl"
-                      />
-                      <div className="flex flex-col gap-3 flex-1 items-center sm:items-start">
-                        <div className="text-xl font-bold text-black dark:text-white text-center sm:text-left">
-                          {selectedItem.name}
-                        </div>
-                        <div className="text-base text-blue-700 dark:text-blue-300 text-center sm:text-left font-semibold">
-                          <span className="font-bold text-black dark:text-white">
-                            Mã vật phẩm:
-                          </span>{" "}
-                          {selectedItem.code}
-                        </div>
-                        <div className="text-base text-gray-700 dark:text-gray-300 text-center sm:text-left">
-                          <span className="font-semibold text-black dark:text-white">
-                            Số lượng:
-                          </span>{" "}
-                          {selectedItem.amount} - {selectedItem.unit}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </DialogContent>
-            </Dialog>
-
-            {/* Phân trang chỉ dùng icon */}
-            <div className="flex flex-col items-center gap-3 py-6 bg-white dark:bg-neutral-900 border-t border-blue-200 dark:border-blue-700 rounded-b-2xl shadow-lg mt-2">
-              <div className="flex items-center gap-2">
-                <button
-                  className="flex items-center justify-center px-3 py-2 rounded-full text-sm font-semibold border border-blue-600 dark:border-blue-400 bg-white dark:bg-neutral-800 text-blue-700 dark:text-blue-200 shadow hover:bg-blue-50 dark:hover:bg-blue-900 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled
-                  aria-label="Trang trước"
-                >
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M15 19l-7-7 7-7"
-                    />
-                  </svg>
-                </button>
-                <span className="px-4 py-2 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 font-bold text-base shadow border border-blue-200 dark:border-blue-700 tracking-wide flex items-center gap-1">
-                  <svg
-                    className="w-5 h-5"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <circle cx="7" cy="10" r="2.5" />
-                    <circle cx="13" cy="10" r="2.5" fillOpacity="0.5" />
-                  </svg>
-                </span>
-                <button
-                  className="flex items-center justify-center px-3 py-2 rounded-full text-sm font-semibold border border-blue-600 dark:border-blue-400 bg-white dark:bg-neutral-800 text-blue-700 dark:text-blue-200 shadow hover:bg-blue-50 dark:hover:bg-blue-900 transition"
-                  aria-label="Trang sau"
-                >
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M9 5l7 7-7 7"
-                    />
-                  </svg>
-                </button>
-              </div>
-            </div>
+            <ItemDetailModal
+              open={open}
+              onOpenChange={setOpen}
+              item={selectedItem}
+            />
+            <ItemFormModal
+              open={showAdd}
+              onClose={() => setShowAdd(false)}
+              onSubmit={handleAddItem}
+              form={addForm}
+              setForm={setAddForm}
+              isEdit={false}
+            />
+            <ItemFormModal
+              open={!!editItem}
+              onClose={() => setEditItem(null)}
+              onSubmit={handleEditItem}
+              form={editItem || {}}
+              setForm={setEditItem}
+              isEdit={true}
+            />
+            {/* Phân trang */}
+            <Pagination meta={meta} onPageChange={handlePageChange} />
           </div>
         </div>
       </SidebarInset>

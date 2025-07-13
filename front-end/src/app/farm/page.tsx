@@ -1,16 +1,15 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Dialog } from "@/components/ui/dialog";
+import { MoreHorizontal } from "lucide-react";
+import { FarmEditModal } from "./FarmEditModal";
+import { FarmAddModal } from "./FarmAddModal";
+import { FarmPagination } from "./FarmPagination";
+import { FarmSearchBar } from "./FarmSearchBar";
+import { FarmTable } from "./FarmTable";
 
 const apiURL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -23,13 +22,30 @@ export default function FarmPage() {
     totalItems: 0,
     totalPages: 1,
   });
+  const [search, setSearch] = useState("");
+  const [showAdd, setShowAdd] = useState(false);
+  const [addForm, setAddForm] = useState({
+    name: "",
+    description: "",
+    location: "",
+    size: "",
+    images: "",
+  });
+  const [addError, setAddError] = useState<string | null>(null);
+  const [addSuccess, setAddSuccess] = useState<string | null>(null);
+  const [editFarm, setEditFarm] = useState<any | null>(null);
+  const [showMenu, setShowMenu] = useState<string | null>(null);
+  const [editError, setEditError] = useState<string | null>(null);
+  const [editSuccess, setEditSuccess] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const fetchFarms = async (page = 1, pageSize = 10) => {
+  const fetchFarms = async (page = 1, pageSize = 10, searchValue = "") => {
     setLoading(true);
     try {
-      const res = await fetch(
-        `${apiURL}/farms?page=${page}&pageSize=${pageSize}`
-      );
+      const url = `${apiURL}/farms?page=${page}&pageSize=${pageSize}${
+        searchValue ? `&search=${encodeURIComponent(searchValue)}` : ""
+      }`;
+      const res = await fetch(url);
       const json = await res.json();
       setFarms(json.data.items || []);
       setMeta(json.data.meta || meta);
@@ -41,7 +57,7 @@ export default function FarmPage() {
   };
 
   useEffect(() => {
-    fetchFarms(meta.currentPage, meta.pageSize);
+    fetchFarms(meta.currentPage, meta.pageSize, search);
     // eslint-disable-next-line
   }, []);
 
@@ -49,8 +65,85 @@ export default function FarmPage() {
     const newPage = next
       ? Math.min(meta.currentPage + 1, meta.totalPages)
       : Math.max(meta.currentPage - 1, 1);
-    fetchFarms(newPage, meta.pageSize);
+    fetchFarms(newPage, meta.pageSize, search);
     setMeta((m) => ({ ...m, currentPage: newPage }));
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    fetchFarms(1, meta.pageSize, search);
+    setMeta((m) => ({ ...m, currentPage: 1 }));
+  };
+
+  const handleAddFarm = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAddError(null);
+    setAddSuccess(null);
+    try {
+      const res = await fetch(`${apiURL}/farms`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: addForm.name,
+          description: addForm.description,
+          location: addForm.location,
+          size: Number(addForm.size),
+          images: addForm.images
+            .split(",")
+            .map((url) => url.trim())
+            .filter(Boolean),
+        }),
+      });
+      if (!res.ok) {
+        setAddError("Thêm nông trại thất bại");
+        return;
+      }
+      setAddSuccess("Thêm nông trại thành công!");
+      setAddForm({
+        name: "",
+        description: "",
+        location: "",
+        size: "",
+        images: "",
+      });
+      setShowAdd(false);
+      fetchFarms(1, meta.pageSize, search);
+      setMeta((m) => ({ ...m, currentPage: 1 }));
+    } catch {
+      setAddError("Thêm nông trại thất bại");
+    }
+  };
+
+  const handleEditFarm = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setEditError(null);
+    setEditSuccess(null);
+    try {
+      const res = await fetch(`${apiURL}/farms`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: editFarm.id, // Nếu API yêu cầu id, giữ lại dòng này
+          name: editFarm.name,
+          description: editFarm.description,
+          location: editFarm.location,
+          size: Number(editFarm.size),
+          images: editFarm.images
+            .split(",")
+            .map((url: string) => url.trim())
+            .filter(Boolean),
+        }),
+      });
+      if (!res.ok) {
+        setEditError("Sửa nông trại thất bại");
+        return;
+      }
+      setEditSuccess("Sửa nông trại thành công!");
+      setEditFarm(null);
+      fetchFarms(meta.currentPage, meta.pageSize, search);
+    } catch {
+      setEditError("Sửa nông trại thất bại");
+    }
   };
 
   return (
@@ -67,96 +160,45 @@ export default function FarmPage() {
         <SiteHeader />
         <div className="w-full flex flex-1 flex-col bg-white dark:bg-black min-h-screen transition-colors">
           <div className="w-full px-2 sm:px-4 py-6 flex-1 flex flex-col gap-6">
-            <div className="rounded-xl shadow border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900">
-              <div className="overflow-x-auto">
-                <Table className="min-w-full">
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Ảnh</TableHead>
-                      <TableHead>Tên nông trại</TableHead>
-                      <TableHead>Chủ nông trại</TableHead>
-                      <TableHead>Địa chỉ</TableHead>
-                      <TableHead>Diện tích (ha)</TableHead>
-                      <TableHead>Mô tả</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {loading ? (
-                      <TableRow>
-                        <TableCell colSpan={6}>Đang tải...</TableCell>
-                      </TableRow>
-                    ) : farms.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={6}>Không có dữ liệu</TableCell>
-                      </TableRow>
-                    ) : (
-                      farms.map((farm) => (
-                        <TableRow key={farm.id}>
-                          <TableCell>
-                            <img
-                              src={
-                                farm.images?.[0] ||
-                                `https://api.dicebear.com/7.x/shapes/svg?seed=farm${farm.id}`
-                              }
-                              alt="Farm"
-                              className="w-12 h-12 rounded-lg object-cover border"
-                            />
-                          </TableCell>
-                          <TableCell className="font-bold">
-                            {farm.name}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <img
-                                src={
-                                  farm.owner?.avatar ||
-                                  `https://api.dicebear.com/7.x/adventurer/svg?seed=owner${
-                                    farm.owner?.id || ""
-                                  }`
-                                }
-                                alt="owner"
-                                className="w-7 h-7 rounded-full border"
-                              />
-                              <span>{farm.owner?.name || "Chưa rõ"}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell>{farm.location}</TableCell>
-                          <TableCell className="text-center">
-                            {farm.size}
-                          </TableCell>
-                          <TableCell>{farm.description}</TableCell>
-                        </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
-            </div>
+            {/* Thanh tìm kiếm và nút thêm */}
+            <FarmSearchBar
+              search={search}
+              setSearch={setSearch}
+              handleSearch={handleSearch}
+              setShowAdd={setShowAdd}
+              inputRef={inputRef}
+            />
+
+            {/* Dialog thêm nông trại */}
+            <FarmAddModal
+              showAdd={showAdd}
+              setShowAdd={setShowAdd}
+              addForm={addForm}
+              setAddForm={setAddForm}
+              handleAddFarm={handleAddFarm}
+              addError={addError}
+              addSuccess={addSuccess}
+            />
+
+            {/* Dialog sửa nông trại */}
+            <FarmEditModal
+              editFarm={editFarm}
+              setEditFarm={setEditFarm}
+              handleEditFarm={handleEditFarm}
+              editError={editError}
+              editSuccess={editSuccess}
+            />
+
+            {/* Bảng danh sách nông trại */}
+            <FarmTable
+              farms={farms}
+              loading={loading}
+              showMenu={showMenu}
+              setShowMenu={setShowMenu}
+              setEditFarm={setEditFarm}
+            />
             {/* Phân trang */}
-            <div className="flex flex-col items-center gap-2 py-4 bg-white dark:bg-neutral-900 border-t border-gray-200 dark:border-neutral-800 rounded-b-xl shadow-sm">
-              <div className="flex items-center gap-2">
-                <button
-                  className="px-3 py-1.5 rounded-full text-xs bg-black dark:bg-white text-white dark:text-black font-semibold border border-black dark:border-white shadow hover:bg-gray-800 dark:hover:bg-gray-200 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled={meta.currentPage === 1}
-                  onClick={() => handlePageChange(false)}
-                >
-                  Trước
-                </button>
-                <span className="px-2.5 py-1 rounded-full bg-gray-100 dark:bg-neutral-800 text-black dark:text-white font-semibold text-xs shadow border border-gray-200 dark:border-neutral-700">
-                  {meta.currentPage} / {meta.totalPages}
-                </span>
-                <button
-                  className="px-3 py-1.5 rounded-full text-xs bg-black dark:bg-white text-white dark:text-black font-semibold border border-black dark:border-white shadow hover:bg-gray-800 dark:hover:bg-gray-200 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled={meta.currentPage === meta.totalPages}
-                  onClick={() => handlePageChange(true)}
-                >
-                  Sau
-                </button>
-              </div>
-              <div className="text-xs text-gray-500">
-                Tổng số: {meta.totalItems} nông trại
-              </div>
-            </div>
+            <FarmPagination meta={meta} handlePageChange={handlePageChange} />
           </div>
         </div>
       </SidebarInset>
