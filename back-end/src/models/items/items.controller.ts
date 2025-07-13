@@ -30,7 +30,7 @@ export class ItemsController {
   create(
     @CurrentUser() user: { id: string; role: UserRole },
     @Body(new ValidationPipe()) createItemDto: CreateItemDto,
-  ): Promise<ItemResponseDto> {
+  ): Promise<{ message: string; item: ItemResponseDto }> {
     return this.itemsService.create(user, createItemDto);
   }
 

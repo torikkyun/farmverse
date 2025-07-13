@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { UserRole } from 'generated/prisma';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { UsersService } from 'src/models/users/users.service';
+import { PrismaService } from 'src/providers/prisma.service';
 
 type JwtPayload = {
   id: string;
@@ -14,7 +14,7 @@ type JwtPayload = {
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(
     private readonly configService: ConfigService,
-    private readonly usersService: UsersService,
+    private readonly prisma: PrismaService,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -24,7 +24,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   }
 
   async validate({ id }: JwtPayload) {
-    const user = await this.usersService.findOne(id);
+    const user = await this.prisma.user.findUnique({ where: { id } });
 
     if (!user) {
       throw new UnauthorizedException('Token không hợp lệ hoặc đã hết hạn');
