@@ -36,7 +36,7 @@ export function LoginForm({
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         setError(data.message || "Đăng nhập thất bại");
-        setTimeout(() => setError(null), 2000); // Ẩn alert lỗi sau 2s
+        setTimeout(() => setError(null), 1000); // Ẩn alert lỗi sau 2s
         return;
       }
       setSuccess(data.message || "Đăng nhập thành công!");
@@ -52,7 +52,7 @@ export function LoginForm({
       }, 2000);
     } catch {
       setError("Đăng nhập thất bại");
-      setTimeout(() => setError(null), 2000); // Ẩn alert lỗi sau 2s
+      setTimeout(() => setError(null), 1000); // Ẩn alert lỗi sau 1s
     }
   };
 

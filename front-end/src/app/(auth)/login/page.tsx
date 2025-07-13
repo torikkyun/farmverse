@@ -1,10 +1,12 @@
 "use client";
 import { Tractor } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 import { LoginForm } from "@/components/login-form";
 
 export default function LoginPage() {
   const apiURL = process.env.NEXT_PUBLIC_API_URL;
+  const router = useRouter();
 
   const handleLogin = async ({
     email,
@@ -19,7 +21,11 @@ export default function LoginPage() {
       body: JSON.stringify({ email, password }),
     });
     if (!res.ok) throw new Error("Đăng nhập thất bại");
-    return res.json();
+    const data = await res.json();
+    // Chuyển hướng sang dashboard
+    router.replace("/dashboard");
+
+    return data;
   };
 
   return (
