@@ -1,12 +1,12 @@
-install-be:
+i-be:
 	cd back-end && \
 	pnpm install
 
-install-bc:
+i-bc:
 	cd blockchain && \
 	pnpm install
 
-install-fe:
+i-fe:
 	cd front-end && \
 	npm install
 
