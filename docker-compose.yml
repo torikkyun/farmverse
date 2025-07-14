@@ -1,0 +1,16 @@
+services:
+  back-end:
+    container_name: back-end
+    build:
+      context: ./back-end
+      dockerfile: Dockerfile
+    ports:
+      - ${PORT:-2412}:2412
+    env_file:
+      - ./back-end/.env.production.local
+    networks:
+      - farmverse-net
+
+networks:
+  farmverse-net:
+    driver: bridge

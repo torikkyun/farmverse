@@ -18,3 +18,5 @@ fe:
 	cd front-end && \
 	npm run dev
 	
+prod:
+	docker compose up -d --build
