@@ -34,34 +34,7 @@ export default function WarehousePage() {
   });
   const [editItem, setEditItem] = useState<any | null>(null);
   const [showMenu, setShowMenu] = useState<string | null>(null);
-
-  // Lấy danh sách vật phẩm
-  const fetchItems = async (
-    page = 1,
-    pageSize = 10,
-    searchValue = "",
-    typeValue = ""
-  ) => {
-    setLoading(true);
-    try {
-      const url = `${apiURL}/items?page=${page}&pageSize=${pageSize}${
-        searchValue ? `&search=${encodeURIComponent(searchValue)}` : ""
-      }${typeValue ? `&type=${typeValue}` : ""}`;
-      const res = await fetch(url);
-      const json = await res.json();
-      setItems(json.data.items || []);
-      setMeta(json.data.meta || meta);
-    } catch {
-      setItems([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchItems(meta.currentPage, meta.pageSize, search, type);
-    // eslint-disable-next-line
-  }, []);
+  const [userId, setUserId] = useState<string | null>(null);
 
   const handlePageChange = (next: boolean) => {
     const newPage = next
@@ -146,6 +119,52 @@ export default function WarehousePage() {
     setOpen(true);
   };
 
+  const fetchItems = async (
+    page = 1,
+    pageSize = 10,
+    searchValue = "",
+    typeValue = ""
+  ) => {
+    if (!userId) return;
+    setLoading(true);
+    try {
+      const url = `${apiURL}/items?page=${page}&pageSize=${pageSize}${
+        searchValue ? `&search=${encodeURIComponent(searchValue)}` : ""
+      }${typeValue ? `&type=${typeValue}` : ""}`;
+      const res = await fetch(url);
+      const json = await res.json();
+      console.log("userId for filter:", userId);
+      console.log(
+        "owner ids:",
+        json.data.items.map((item: any) => item.farm?.owner?.id)
+      );
+      const filteredItems = json.data.items.filter(
+        (item: any) => String(item.farm?.owner?.id) === String(userId)
+      );
+      setItems(filteredItems);
+      setMeta(json.data.meta || meta);
+    } catch {
+      setItems([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const id = localStorage.getItem("userId");
+      console.log("userId in localStorage:", id);
+      setUserId(id);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (userId) {
+      fetchItems(meta.currentPage, meta.pageSize, search, type);
+    }
+    // eslint-disable-next-line
+  }, [userId]);
+
   return (
     <SidebarProvider
       style={
@@ -171,36 +190,42 @@ export default function WarehousePage() {
                   onSearch={handleSearch}
                 />
               </div>
-              <button
-                className="px-4 py-2 bg-green-600 text-white rounded font-semibold"
+              {/* <button
+                className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded font-semibold transition-colors"
                 onClick={() => setShowAdd(true)}
               >
                 + Thêm vật phẩm
-              </button>
+              </button> */}
             </div>
             {/* Card danh sách vật phẩm */}
-            <div className="rounded-2xl bg-white dark:bg-neutral-900">
+            <div className="rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 shadow">
               <div className="p-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
-                  {items.map((item) => (
-                    <ItemCard
-                      key={item.id}
-                      item={item}
-                      onEdit={(item: any) =>
-                        setEditItem({
-                          ...item,
-                          images: Array.isArray(item.images)
-                            ? item.images.join(", ")
-                            : item.images || "",
-                        })
-                      }
-                      onDelete={handleDeleteItem}
-                      showMenu={showMenu}
-                      setShowMenu={setShowMenu}
-                      onOpenDetail={handleOpenModal}
-                    />
-                  ))}
-                </div>
+                {items.length === 0 ? (
+                  <div className="text-center text-gray-500 dark:text-gray-400 py-12">
+                    Không có vật phẩm nào trong kho của bạn.
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
+                    {items.map((item) => (
+                      <ItemCard
+                        key={item.id}
+                        item={item}
+                        onEdit={(item: any) =>
+                          setEditItem({
+                            ...item,
+                            images: Array.isArray(item.images)
+                              ? item.images.join(", ")
+                              : item.images || "",
+                          })
+                        }
+                        onDelete={handleDeleteItem}
+                        showMenu={showMenu}
+                        setShowMenu={setShowMenu}
+                        onOpenDetail={handleOpenModal}
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
             <ItemDetailModal

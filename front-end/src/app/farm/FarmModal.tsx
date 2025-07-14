@@ -16,14 +16,14 @@ export default function FarmModal({
     name: string;
     description: string;
     location: string;
-    size: number | string;
+    size: string;
     images: string;
   };
   setForm: (form: {
     name: string;
     description: string;
     location: string;
-    size: string | number;
+    size: string;
     images: string;
   }) => void;
   handleSubmit: (e: React.FormEvent) => void;

@@ -7,6 +7,8 @@ import FarmModal from "./FarmModal";
 import { FarmPagination } from "./FarmPagination";
 import FarmSearchBar from "./FarmSearchBar";
 import FarmTable from "./FarmTable";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import FarmerFarmCard from "./FarmerFarmCard";
 
 const apiURL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -34,7 +36,7 @@ export default function FarmPage() {
     name: string;
     description: string;
     location: string;
-    size: string | number;
+    size: string;
     images: string;
   }>({
     name: "",
@@ -61,14 +63,42 @@ export default function FarmPage() {
     if (userData) {
       const userObj = JSON.parse(userData);
       setUserRole(userObj.data?.user?.role || null);
-      // Nếu user đã có farm, lấy farm của họ
-      if (userObj.data?.user?.farm) {
-        setUserFarm(userObj.data.user.farm);
-      }
     }
   }, []);
 
-  // Fetch danh sách farm nếu chưa có farm cá nhân
+  // Lấy farm cá nhân nếu là FARMER
+  const fetchFarmByOwner = async () => {
+    setLoading(true);
+    try {
+      const userData = localStorage.getItem("user");
+      const userObj = userData ? JSON.parse(userData) : null;
+      const ownerId = userObj?.data?.user?.id;
+      const token = userObj?.data?.accessToken;
+      if (!ownerId) {
+        setUserFarm(null);
+        setLoading(false);
+        return;
+      }
+      const url = `${apiURL}/farms/owner/${ownerId}`;
+      const res = await fetch(url, {
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
+      const json = await res.json();
+      console.log("API /farms/owner/{ownerId} trả về:", json);
+      const farm = json.data?.farm;
+      setUserFarm(farm && farm.id ? farm : null);
+    } catch (err) {
+      console.error("Lỗi lấy farm:", err);
+      setUserFarm(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Lấy danh sách farm cho các role khác
   const fetchFarms = async (page = 1, pageSize = 10, searchValue = "") => {
     setLoading(true);
     const userData = localStorage.getItem("user");
@@ -93,26 +123,38 @@ export default function FarmPage() {
     }
   };
 
+  // Gọi đúng API theo role
   useEffect(() => {
-    // Nếu user chưa có farm thì fetch danh sách
-    if (!userFarm) {
+    if (userRole === "FARMER") {
+      fetchFarmByOwner();
+    } else if (userRole) {
       fetchFarms(meta.currentPage, meta.pageSize, search);
     }
     // eslint-disable-next-line
-  }, [userFarm]);
+  }, [userRole, meta.currentPage, meta.pageSize, search]);
 
   const handlePageChange = (next: boolean) => {
     const newPage = next
       ? Math.min(meta.currentPage + 1, meta.totalPages)
       : Math.max(meta.currentPage - 1, 1);
-    fetchFarms(newPage, meta.pageSize, search);
     setMeta((m) => ({ ...m, currentPage: newPage }));
   };
 
+  useEffect(() => {
+    if (userRole && userRole !== "FARMER") {
+      fetchFarms(meta.currentPage, meta.pageSize, search);
+    }
+    // eslint-disable-next-line
+  }, [meta.currentPage]);
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    fetchFarms(1, meta.pageSize, search);
     setMeta((m) => ({ ...m, currentPage: 1 }));
+    if (userRole === "FARMER") {
+      fetchFarmByOwner();
+    } else {
+      fetchFarms(1, meta.pageSize, search);
+    }
   };
 
   const [editForm, setEditForm] = useState<{
@@ -120,7 +162,7 @@ export default function FarmPage() {
     name: string;
     description: string;
     location: string;
-    size: string | number;
+    size: string; // <-- chỉ string
     images: string;
   }>({
     name: "",
@@ -134,9 +176,17 @@ export default function FarmPage() {
     e.preventDefault();
     setAddError(null);
     setAddSuccess(null);
+    setLoading(true); // Bắt đầu loading
     const userData = localStorage.getItem("user");
     const token = userData ? JSON.parse(userData).data?.accessToken : null;
     try {
+      const imagesArray = Array.isArray(addForm.images)
+        ? addForm.images
+        : addForm.images
+            .split(",")
+            .map((url) => url.trim())
+            .filter(Boolean);
+
       const res = await fetch(`${apiURL}/farms`, {
         method: "POST",
         headers: {
@@ -148,14 +198,12 @@ export default function FarmPage() {
           description: addForm.description,
           location: addForm.location,
           size: Number(addForm.size),
-          images: addForm.images
-            .split(",")
-            .map((url) => url.trim())
-            .filter(Boolean),
+          images: imagesArray,
         }),
       });
       if (!res.ok) {
         setAddError("Thêm nông trại thất bại");
+        setLoading(false);
         return;
       }
       setAddSuccess("Thêm nông trại thành công!");
@@ -167,10 +215,12 @@ export default function FarmPage() {
         images: "",
       });
       setShowAdd(false);
-      fetchFarms(1, meta.pageSize, search);
-      setMeta((m) => ({ ...m, currentPage: 1 }));
+      // Tự động reload trang
+      window.location.reload();
     } catch {
       setAddError("Thêm nông trại thất bại");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -236,35 +286,11 @@ export default function FarmPage() {
         <SiteHeader />
         <div className="w-full flex flex-1 flex-col bg-white dark:bg-black min-h-screen transition-colors">
           <div className="w-full px-2 sm:px-4 py-6 flex-1 flex flex-col gap-6">
-            {/* Nếu user đã có farm, chỉ hiển thị farm của họ */}
-            {userFarm && userFarm.id ? (
-              <div>
-                <h2 className="text-xl font-bold mb-4">Nông trại của bạn</h2>
-                <div className="border rounded-lg p-4 bg-white dark:bg-black shadow">
-                  <div className="font-semibold text-lg">{userFarm.name}</div>
-                  <div className="text-gray-600 dark:text-gray-300 mb-2">{userFarm.description}</div>
-                  <div>Địa chỉ: {userFarm.location}</div>
-                  <div>Diện tích: {userFarm.size} ha</div>
-                  <div>
-                    Ảnh:{" "}
-                    {Array.isArray(userFarm.images)
-                      ? userFarm.images.join(", ")
-                      : userFarm.images}
-                  </div>
-                </div>
-              </div>
+            {userRole === "FARMER" && userFarm && userFarm.id ? (
+              <FarmerFarmCard farm={userFarm} />
             ) : (
+              // Chưa có farm: chỉ cho tạo farm
               <>
-                {/* Thanh tìm kiếm và nút thêm (chỉ hiện nút nếu là FARMER) */}
-                <FarmSearchBar
-                  search={search}
-                  setSearch={setSearch}
-                  handleSearch={handleSearch}
-                  {...(userRole === "FARMER" ? { setShowAdd } : {})}
-                  inputRef={inputRef}
-                />
-
-                {/* Dialog thêm nông trại (chỉ FARMER mới tạo được) */}
                 <FarmModal
                   open={showAdd}
                   setOpen={setShowAdd}
@@ -275,55 +301,25 @@ export default function FarmPage() {
                   success={addSuccess ?? undefined}
                   mode="add"
                 />
-
-                {/* Dialog sửa nông trại */}
-                <FarmModal
-                  open={!!editFarm}
-                  setOpen={() => {
-                    setEditFarm(null);
-                    setEditForm({
-                      name: "",
-                      description: "",
-                      location: "",
-                      size: "",
-                      images: "",
-                    });
-                  }}
-                  form={editForm}
-                  setForm={setEditForm}
-                  handleSubmit={handleEditFarm}
-                  error={editError ?? undefined}
-                  success={editSuccess ?? undefined}
-                  mode="edit"
-                />
-
-                {/* Bảng danh sách nông trại */}
-                <FarmTable
-                  farms={farms}
-                  loading={loading}
-                  showMenu={showMenu}
-                  setShowMenu={setShowMenu}
-                  setEditFarm={(farm) => {
-                    setEditFarm(farm);
-                    setEditForm({
-                      id: farm.id?.toString?.() ?? "",
-                      name: farm.name ?? "",
-                      description: farm.description ?? "",
-                      location: farm.location ?? "",
-                      size: farm.size ?? "",
-                      images: Array.isArray(farm.images)
-                        ? farm.images.join(", ")
-                        : farm.images || "",
-                    });
-                  }}
-                />
-                {/* Phân trang */}
-                <FarmPagination meta={meta} handlePageChange={handlePageChange} />
+                <button
+                  className="px-4 py-2 bg-black text-white rounded font-semibold w-fit mt-4"
+                  onClick={() => setShowAdd(true)}
+                >
+                  + Tạo nông trại của bạn
+                </button>
               </>
             )}
           </div>
         </div>
       </SidebarInset>
+      {loading && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="flex flex-col items-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
+            <span className="mt-4 text-white font-semibold">Đang xử lý...</span>
+          </div>
+        </div>
+      )}
     </SidebarProvider>
   );
 }
