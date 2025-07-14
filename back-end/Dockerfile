@@ -7,12 +7,10 @@ RUN npm install -g pnpm@latest-10
 COPY package*.json ./
 COPY tsconfig*.json ./
 COPY prisma ./prisma
+COPY src ./src
 
 RUN pnpm install
 RUN pnpm dlx prisma generate
-
-COPY src ./src
-
 RUN pnpm run build
 
 FROM builder AS release

@@ -19,6 +19,7 @@ import { Public } from 'src/common/decorators/public.decorator';
 import { SearchItemsQueryDto } from './dto/search-item.dto';
 import { PaginationResponseDto } from 'src/common/dto/pagination.dto';
 import { UserRole } from 'generated/prisma';
+import { Roles } from 'src/common/decorators/roles.decorator';
 
 @Controller('api/items')
 @ApiTags('items')
@@ -26,6 +27,7 @@ export class ItemsController {
   constructor(private readonly itemsService: ItemsService) {}
 
   @Post()
+  @Roles(UserRole.FARMER)
   @ApiBearerAuth()
   create(
     @CurrentUser() user: { id: string; role: UserRole },
@@ -49,18 +51,19 @@ export class ItemsController {
   }
 
   @Patch(':itemId')
+  @Roles(UserRole.FARMER)
   @ApiBearerAuth()
   update(
-    @CurrentUser() user: { id: string; role: UserRole },
+    @CurrentUser() user: { id: string },
     @Param('itemId') itemId: string,
     @Body(new ValidationPipe()) updateItemDto: UpdateItemDto,
   ) {
     return this.itemsService.update(user, itemId, updateItemDto);
   }
 
-  @Delete(':itemId')
-  @ApiBearerAuth()
-  remove(@Param('itemId') itemId: string) {
-    return this.itemsService.remove(itemId);
-  }
+  // @Delete(':itemId')
+  // @ApiBearerAuth()
+  // remove(@Param('itemId') itemId: string) {
+  //   return this.itemsService.remove(itemId);
+  // }
 }

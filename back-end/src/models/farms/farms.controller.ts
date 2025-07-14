@@ -19,6 +19,7 @@ import { ValidationPipe } from 'src/common/pipes/validation.pipe';
 import { PaginationResponseDto } from 'src/common/dto/pagination.dto';
 import { SearchFarmsQueryDto } from './dto/search-farm.dto';
 import { UserRole } from 'generated/prisma';
+import { Roles } from 'src/common/decorators/roles.decorator';
 
 @Controller('api/farms')
 @ApiTags('farms')
@@ -26,9 +27,10 @@ export class FarmsController {
   constructor(private readonly farmsService: FarmsService) {}
 
   @Post()
+  @Roles(UserRole.FARMER)
   @ApiBearerAuth()
   create(
-    @CurrentUser() user: { id: string; role: UserRole },
+    @CurrentUser() user: { id: string },
     @Body(new ValidationPipe()) createFarmDto: CreateFarmDto,
   ): Promise<{ message: string; farm: FarmResponseDto }> {
     return this.farmsService.create(user, createFarmDto);

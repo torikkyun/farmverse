@@ -1,7 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateScheduleDto } from './dto/create-schedule.dto';
 import { UpdateScheduleDto } from './dto/update-schedule.dto';
-import { UserRole } from 'generated/prisma';
 import { PrismaService } from 'src/providers/prisma.service';
 import { ScheduleResponseDto } from 'src/common/dto/schedule-response.dto';
 import { plainToInstance } from 'class-transformer';
@@ -26,15 +25,9 @@ export class SchedulesService {
   }
 
   async create(
-    { id, role }: { id: string; role: UserRole },
+    { id }: { id: string },
     createScheduleDto: CreateScheduleDto,
   ): Promise<{ message: string; schedule: ScheduleResponseDto }> {
-    if (role !== UserRole.FARMER) {
-      throw new BadRequestException(
-        'Chỉ có nông dân mới có thể tạo lịch trình nông trại',
-      );
-    }
-
     const farm = await this.prisma.farm.findUnique({
       where: { ownerId: id },
       select: { id: true },
@@ -94,15 +87,9 @@ export class SchedulesService {
   }
 
   async update(
-    { id, role }: { id: string; role: UserRole },
+    { id }: { id: string },
     updateScheduleDto: UpdateScheduleDto,
   ): Promise<{ message: string; schedule: ScheduleResponseDto }> {
-    if (role !== UserRole.FARMER) {
-      throw new BadRequestException(
-        'Chỉ có nông dân mới có thể cập nhật lịch trình nông trại',
-      );
-    }
-
     const farm = await this.prisma.farm.findUnique({
       where: { ownerId: id },
       select: { id: true },

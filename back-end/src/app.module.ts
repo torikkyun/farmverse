@@ -8,6 +8,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtGuard } from './common/guards/jwt.guard';
 import { ItemsModule } from './models/items/items.module';
 import { SchedulesModule } from './models/schedules/schedules.module';
+import { RolesGuard } from './common/guards/roles.guard';
 
 @Module({
   imports: [
@@ -27,6 +28,10 @@ import { SchedulesModule } from './models/schedules/schedules.module';
     {
       provide: APP_GUARD,
       useClass: JwtGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
     },
   ],
 })

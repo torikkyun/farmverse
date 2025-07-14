@@ -2,7 +2,6 @@ import {
   Controller,
   Post,
   Body,
-  Get,
   UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
@@ -15,7 +14,6 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 import { LocalGuard } from 'src/common/guards/local.guard';
 import { Public } from 'src/common/decorators/public.decorator';
 import { AccountVerificationDto } from './dto/account-verification.dto';
-import { U } from '@faker-js/faker/dist/airline-CLphikKp';
 import { UserResponseDto } from 'src/common/dto/user-response.dto';
 
 @Controller('api/auth')
@@ -40,7 +38,7 @@ export class AuthController {
     return this.authService.register(registerDto);
   }
 
-  @Get('verify-email')
+  @Post('verify-email')
   verifyEmail(
     @Body(new ValidationPipe()) accountVerificationDto: AccountVerificationDto,
   ): Promise<{
