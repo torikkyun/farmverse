@@ -1,6 +1,5 @@
 import {
   ConflictException,
-  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -14,7 +13,7 @@ import {
   PaginationResponseDto,
   PaginationMetaDto,
 } from 'src/common/dto/pagination.dto';
-import { Prisma, UserRole } from 'generated/prisma';
+import { Prisma } from 'generated/prisma';
 import { UserResponseDto } from 'src/common/dto/user-response.dto';
 
 @Injectable()
@@ -36,13 +35,9 @@ export class FarmsService {
   }
 
   async create(
-    { id, role }: { id: string; role: UserRole },
+    { id }: { id: string },
     createFarmDto: CreateFarmDto,
   ): Promise<{ message: string; farm: FarmResponseDto }> {
-    if (role !== UserRole.FARMER) {
-      throw new ForbiddenException('Bạn không có quyền tạo trang trại');
-    }
-
     const existingFarm = await this.prisma.farm.findFirst({
       where: { ownerId: id },
     });

@@ -9,7 +9,7 @@ import { UpdateItemDto } from './dto/update-item.dto';
 import { PrismaService } from 'src/providers/prisma.service';
 import { plainToInstance } from 'class-transformer';
 import { ItemResponseDto } from 'src/common/dto/item-response.dto';
-import { Prisma, UserRole } from 'generated/prisma';
+import { Prisma } from 'generated/prisma';
 import { SearchItemsQueryDto } from './dto/search-item.dto';
 import {
   PaginationMetaDto,
@@ -44,15 +44,9 @@ export class ItemsService {
   }
 
   async create(
-    { id, role }: { id: string; role: UserRole },
+    { id }: { id: string },
     createItemDto: CreateItemDto,
   ): Promise<{ message: string; item: ItemResponseDto }> {
-    if (role !== UserRole.FARMER) {
-      throw new BadRequestException(
-        'Chỉ người nông dân mới có thể tạo vật phẩm',
-      );
-    }
-
     const farm = await this.prisma.farm.findUnique({
       where: { ownerId: id },
       include: { owner: true },
@@ -133,16 +127,10 @@ export class ItemsService {
   }
 
   async update(
-    { id, role }: { id: string; role: UserRole },
+    { id }: { id: string },
     itemId: string,
     updateItemDto: UpdateItemDto,
   ): Promise<{ message: string; item: ItemResponseDto }> {
-    if (role !== UserRole.FARMER) {
-      throw new ForbiddenException(
-        'Chỉ người nông dân mới có thể cập nhật vật phẩm',
-      );
-    }
-
     const item = await this.prisma.item.findUnique({
       where: { id: itemId },
       include: { farm: { include: { owner: true } } },
