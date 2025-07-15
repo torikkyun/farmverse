@@ -8,7 +8,7 @@ import { ItemCard } from "./ItemCard";
 import { ItemFormModal } from "./ItemFormModal";
 import { ItemDetailModal } from "./ItemDetailModal";
 import { ItemSearchBar } from "./ItemSearchBar";
-import { Pagination } from "./Pagination";
+import Pagination from "@/components/ui/pagination";
 
 const apiURL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -32,17 +32,9 @@ export default function WarehousePage() {
     price: "",
     quantity: "",
   });
-  const [editItem, setEditItem] = useState<any | null>(null);
+  // const [editItem, setEditItem] = useState<any | null>(null);
   const [showMenu, setShowMenu] = useState<string | null>(null);
-  const [userId, setUserId] = useState<string | null>(null);
-
-  const handlePageChange = (next: boolean) => {
-    const newPage = next
-      ? Math.min(meta.currentPage + 1, meta.totalPages)
-      : Math.max(meta.currentPage - 1, 1);
-    fetchItems(newPage, meta.pageSize, search, type);
-    setMeta((m) => ({ ...m, currentPage: newPage }));
-  };
+  // const [userId, setUserId] = useState<string | null>(null);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,74 +42,82 @@ export default function WarehousePage() {
     setMeta((m) => ({ ...m, currentPage: 1 }));
   };
 
-  // Thêm vật phẩm
-  const handleAddItem = async (e: React.FormEvent) => {
-    e.preventDefault();
-    await fetch(`${apiURL}/items`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: addForm.name,
-        type: addForm.type,
-        description: addForm.description,
-        images: addForm.images
-          .split(",")
-          .map((url) => url.trim())
-          .filter(Boolean),
-        price: Number(addForm.price),
-        quantity: Number(addForm.quantity),
-      }),
-    });
-    setShowAdd(false);
-    setAddForm({
-      name: "",
-      type: "",
-      description: "",
-      images: "",
-      price: "",
-      quantity: "",
-    });
-    fetchItems(1, meta.pageSize, search, type);
-    setMeta((m) => ({ ...m, currentPage: 1 }));
+  // Phân trang
+  const handlePageChange = (page: number) => {
+    setMeta((prev) => ({
+      ...prev,
+      currentPage: Math.max(1, Math.min(page, prev.totalPages)),
+    }));
   };
 
-  // Sửa vật phẩm
-  const handleEditItem = async (e: React.FormEvent) => {
-    e.preventDefault();
-    await fetch(`${apiURL}/items/${editItem.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: editItem.name,
-        type: editItem.type,
-        description: editItem.description,
-        images: editItem.images
-          .split(",")
-          .map((url: string) => url.trim())
-          .filter(Boolean),
-        price: Number(editItem.price),
-        quantity: Number(editItem.quantity),
-      }),
-    });
-    setEditItem(null);
-    fetchItems(meta.currentPage, meta.pageSize, search, type);
-  };
+  // // Thêm vật phẩm
+  // const handleAddItem = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   await fetch(`${apiURL}/items`, {
+  //     method: "POST",
+  //     headers: { "Content-Type": "application/json" },
+  //     body: JSON.stringify({
+  //       name: addForm.name,
+  //       type: addForm.type,
+  //       description: addForm.description,
+  //       images: addForm.images
+  //         .split(",")
+  //         .map((url) => url.trim())
+  //         .filter(Boolean),
+  //       price: Number(addForm.price),
+  //       quantity: Number(addForm.quantity),
+  //     }),
+  //   });
+  //   setShowAdd(false);
+  //   setAddForm({
+  //     name: "",
+  //     type: "",
+  //     description: "",
+  //     images: "",
+  //     price: "",
+  //     quantity: "",
+  //   });
+  //   fetchItems(1, meta.pageSize, search, type);
+  //   setMeta((m) => ({ ...m, currentPage: 1 }));
+  // };
 
-  // Xóa vật phẩm
-  const handleDeleteItem = async (id: string) => {
-    await fetch(`${apiURL}/items/${id}`, { method: "DELETE" });
-    fetchItems(meta.currentPage, meta.pageSize, search, type);
-  };
+  // // Sửa vật phẩm
+  // const handleEditItem = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   await fetch(`${apiURL}/items/${editItem.id}`, {
+  //     method: "PATCH",
+  //     headers: { "Content-Type": "application/json" },
+  //     body: JSON.stringify({
+  //       name: editItem.name,
+  //       type: editItem.type,
+  //       description: editItem.description,
+  //       images: editItem.images
+  //         .split(",")
+  //         .map((url: string) => url.trim())
+  //         .filter(Boolean),
+  //       price: Number(editItem.price),
+  //       quantity: Number(editItem.quantity),
+  //     }),
+  //   });
+  //   setEditItem(null);
+  //   fetchItems(meta.currentPage, meta.pageSize, search, type);
+  // };
 
-  const [open, setOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<(typeof items)[0] | null>(
-    null
-  );
+  // // Xóa vật phẩm
+  // const handleDeleteItem = async (id: string) => {
+  //   await fetch(`${apiURL}/items/${id}`, { method: "DELETE" });
+  //   fetchItems(meta.currentPage, meta.pageSize, search, type);
+  // };
 
-  const handleOpenModal = (item: (typeof items)[0]) => {
-    setSelectedItem(item);
-    setOpen(true);
-  };
+  // const [open, setOpen] = useState(false);
+  // const [selectedItem, setSelectedItem] = useState<(typeof items)[0] | null>(
+  //   null
+  // );
+
+  // const handleOpenModal = (item: (typeof items)[0]) => {
+  //   setSelectedItem(item);
+  //   setOpen(true);
+  // };
 
   const fetchItems = async (
     page = 1,
@@ -150,20 +150,20 @@ export default function WarehousePage() {
     }
   };
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const id = localStorage.getItem("userId");
-      console.log("userId in localStorage:", id);
-      setUserId(id);
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (typeof window !== "undefined") {
+  //     const id = localStorage.getItem("userId");
+  //     console.log("userId in localStorage:", id);
+  //     setUserId(id);
+  //   }
+  // }, []);
 
-  useEffect(() => {
-    if (userId) {
-      fetchItems(meta.currentPage, meta.pageSize, search, type);
-    }
-    // eslint-disable-next-line
-  }, [userId]);
+  // useEffect(() => {
+  //   if (userId) {
+  //     fetchItems(meta.currentPage, meta.pageSize, search, type);
+  //   }
+  //   // eslint-disable-next-line
+  // }, [userId]);
 
   return (
     <SidebarProvider

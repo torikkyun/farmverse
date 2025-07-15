@@ -43,7 +43,11 @@ export default function FarmerFarmCard({ farm }: FarmerFarmCardProps) {
                 </div>
                 <div className="text-lg text-black dark:text-white font-semibold">
                   {farm.size ? (
-                    `${farm.size} ha`
+                    `${
+                      typeof farm.size === "number"
+                        ? farm.size.toFixed(0)
+                        : Number(farm.size).toFixed(0)
+                    } ha`
                   ) : (
                     <span className="italic text-gray-400">Chưa cập nhật</span>
                   )}
