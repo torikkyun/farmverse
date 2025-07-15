@@ -57,6 +57,15 @@ export class ItemsController {
     return this.itemsService.findOne(itemId);
   }
 
+  @Get('farm/:farmId')
+  @Public()
+  findAllByFarmId(
+    @Param('farmId') farmId: string,
+    @Query() searchItemsQueryDto: SearchItemsQueryDto,
+  ) {
+    return this.itemsService.findAllByFarmId(farmId, searchItemsQueryDto);
+  }
+
   @Patch(':itemId')
   @Roles(UserRole.FARMER)
   @UseInterceptors(FileFieldsInterceptor([{ name: 'images', maxCount: 5 }]))

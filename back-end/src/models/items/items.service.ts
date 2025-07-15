@@ -133,6 +133,34 @@ export class ItemsService {
     };
   }
 
+  async findAllByFarmId(
+    farmId: string,
+    { page, pageSize, search, type }: SearchItemsQueryDto,
+  ): Promise<{ message: string; items: ItemResponseDto[] }> {
+    const skip = (page - 1) * pageSize;
+    const where: Prisma.ItemWhereInput = {};
+
+    if (search) {
+      where.OR = [{ name: { contains: search, mode: 'insensitive' } }];
+    }
+
+    if (type) {
+      where.type = type;
+    }
+
+    const items = await this.prisma.item.findMany({
+      where: { farmId, ...where },
+      include: { farm: { include: { owner: true } } },
+      skip,
+      take: pageSize,
+    });
+
+    return {
+      message: 'Lấy danh sách vật phẩm theo trang trại thành công',
+      items: items.map((item) => this.toItemResponse(item)),
+    };
+  }
+
   async update(
     { id }: { id: string },
     itemId: string,
