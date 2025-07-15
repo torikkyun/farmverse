@@ -31,6 +31,11 @@ enum TreeRootInstanceStatus {
   CANCELED
 }
 
+enum TransactionType {
+  DEPOSIT
+  PURCHASE
+}
+
 model User {
   id                      String         @id @default(auto()) @map("_id") @db.ObjectId
   name                    String
@@ -44,6 +49,7 @@ model User {
   otpExpires              DateTime?
   resetPasswordOtp        String?
   resetPasswordOtpExpires DateTime?
+  fvtBalance              Float          @default(0.0)
   createdAt               DateTime       @default(now())
   updatedAt               DateTime       @updatedAt
   Farm                    Farm?
@@ -90,31 +96,46 @@ model Item {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  farm         Farm           @relation(fields: [farmId], references: [id])
-  farmId       String         @db.ObjectId
-  Transaction  Transaction[]
-  ItemInstance ItemInstance[]
+  farm            Farm              @relation(fields: [farmId], references: [id])
+  farmId          String            @db.ObjectId
+  Transaction     Transaction[]
+  ItemInstance    ItemInstance[]
+  TransactionItem TransactionItem[]
 }
 
 model Transaction {
-  id              String   @id @default(auto()) @map("_id") @db.ObjectId
-  type            ItemType
-  quantity        Int?
-  totalPrice      Float
-  includesIot     Boolean?
+  id         String          @id @default(auto()) @map("_id") @db.ObjectId
+  totalPrice Float
+  type       TransactionType
+
   transactionHash String?
   blockNumber     Int?
   fromAddress     String?
   toAddress       String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
 
-  buyer   User    @relation(fields: [buyerId], references: [id])
-  buyerId String  @db.ObjectId
-  item    Item    @relation(fields: [itemId], references: [id])
-  itemId  String  @db.ObjectId
-  Farm    Farm?   @relation(fields: [farmId], references: [id])
-  farmId  String? @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  buyer           User              @relation(fields: [buyerId], references: [id])
+  buyerId         String            @db.ObjectId
+  item            Item?             @relation(fields: [itemId], references: [id])
+  itemId          String            @db.ObjectId
+  Farm            Farm?             @relation(fields: [farmId], references: [id])
+  farmId          String?           @db.ObjectId
+  TransactionItem TransactionItem[]
+}
+
+model TransactionItem {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  includesIot Boolean?
+  quantity    Int?
+  price       Float
+  type        ItemType
+
+  transaction   Transaction @relation(fields: [transactionId], references: [id])
+  transactionId String      @db.ObjectId
+  item          Item        @relation(fields: [itemId], references: [id])
+  itemId        String      @db.ObjectId
 }
 
 model ItemInstance {

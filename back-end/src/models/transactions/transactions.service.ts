@@ -1,26 +1,40 @@
 import { Injectable } from '@nestjs/common';
-import { CreateTransactionDto } from './dto/create-transaction.dto';
-import { UpdateTransactionDto } from './dto/update-transaction.dto';
+import { BlockchainService } from 'src/providers/blockchain.service';
+import { PrismaService } from 'src/providers/prisma.service';
 
 @Injectable()
 export class TransactionsService {
-  create(createTransactionDto: CreateTransactionDto) {
-    return 'This action adds a new transaction';
-  }
+  constructor(
+    private readonly blockchainService: BlockchainService,
+    private readonly prisma: PrismaService,
+  ) {}
 
-  findAll() {
-    return `This action returns all transactions`;
-  }
+  async deposit(userId: string, amount: number) {
+    const tx = await this.blockchainService.recordDeposit(amount);
 
-  findOne(id: number) {
-    return `This action returns a #${id} transaction`;
-  }
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { fvtBalance: { increment: amount } },
+    });
 
-  update(id: number, updateTransactionDto: UpdateTransactionDto) {
-    return `This action updates a #${id} transaction`;
-  }
+    // const transaction = await this.prisma.transaction.create({
+    //   data: {
+    //     itemId: undefined,
+    //     totalPrice: amount,
+    //     transactionHash: tx.hash,
+    //     blockNumber: tx.blockNumber,
+    //     toAddress: tx.to,
+    //     fromAddress: tx.from,
+    //     buyerId: userId,
+    //     userId: userId,
+    //     type: 'DEPOSIT',
+    //   },
+    // });
 
-  remove(id: number) {
-    return `This action removes a #${id} transaction`;
+    return {
+      transactionHash: tx.hash,
+      blockNumber: tx.blockNumber,
+      // transaction,
+    };
   }
 }
