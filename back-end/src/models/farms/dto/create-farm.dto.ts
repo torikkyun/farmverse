@@ -53,6 +53,7 @@ export class CreateFarmDto {
     required: true,
     type: [String],
     format: 'binary',
+    description: 'Danh sách các ảnh của trang trại, tối đa 5 ảnh',
   })
   images: string[];
 }

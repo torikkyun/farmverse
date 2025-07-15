@@ -3,9 +3,12 @@ FROM node:22-alpine AS builder
 WORKDIR /app
 
 RUN npm install -g pnpm@latest-10
+RUN mkdir -p /app/static/avatars /app/static/items /app/static/farms
 
 COPY package*.json ./
+COPY pnpm-lock.yaml ./
 COPY tsconfig*.json ./
+COPY nest-cli.json ./
 COPY prisma ./prisma
 COPY src ./src
 

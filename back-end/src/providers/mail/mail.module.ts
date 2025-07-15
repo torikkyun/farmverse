@@ -16,12 +16,14 @@ import { MailService } from './mail.service';
         const mailPass = configService.get<string>('MAIL_PASS');
         const mailFromName = configService.get<string>('MAIL_FROM_NAME');
         const mailFromEmail = configService.get<string>('MAIL_FROM_EMAIL');
+        const secure =
+          configService.get<string>('NODE_ENV') === 'production' ? true : false;
 
         return {
           transport: {
             host: mailHost,
             port: mailPort,
-            secure: false,
+            secure: secure,
             auth: {
               user: mailUser,
               pass: mailPass,

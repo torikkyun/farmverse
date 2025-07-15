@@ -78,13 +78,13 @@ export class AuthController {
     return this.authService.resetPassword(resetPasswordDto);
   }
 
-  @Post('resend-reset-password')
-  async resendResetPassword(
+  @Post('resend-forgot-password')
+  async resendForgotPassword(
     @Body(new ValidationPipe()) emailVerificationDto: EmailVerificationDto,
   ): Promise<{
     message: string;
     email: string;
   }> {
-    return this.authService.resendResetPassword(emailVerificationDto);
+    return this.authService.resendForgotPassword(emailVerificationDto);
   }
 }

@@ -242,7 +242,7 @@ export class AuthService {
     return { message: 'Đặt lại mật khẩu thành công', email: updatedUser.email };
   }
 
-  async resendResetPassword({ email }: EmailVerificationDto): Promise<{
+  async resendForgotPassword({ email }: EmailVerificationDto): Promise<{
     message: string;
     email: string;
   }> {

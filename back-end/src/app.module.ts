@@ -9,6 +9,8 @@ import { JwtGuard } from './common/guards/jwt.guard';
 import { ItemsModule } from './models/items/items.module';
 import { SchedulesModule } from './models/schedules/schedules.module';
 import { RolesGuard } from './common/guards/roles.guard';
+import { TransactionsModule } from './models/transactions/transactions.module';
+import { ItemInstancesModule } from './models/item-instances/item-instances.module';
 
 @Module({
   imports: [
@@ -23,6 +25,8 @@ import { RolesGuard } from './common/guards/roles.guard';
     FarmsModule,
     ItemsModule,
     SchedulesModule,
+    ItemInstancesModule,
+    TransactionsModule,
   ],
   providers: [
     {

@@ -31,7 +31,12 @@ export class CreateItemDto {
   @ApiProperty({ required: false })
   description?: string;
 
-  @ApiProperty({ type: [String], format: 'binary', required: true })
+  @ApiProperty({
+    type: [String],
+    format: 'binary',
+    required: true,
+    description: 'Danh sách các ảnh của sản phẩm, tối đa 5 ảnh',
+  })
   images: string[];
 
   @IsNotEmpty({ message: ItemValidationMessages.PRICE.NOT_EMPTY })
