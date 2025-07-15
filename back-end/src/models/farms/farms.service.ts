@@ -48,7 +48,9 @@ export class FarmsService {
     }
 
     if (images && images.length > 0) {
-      createFarmDto.images = images.map((file) => file.filename);
+      createFarmDto.images = images.map(
+        (file) => `/static/farms/${file.filename}`,
+      );
     }
 
     const farm = await this.prisma.farm.create({
@@ -142,7 +144,9 @@ export class FarmsService {
     }
 
     if (images && images.length > 0) {
-      updateFarmDto.images = images.map((file) => file.filename);
+      updateFarmDto.images = images.map(
+        (file) => `/static/farms/${file.filename}`,
+      );
     }
 
     const updatedFarm = await this.prisma.farm.update({

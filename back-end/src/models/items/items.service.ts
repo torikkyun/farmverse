@@ -58,7 +58,9 @@ export class ItemsService {
     }
 
     if (images && images.length > 0) {
-      createItemDto.images = images.map((file) => file.filename);
+      createItemDto.images = images.map(
+        (file) => `/static/items/${file.filename}`,
+      );
     }
 
     const item = await this.prisma.item.create({
@@ -162,7 +164,9 @@ export class ItemsService {
     }
 
     if (images && images.length > 0) {
-      updateItemDto.images = images.map((file) => file.filename);
+      updateItemDto.images = images.map(
+        (file) => `/static/items/${file.filename}`,
+      );
     }
 
     const updatedItem = await this.prisma.item.update({

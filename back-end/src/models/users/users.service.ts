@@ -79,7 +79,7 @@ export class UsersService {
       where: { id },
       data: {
         ...updateUserDto,
-        avatar: avatar ? avatar.filename : undefined,
+        avatar: avatar ? `/static/avatars/${avatar.filename}` : undefined,
       },
     });
 
