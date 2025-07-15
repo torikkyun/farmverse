@@ -4,11 +4,10 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import FarmModal from "./FarmModal";
-import { FarmPagination } from "./FarmPagination";
-import FarmSearchBar from "./FarmSearchBar";
-import FarmTable from "./FarmTable";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Pagination from "@/components/ui/pagination";
+
 import FarmerFarmCard from "./FarmerFarmCard";
+import { useAddFarmForm, useEditFarmForm } from "./useFarmActions";
 
 const apiURL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -32,30 +31,18 @@ export default function FarmPage() {
   });
   const [search, setSearch] = useState("");
   const [showAdd, setShowAdd] = useState(false);
-  const [addForm, setAddForm] = useState<{
-    name: string;
-    description: string;
-    location: string;
-    size: string;
-    images: string;
-  }>({
-    name: "",
-    description: "",
-    location: "",
-    size: "",
-    images: "",
-  });
-  const [addError, setAddError] = useState<string | null>(null);
-  const [addSuccess, setAddSuccess] = useState<string | null>(null);
-  const [editFarm, setEditFarm] = useState<Farm | null>(null);
-  const [showMenu, setShowMenu] = useState<string | number | null>(null);
-  const [editError, setEditError] = useState<string | null>(null);
-  const [editSuccess, setEditSuccess] = useState<string | null>(null);
-
   const [userFarm, setUserFarm] = useState<Farm | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
 
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Phân trang
+  const handlePageChange = (page: number) => {
+    setMeta((prev) => ({
+      ...prev,
+      currentPage: Math.max(1, Math.min(page, prev.totalPages)),
+    }));
+  };
 
   // Lấy user info từ localStorage
   useEffect(() => {
@@ -125,20 +112,14 @@ export default function FarmPage() {
 
   // Gọi đúng API theo role
   useEffect(() => {
+    if (!userRole) return;
     if (userRole === "FARMER") {
       fetchFarmByOwner();
-    } else if (userRole) {
+    } else {
       fetchFarms(meta.currentPage, meta.pageSize, search);
     }
     // eslint-disable-next-line
   }, [userRole, meta.currentPage, meta.pageSize, search]);
-
-  const handlePageChange = (next: boolean) => {
-    const newPage = next
-      ? Math.min(meta.currentPage + 1, meta.totalPages)
-      : Math.max(meta.currentPage - 1, 1);
-    setMeta((m) => ({ ...m, currentPage: newPage }));
-  };
 
   useEffect(() => {
     if (userRole && userRole !== "FARMER") {
@@ -157,32 +138,21 @@ export default function FarmPage() {
     }
   };
 
-  const [editForm, setEditForm] = useState<{
-    id?: string;
-    name: string;
-    description: string;
-    location: string;
-    size: string; // <-- chỉ string
-    images: string;
-  }>({
-    name: "",
-    description: "",
-    location: "",
-    size: "",
-    images: "",
-  });
+  // Thay thế các state liên quan đến nút bằng custom hook
+  const addFarm = useAddFarmForm();
+  const editFarmForm = useEditFarmForm();
 
   const handleAddFarm = async (e: React.FormEvent) => {
     e.preventDefault();
-    setAddError(null);
-    setAddSuccess(null);
-    setLoading(true); // Bắt đầu loading
+    addFarm.setError(null);
+    addFarm.setSuccess(null);
+    setLoading(true);
     const userData = localStorage.getItem("user");
     const token = userData ? JSON.parse(userData).data?.accessToken : null;
     try {
-      const imagesArray = Array.isArray(addForm.images)
-        ? addForm.images
-        : addForm.images
+      const imagesArray = Array.isArray(addFarm.form.images)
+        ? addFarm.form.images
+        : addFarm.form.images
             .split(",")
             .map((url) => url.trim())
             .filter(Boolean);
@@ -194,82 +164,82 @@ export default function FarmPage() {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({
-          name: addForm.name,
-          description: addForm.description,
-          location: addForm.location,
-          size: Number(addForm.size),
+          name: addFarm.form.name,
+          description: addFarm.form.description,
+          location: addFarm.form.location,
+          size: Number(addFarm.form.size),
           images: imagesArray,
         }),
       });
       if (!res.ok) {
-        setAddError("Thêm nông trại thất bại");
+        addFarm.setError("Thêm nông trại thất bại");
         setLoading(false);
         return;
       }
-      setAddSuccess("Thêm nông trại thành công!");
-      setAddForm({
+      addFarm.setSuccess("Thêm nông trại thành công!");
+      addFarm.setForm({
         name: "",
         description: "",
         location: "",
         size: "",
         images: "",
       });
-      setShowAdd(false);
+      addFarm.setOpen(false);
       // Tự động reload trang
       window.location.reload();
     } catch {
-      setAddError("Thêm nông trại thất bại");
+      addFarm.setError("Thêm nông trại thất bại");
     } finally {
       setLoading(false);
     }
   };
 
   const handleEditFarm = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setEditError(null);
-    setEditSuccess(null);
-    if (!editFarm) {
-      setEditError("Không có thông tin nông trại để sửa");
+  e.preventDefault();
+  editFarmForm.setError(null);
+  editFarmForm.setSuccess(null);
+  if (!editFarmForm.farm) {
+    editFarmForm.setError("Không có thông tin nông trại để sửa");
+    return;
+  }
+  const userData = localStorage.getItem("user");
+  const token = userData ? JSON.parse(userData).data?.accessToken : null;
+  try {
+    const res = await fetch(`${apiURL}/farms`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify({
+        name: editFarmForm.form.name,
+        description: editFarmForm.form.description,
+        location: editFarmForm.form.location,
+        size: Number(editFarmForm.form.size),
+        images: editFarmForm.form.images
+          .split(",")
+          .map((url) => url.trim())
+          .filter(Boolean),
+      }),
+    });
+    if (!res.ok) {
+      editFarmForm.setError("Sửa nông trại thất bại");
       return;
     }
-    const userData = localStorage.getItem("user");
-    const token = userData ? JSON.parse(userData).data?.accessToken : null;
-    try {
-      const res = await fetch(`${apiURL}/farms`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify({
-          name: editForm.name,
-          description: editForm.description,
-          location: editForm.location,
-          size: Number(editForm.size),
-          images: editForm.images
-            .split(",")
-            .map((url) => url.trim())
-            .filter(Boolean),
-        }),
-      });
-      if (!res.ok) {
-        setEditError("Sửa nông trại thất bại");
-        return;
-      }
-      setEditSuccess("Sửa nông trại thành công!");
-      setEditFarm(null);
-      setEditForm({
-        name: "",
-        description: "",
-        location: "",
-        size: "",
-        images: "",
-      });
-      fetchFarms(meta.currentPage, meta.pageSize, search);
-    } catch {
-      setEditError("Sửa nông trại thất bại");
-    }
-  };
+    editFarmForm.setSuccess("Sửa nông trại thành công!");
+    editFarmForm.farm = null;
+    editFarmForm.setForm({
+      name: "",
+      description: "",
+      location: "",
+      size: "",
+      images: "",
+    });
+    fetchFarms(meta.currentPage, meta.pageSize, search);
+  } catch {
+    editFarmForm.setError("Sửa nông trại thất bại");
+  }
+};
 
   // UI
   return (
@@ -287,26 +257,33 @@ export default function FarmPage() {
         <div className="w-full flex flex-1 flex-col bg-white dark:bg-black min-h-screen transition-colors">
           <div className="w-full px-2 sm:px-4 py-6 flex-1 flex flex-col gap-6">
             {userRole === "FARMER" && userFarm && userFarm.id ? (
+              // FARMER đã có farm: chỉ hiện farm của họ
               <FarmerFarmCard farm={userFarm} />
             ) : (
-              // Chưa có farm: chỉ cho tạo farm
+              // FARMER chưa có farm hoặc role khác: hiện danh sách farm và nút tạo farm
               <>
                 <FarmModal
-                  open={showAdd}
-                  setOpen={setShowAdd}
-                  form={addForm}
-                  setForm={setAddForm}
+                  open={addFarm.open}
+                  setOpen={addFarm.setOpen}
+                  form={addFarm.form}
+                  setForm={addFarm.setForm}
                   handleSubmit={handleAddFarm}
-                  error={addError ?? undefined}
-                  success={addSuccess ?? undefined}
+                  error={addFarm.error ?? undefined}
+                  success={addFarm.success ?? undefined}
                   mode="add"
                 />
                 <button
                   className="px-4 py-2 bg-black text-white rounded font-semibold w-fit mt-4"
-                  onClick={() => setShowAdd(true)}
+                  onClick={() => addFarm.setOpen(true)}
                 >
                   + Tạo nông trại của bạn
                 </button>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-4">
+                  {farms.map((farm) => (
+                    <FarmerFarmCard key={farm.id} farm={farm} />
+                  ))}
+                </div>
+                <Pagination meta={meta} onPageChange={handlePageChange} />
               </>
             )}
           </div>
