@@ -7,10 +7,8 @@ import {
   MinLength,
   IsEnum,
   IsOptional,
-  IsArray,
   IsNumber,
   Min,
-  ArrayNotEmpty,
 } from 'class-validator';
 import { ItemValidationMessages } from 'src/common/constants/item-validation-msg';
 
@@ -33,13 +31,7 @@ export class CreateItemDto {
   @ApiProperty({ required: false })
   description?: string;
 
-  @IsArray({ message: ItemValidationMessages.IMAGES.MUST_BE_ARRAY })
-  @ArrayNotEmpty({ message: ItemValidationMessages.IMAGES.MUST_BE_ARRAY })
-  @IsString({
-    each: true,
-    message: ItemValidationMessages.IMAGES.MUST_BE_STRING,
-  })
-  @ApiProperty({ type: [String] })
+  @ApiProperty({ type: [String], format: 'binary', required: true })
   images: string[];
 
   @IsNotEmpty({ message: ItemValidationMessages.PRICE.NOT_EMPTY })

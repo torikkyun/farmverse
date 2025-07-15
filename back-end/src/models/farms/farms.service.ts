@@ -37,6 +37,7 @@ export class FarmsService {
   async create(
     { id }: { id: string },
     createFarmDto: CreateFarmDto,
+    images?: Array<Express.Multer.File>,
   ): Promise<{ message: string; farm: FarmResponseDto }> {
     const existingFarm = await this.prisma.farm.findFirst({
       where: { ownerId: id },
@@ -44,6 +45,10 @@ export class FarmsService {
 
     if (existingFarm) {
       throw new ConflictException('Bạn đã có trang trại');
+    }
+
+    if (images && images.length > 0) {
+      createFarmDto.images = images.map((file) => file.filename);
     }
 
     const farm = await this.prisma.farm.create({
@@ -128,11 +133,16 @@ export class FarmsService {
   async update(
     { id }: { id: string },
     updateFarmDto: UpdateFarmDto,
+    images?: Array<Express.Multer.File>,
   ): Promise<{ message: string; farm: FarmResponseDto }> {
     const farm = await this.prisma.farm.findUnique({ where: { ownerId: id } });
 
     if (!farm) {
       throw new NotFoundException(`Không tìm thấy trang trại với ID: ${id}`);
+    }
+
+    if (images && images.length > 0) {
+      updateFarmDto.images = images.map((file) => file.filename);
     }
 
     const updatedFarm = await this.prisma.farm.update({

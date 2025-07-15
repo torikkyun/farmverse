@@ -20,10 +20,4 @@ export const FarmValidationMessages = {
     MAX_LENGTH: 'Mô tả trang trại không được vượt quá 500 ký tự',
     MUST_BE_STRING: 'Mô tả trang trại phải là chuỗi ký tự',
   },
-  IMAGES: {
-    ARRAY_NOT_EMPTY: 'Danh sách hình ảnh không được để trống',
-    MUST_BE_ARRAY: 'Hình ảnh phải là một mảng',
-    MUST_BE_URL: 'Mỗi hình ảnh phải là URL hợp lệ',
-    MUST_BE_STRING: 'Mỗi hình ảnh phải là chuỗi ký tự',
-  },
 };

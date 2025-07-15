@@ -7,10 +7,8 @@ import {
   Delete,
   Query,
   UseGuards,
-  Post,
   UseInterceptors,
   UploadedFile,
-  Res,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -25,11 +23,6 @@ import { Public } from 'src/common/decorators/public.decorator';
 import { LocalGuard } from 'src/common/guards/local.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FileValidationPipe } from 'src/common/pipes/file-validation.pipe';
-import { diskStorage } from 'multer';
-import { v4 as uuidv4 } from 'uuid';
-import { extname, join } from 'path';
-import { createReadStream } from 'fs';
-import { Response } from 'express';
 
 @Controller('api/users')
 @ApiTags('users')
@@ -52,28 +45,8 @@ export class UsersController {
     return this.usersService.findOne(userId);
   }
 
-  @Get('avatar/:fileName')
-  @Public()
-  getFile(@Param('fileName') fileName: string, @Res() res: Response) {
-    const file = createReadStream(
-      join(process.cwd(), 'static/avatars', fileName),
-    );
-    file.pipe(res);
-  }
-
   @Patch()
-  @UseInterceptors(
-    FileInterceptor('avatar', {
-      storage: diskStorage({
-        destination: './static/avatars',
-        filename: (req, file, cb) => {
-          const fileExtName = extname(file.originalname);
-          const newFileName = `${uuidv4()}${fileExtName}`;
-          cb(null, newFileName);
-        },
-      }),
-    }),
-  )
+  @UseInterceptors(FileInterceptor('avatar'))
   @ApiBearerAuth()
   @ApiConsumes('multipart/form-data')
   update(

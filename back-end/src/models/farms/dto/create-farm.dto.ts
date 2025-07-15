@@ -1,5 +1,4 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
 import {
   IsNotEmpty,
   IsNumber,
@@ -8,9 +7,6 @@ import {
   MaxLength,
   MinLength,
   Min,
-  IsArray,
-  IsUrl,
-  ArrayNotEmpty,
 } from 'class-validator';
 import { FarmValidationMessages } from 'src/common/constants/farm-validation-msg';
 
@@ -53,17 +49,10 @@ export class CreateFarmDto {
   })
   size: number;
 
-  @IsOptional()
-  @IsArray({ message: FarmValidationMessages.IMAGES.MUST_BE_ARRAY })
-  @ArrayNotEmpty({ message: FarmValidationMessages.IMAGES.ARRAY_NOT_EMPTY })
-  @Type(() => String)
-  @IsUrl({}, { each: true, message: FarmValidationMessages.IMAGES.MUST_BE_URL })
   @ApiProperty({
-    example: [
-      'https://example.com/image1.jpg',
-      'https://example.com/image2.jpg',
-    ],
-    required: false,
+    required: true,
+    type: [String],
+    format: 'binary',
   })
   images: string[];
 }

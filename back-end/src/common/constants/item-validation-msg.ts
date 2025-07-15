@@ -14,10 +14,6 @@ export const ItemValidationMessages = {
     MAX_LENGTH: 'Mô tả vật phẩm không được vượt quá 500 ký tự',
     MUST_BE_STRING: 'Mô tả vật phẩm phải là chuỗi ký tự',
   },
-  IMAGES: {
-    MUST_BE_ARRAY: 'Hình ảnh phải là một mảng',
-    MUST_BE_STRING: 'Mỗi hình ảnh phải là chuỗi ký tự',
-  },
   PRICE: {
     NOT_EMPTY: 'Giá vật phẩm không được để trống',
     MUST_BE_NUMBER: 'Giá vật phẩm phải là số',

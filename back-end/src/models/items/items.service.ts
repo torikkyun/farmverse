@@ -46,6 +46,7 @@ export class ItemsService {
   async create(
     { id }: { id: string },
     createItemDto: CreateItemDto,
+    images?: Array<Express.Multer.File>,
   ): Promise<{ message: string; item: ItemResponseDto }> {
     const farm = await this.prisma.farm.findUnique({
       where: { ownerId: id },
@@ -54,6 +55,10 @@ export class ItemsService {
 
     if (!farm) {
       throw new BadRequestException('Không tìm thấy trang trại');
+    }
+
+    if (images && images.length > 0) {
+      createItemDto.images = images.map((file) => file.filename);
     }
 
     const item = await this.prisma.item.create({
@@ -130,6 +135,7 @@ export class ItemsService {
     { id }: { id: string },
     itemId: string,
     updateItemDto: UpdateItemDto,
+    images?: Express.Multer.File[],
   ): Promise<{ message: string; item: ItemResponseDto }> {
     const item = await this.prisma.item.findUnique({
       where: { id: itemId },
@@ -153,6 +159,10 @@ export class ItemsService {
       throw new ForbiddenException(
         'Bạn không có quyền cập nhật vật phẩm này vì nó không thuộc trang trại của bạn',
       );
+    }
+
+    if (images && images.length > 0) {
+      updateItemDto.images = images.map((file) => file.filename);
     }
 
     const updatedItem = await this.prisma.item.update({

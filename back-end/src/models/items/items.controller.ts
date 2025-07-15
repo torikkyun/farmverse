@@ -7,18 +7,22 @@ import {
   Param,
   Delete,
   Query,
+  UseInterceptors,
+  UploadedFiles,
 } from '@nestjs/common';
 import { ItemsService } from './items.service';
 import { CreateItemDto } from './dto/create-item.dto';
 import { UpdateItemDto } from './dto/update-item.dto';
 import { ItemResponseDto } from 'src/common/dto/item-response.dto';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { Public } from 'src/common/decorators/public.decorator';
 import { SearchItemsQueryDto } from './dto/search-item.dto';
 import { PaginationResponseDto } from 'src/common/dto/pagination.dto';
 import { UserRole } from 'generated/prisma';
 import { Roles } from 'src/common/decorators/roles.decorator';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import { FileValidationPipe } from 'src/common/pipes/file-validation.pipe';
 
 @Controller('api/items')
 @ApiTags('items')
@@ -27,12 +31,16 @@ export class ItemsController {
 
   @Post()
   @Roles(UserRole.FARMER)
+  @UseInterceptors(FileFieldsInterceptor([{ name: 'images', maxCount: 5 }]))
   @ApiBearerAuth()
+  @ApiConsumes('multipart/form-data')
   create(
-    @CurrentUser() user: { id: string; role: UserRole },
+    @CurrentUser() user: { id: string },
     @Body() createItemDto: CreateItemDto,
+    @UploadedFiles(new FileValidationPipe())
+    images?: Array<Express.Multer.File>,
   ): Promise<{ message: string; item: ItemResponseDto }> {
-    return this.itemsService.create(user, createItemDto);
+    return this.itemsService.create(user, createItemDto, images);
   }
 
   @Get()
@@ -51,13 +59,17 @@ export class ItemsController {
 
   @Patch(':itemId')
   @Roles(UserRole.FARMER)
+  @UseInterceptors(FileFieldsInterceptor([{ name: 'images', maxCount: 5 }]))
   @ApiBearerAuth()
+  @ApiConsumes('multipart/form-data')
   update(
     @CurrentUser() user: { id: string },
     @Param('itemId') itemId: string,
     @Body() updateItemDto: UpdateItemDto,
+    @UploadedFiles(new FileValidationPipe())
+    images?: Array<Express.Multer.File>,
   ) {
-    return this.itemsService.update(user, itemId, updateItemDto);
+    return this.itemsService.update(user, itemId, updateItemDto, images);
   }
 
   // @Delete(':itemId')
