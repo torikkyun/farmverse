@@ -26,6 +26,8 @@ export default function FarmTabs({
   selectedItems,
   handleSelect,
 }: Props) {
+  const data = activeTab === 0 ? items : dungs;
+
   return (
     <>
       <TabMenu
@@ -38,13 +40,27 @@ export default function FarmTabs({
         setActiveTab={setActiveTab}
       />
       <main className="flex-1 p-6 bg-white">
-        {activeTab === 0 && (
-          <NFTGrid items={items} selectedItems={selectedItems} onSelect={handleSelect} />
-        )}
-        {activeTab === 1 && (
-          <DungGrid dungs={dungs} selectedItems={selectedItems} onSelect={handleSelect} />
-        )}
-        {activeTab === 2 }
+        <div>
+          {data.length === 0 && (
+            <div className="text-gray-400 py-4 text-center">
+              Không có dữ liệu
+            </div>
+          )}
+          {data.map((item) => (
+            <div
+              key={item.id}
+              className="border-b py-2 flex items-center gap-2"
+            >
+              <img
+                src={item.image}
+                alt={item.name}
+                className="w-10 h-10 rounded"
+              />
+              <span>{item.name}</span>
+              <span className="ml-2 text-xs text-gray-500">{item.price}đ</span>
+            </div>
+          ))}
+        </div>
       </main>
     </>
   );
