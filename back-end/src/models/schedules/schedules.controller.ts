@@ -11,7 +11,6 @@ import {
 import { SchedulesService } from './schedules.service';
 import { CreateScheduleDto } from './dto/create-schedule.dto';
 import { UpdateScheduleDto } from './dto/update-schedule.dto';
-import { ValidationPipe } from 'src/common/pipes/validation.pipe';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { UserRole } from 'generated/prisma';
@@ -29,7 +28,7 @@ export class SchedulesController {
   @ApiBearerAuth()
   create(
     @CurrentUser() user: { id: string },
-    @Body(new ValidationPipe()) createScheduleDto: CreateScheduleDto,
+    @Body() createScheduleDto: CreateScheduleDto,
   ): Promise<{ message: string; schedule: ScheduleResponseDto }> {
     return this.schedulesService.create(user, createScheduleDto);
   }
@@ -55,7 +54,7 @@ export class SchedulesController {
   @ApiBearerAuth()
   update(
     @CurrentUser() user: { id: string },
-    @Body(new ValidationPipe()) updateScheduleDto: UpdateScheduleDto,
+    @Body() updateScheduleDto: UpdateScheduleDto,
   ): Promise<{ message: string; schedule: ScheduleResponseDto }> {
     return this.schedulesService.update(user, updateScheduleDto);
   }

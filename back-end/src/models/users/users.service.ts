@@ -73,10 +73,14 @@ export class UsersService {
   async update(
     { id }: { id: string },
     updateUserDto: UpdateUserDto,
+    avatar?: Express.Multer.File,
   ): Promise<{ message: string; user: UserResponseDto }> {
     const updatedUser = await this.prisma.user.update({
       where: { id },
-      data: updateUserDto,
+      data: {
+        ...updateUserDto,
+        avatar: avatar ? avatar.filename : undefined,
+      },
     });
 
     return {

@@ -1,11 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsOptional,
-  IsString,
-  IsUrl,
-  MaxLength,
-  MinLength,
-} from 'class-validator';
+import { IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
 import { UserValidationMessages } from 'src/common/constants/user-validation-msg';
 
 export class UpdateUserDto {
@@ -30,10 +24,10 @@ export class UpdateUserDto {
   phone?: string;
 
   @IsOptional()
-  @IsUrl({}, { message: UserValidationMessages.AVATAR.MUST_BE_URL })
   @ApiProperty({
-    example: 'https://example.com/avatar.jpg',
+    type: 'string',
+    format: 'binary',
     required: false,
   })
-  avatar?: string;
+  avatar?: any;
 }

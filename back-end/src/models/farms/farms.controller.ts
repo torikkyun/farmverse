@@ -15,7 +15,6 @@ import { Public } from 'src/common/decorators/public.decorator';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { FarmResponseDto } from 'src/common/dto/farm-response.dto';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
-import { ValidationPipe } from 'src/common/pipes/validation.pipe';
 import { PaginationResponseDto } from 'src/common/dto/pagination.dto';
 import { SearchFarmsQueryDto } from './dto/search-farm.dto';
 import { UserRole } from 'generated/prisma';
@@ -31,7 +30,7 @@ export class FarmsController {
   @ApiBearerAuth()
   create(
     @CurrentUser() user: { id: string },
-    @Body(new ValidationPipe()) createFarmDto: CreateFarmDto,
+    @Body() createFarmDto: CreateFarmDto,
   ): Promise<{ message: string; farm: FarmResponseDto }> {
     return this.farmsService.create(user, createFarmDto);
   }
@@ -39,7 +38,7 @@ export class FarmsController {
   @Get()
   @Public()
   findAll(
-    @Query(new ValidationPipe()) searchFarmsQueryDto: SearchFarmsQueryDto,
+    @Query() searchFarmsQueryDto: SearchFarmsQueryDto,
   ): Promise<PaginationResponseDto<FarmResponseDto>> {
     return this.farmsService.findAll(searchFarmsQueryDto);
   }

@@ -14,7 +14,6 @@ import { UpdateItemDto } from './dto/update-item.dto';
 import { ItemResponseDto } from 'src/common/dto/item-response.dto';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { ValidationPipe } from 'src/common/pipes/validation.pipe';
 import { Public } from 'src/common/decorators/public.decorator';
 import { SearchItemsQueryDto } from './dto/search-item.dto';
 import { PaginationResponseDto } from 'src/common/dto/pagination.dto';
@@ -31,7 +30,7 @@ export class ItemsController {
   @ApiBearerAuth()
   create(
     @CurrentUser() user: { id: string; role: UserRole },
-    @Body(new ValidationPipe()) createItemDto: CreateItemDto,
+    @Body() createItemDto: CreateItemDto,
   ): Promise<{ message: string; item: ItemResponseDto }> {
     return this.itemsService.create(user, createItemDto);
   }
@@ -39,7 +38,7 @@ export class ItemsController {
   @Get()
   @Public()
   findAll(
-    @Query(new ValidationPipe()) searchItemsQueryDto: SearchItemsQueryDto,
+    @Query() searchItemsQueryDto: SearchItemsQueryDto,
   ): Promise<PaginationResponseDto<ItemResponseDto>> {
     return this.itemsService.findAll(searchItemsQueryDto);
   }
@@ -56,7 +55,7 @@ export class ItemsController {
   update(
     @CurrentUser() user: { id: string },
     @Param('itemId') itemId: string,
-    @Body(new ValidationPipe()) updateItemDto: UpdateItemDto,
+    @Body() updateItemDto: UpdateItemDto,
   ) {
     return this.itemsService.update(user, itemId, updateItemDto);
   }
