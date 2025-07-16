@@ -9,22 +9,22 @@ describe('TransactionLogger', function () {
     );
     const logger: any = await TransactionLogger.deploy();
 
-    // Record a DEPOSIT transaction
-    await logger.connect(user).recordTransaction(0, 1000); // 0 = DEPOSIT
+    // Ghi một DEPOSIT transaction
+    await logger.connect(user).recordTransaction(0, 1000);
 
-    // Record a PURCHASE transaction
-    await logger.connect(user).recordTransaction(1, 500); // 1 = PURCHASE
+    // Ghi một PURCHASE transaction
+    await logger.connect(user).recordTransaction(1, 500);
 
-    // Check transaction count
+    // Kiểm tra số lượng giao dịch đã ghi
     expect(await logger.getTransactionCount()).to.equal(2n);
 
-    // Get first transaction
+    // Lấy giao dịch đầu tiên
     const tx1 = await logger.getTransaction(0);
     expect(tx1.user).to.equal(user.address);
     expect(tx1.txType).to.equal(0n);
     expect(tx1.amount).to.equal(1000n);
 
-    // Get second transaction
+    // Lấy giao dịch thứ hai
     const tx2 = await logger.getTransaction(1);
     expect(tx2.txType).to.equal(1n);
     expect(tx2.amount).to.equal(500n);

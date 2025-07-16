@@ -49,7 +49,7 @@ model User {
   otpExpires              DateTime?
   resetPasswordOtp        String?
   resetPasswordOtpExpires DateTime?
-  fvtBalance              Float          @default(0.0)
+  fvtBalance              Float          @default(0)
   createdAt               DateTime       @default(now())
   updatedAt               DateTime       @updatedAt
   Farm                    Farm?
@@ -119,7 +119,7 @@ model Transaction {
   buyer           User              @relation(fields: [buyerId], references: [id])
   buyerId         String            @db.ObjectId
   item            Item?             @relation(fields: [itemId], references: [id])
-  itemId          String            @db.ObjectId
+  itemId          String?           @db.ObjectId
   Farm            Farm?             @relation(fields: [farmId], references: [id])
   farmId          String?           @db.ObjectId
   TransactionItem TransactionItem[]

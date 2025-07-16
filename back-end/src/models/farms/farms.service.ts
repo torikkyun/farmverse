@@ -15,8 +15,6 @@ import {
 } from 'src/common/dto/pagination.dto';
 import { Prisma } from 'generated/prisma';
 import { UserResponseDto } from 'src/common/dto/user-response.dto';
-import { SearchItemsQueryDto } from '../items/dto/search-item.dto';
-import { ItemResponseDto } from 'src/common/dto/item-response.dto';
 
 @Injectable()
 export class FarmsService {

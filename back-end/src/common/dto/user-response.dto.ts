@@ -26,4 +26,8 @@ export class UserResponseDto {
   @Expose()
   @ApiProperty()
   avatar?: string;
+
+  @Expose()
+  @ApiProperty()
+  fvtBalance: number;
 }
