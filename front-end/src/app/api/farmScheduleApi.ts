@@ -4,7 +4,7 @@ export async function getFarmSchedules(farmId: string) {
     typeof window !== "undefined"
       ? JSON.parse(localStorage.getItem("user") || "{}")?.data?.accessToken || ""
       : "";
-  const res = await fetch(`${API_URL}/schedules?farmId=${farmId}`, {
+  const res = await fetch(`${API_URL}/schedules/farm/${farmId}`, {
     headers: {
       Authorization: `Bearer ${token}`,
       Accept: "*/*",
