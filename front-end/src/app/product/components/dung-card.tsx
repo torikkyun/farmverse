@@ -2,6 +2,7 @@ interface DungItem {
   id: number;
   image: string;
   name: string;
+  price: number;
 }
 
 interface DungCardProps {
@@ -44,6 +45,7 @@ export default function DungCard({ dungs, selected, onSelect }: DungCardProps) {
       </div>
       <div className="flex-1 flex flex-col px-4 py-3">
         <div className="font-bold text-base truncate">{dungs.name}</div>
+        <div className="font-bold text-base truncate">{dungs.price}</div>
       </div>
     </div>
   );

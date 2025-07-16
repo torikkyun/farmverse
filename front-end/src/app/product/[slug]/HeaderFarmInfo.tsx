@@ -5,19 +5,15 @@ interface Props {
   farm: Farm | null;
   loading: boolean;
   error: string | null;
-  onCreateItem?: () => void;
-  currentUserId?: string; // thêm prop này
+  currentUserId?: string;
 }
 
 export default function HeaderFarmInfo({
   farm,
   loading,
   error,
-  onCreateItem,
-  currentUserId,
 }: Props) {
-  const isOwner = farm && currentUserId && farm.owner?.id === currentUserId;
-
+  // Không còn nút tạo vật phẩm
   return (
     <div className="flex items-center gap-4 p-6 border-b border-black/10 bg-white">
       <img
@@ -38,15 +34,6 @@ export default function HeaderFarmInfo({
         </div>
         {error && <div className="text-red-500 text-xs mt-1">{error}</div>}
       </div>
-      {isOwner && (
-        <button
-          className="ml-4 px-4 py-2 bg-white text-black border border-black rounded hover:bg-black hover:text-white transition"
-          onClick={onCreateItem}
-          type="button"
-        >
-          + Tạo vật phẩm
-        </button>
-      )}
     </div>
   );
 }

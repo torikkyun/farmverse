@@ -2,6 +2,7 @@ interface NFTItem {
   id: number;
   image: string;
   name: string;
+  price: number;
 }
 
 interface NFTCardProps {
@@ -12,39 +13,30 @@ interface NFTCardProps {
 
 export default function NFTCard({ item, selected, onSelect }: NFTCardProps) {
   return (
-    <div
-      className={`group bg-white border rounded-2xl p-0 flex flex-col items-stretch text-black relative overflow-hidden shadow-sm hover:shadow-xl transition-all duration-200
-        ${selected ? "border-blue-600 ring-2 ring-blue-400" : "border-black/10"}
-      `}
-    >
-      <div className="relative">
+    <div className="relative group bg-white dark:bg-black border rounded-lg shadow p-4 transition hover:shadow-lg">
+      <button
+        className={`absolute top-2 right-2 transition p-1 rounded-full shadow-lg
+          ${
+            selected
+              ? "bg-blue-600 text-white opacity-100"
+              : "bg-gray-100 dark:bg-gray-800 text-black dark:text-white opacity-0 group-hover:opacity-100 hover:bg-black/80 hover:text-white"
+          }`}
+        title={selected ? "Bỏ chọn" : "Thêm vào giỏ hàng"}
+        style={{ zIndex: 20, fontSize: 22 }}
+        onClick={() => onSelect(String(item.id))}
+      >
+        +
+      </button>
+      {item.image && (
         <img
           src={item.image}
-          srcSet={`${item.image} 1x, ${item.image.replace(
-            "/200/200",
-            "/400/400"
-          )} 2x`}
+          srcSet={`${item.image} 1x, ${item.image.replace("/200/200", "/400/400")} 2x`}
           alt={item.name}
-          className="w-full aspect-[1/1] object-cover rounded-t-2xl border-b border-black/10 transition-all duration-200 group-hover:scale-105 bg-black"
+          className="w-full h-32 object-cover rounded mb-2 bg-black"
         />
-        <button
-          onClick={() => onSelect(String(item.id))}
-          className={`absolute top-3 right-3 rounded-full w-9 h-9 flex items-center justify-center transition-all duration-200 shadow-lg
-            ${
-              selected
-                ? "bg-blue-600 text-white opacity-100"
-                : "bg-black/80 text-white opacity-0 group-hover:opacity-100 hover:bg-black"
-            }
-          `}
-          title={selected ? "Bỏ chọn" : "Thêm vào giỏ hàng"}
-          style={{ zIndex: 20, fontSize: 22 }}
-        >
-          +
-        </button>
-      </div>
-      <div className="flex-1 flex flex-col px-4 py-3">
-        <div className="font-bold text-base truncate">{item.name}</div>
-      </div>
+      )}
+      <div className="font-bold text-lg mb-1 line-clamp-1">{item.name}</div>
+      <div className="text-blue-600 font-semibold mb-1">{item.price} ETH</div>
     </div>
   );
 }

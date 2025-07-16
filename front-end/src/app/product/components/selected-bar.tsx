@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 interface Item {
   id: number;
-  price: string;
+  price: number;
   image: string;
   name: string;
 }
@@ -32,9 +32,7 @@ export default function SelectedBar({
 
   if (!visible) return null;
 
-  const totalPrice = (
-    selectedItems.length * (parseFloat(items[0].price) || 0)
-  ).toFixed(3);
+  const totalPrice = (selectedItems.length * (items[0]?.price || 0)).toFixed(3);
 
   return (
     <div className="fixed bottom-0 left-0 w-full bg-gradient-to-r from-black via-neutral-900 to-black text-white flex items-center px-3 md:px-8 py-3 md:py-4 z-50 shadow-2xl border-t border-white/10 transition-all duration-300">

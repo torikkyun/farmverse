@@ -1,12 +1,20 @@
+import { useEffect, useState } from "react";
+import { getFarmSchedules } from "./farmScheduleApi";
 import TabMenu from "../components/tab-menu";
-import NFTGrid from "../components/nft-grid";
-import DungGrid from "../components/dung-grid";
+import NFTCard from "../components/nft-card";
+import DungCard from "../components/dung-card";
 
 type NFTItem = {
   id: number;
-  name: string;
-  price: string;
   image: string;
+  name: string;
+  price: number;
+};
+
+type Schedule = {
+  id: string;
+  name: string;
+  date: string;
 };
 
 interface Props {
@@ -15,7 +23,8 @@ interface Props {
   items: NFTItem[];
   dungs: NFTItem[];
   selectedItems: number[];
-  handleSelect: (id: number) => void;
+  handleSelect: (id: number, type: "plant" | "dung") => void; // sửa lại
+  farmId?: string;
 }
 
 export default function FarmTabs({
@@ -25,8 +34,30 @@ export default function FarmTabs({
   dungs,
   selectedItems,
   handleSelect,
+  farmId,
 }: Props) {
   const data = activeTab === 0 ? items : dungs;
+
+  // State cho lịch trình farm
+  const [schedules, setSchedules] = useState<Schedule[]>([]);
+  const [loadingSchedule, setLoadingSchedule] = useState(false);
+  const [errorSchedule, setErrorSchedule] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (activeTab === 2 && farmId) {
+      setLoadingSchedule(true);
+      getFarmSchedules(String(farmId))
+        .then((data) => {
+          const tasks = Array.isArray(data?.data?.schedule?.tasks)
+            ? data.data.schedule.tasks
+            : [];
+          setSchedules(tasks);
+          setErrorSchedule(null);
+        })
+        .catch(() => setErrorSchedule("Không lấy được lịch chăm sóc!"))
+        .finally(() => setLoadingSchedule(false));
+    }
+  }, [activeTab, farmId]);
 
   return (
     <>
@@ -41,25 +72,48 @@ export default function FarmTabs({
       />
       <main className="flex-1 p-6 bg-white">
         <div>
-          {data.length === 0 && (
-            <div className="text-gray-400 py-4 text-center">
-              Không có dữ liệu
+          {activeTab === 2 ? (
+            <div className="bg-white rounded shadow p-4">
+              <h2 className="text-xl font-semibold mb-2">
+                Lịch chăm sóc cây trồng
+              </h2>
+              {loadingSchedule ? (
+                <div>Đang tải...</div>
+              ) : errorSchedule ? (
+                <div className="text-red-500">{errorSchedule}</div>
+              ) : schedules.length === 0 ? (
+                <div>Không có lịch chăm sóc nào.</div>
+              ) : (
+                <ul className="list-disc pl-5">
+                  {schedules.map((task: Schedule) => (
+                    <li key={task.id}>
+                      {task.name} - {task.date}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+              {data.map((item) =>
+                activeTab === 0 ? (
+                  <NFTCard
+                    key={item.id}
+                    item={item}
+                    selected={selectedItems.includes(item.id)}
+                    onSelect={() => handleSelect(item.id, "plant")}
+                  />
+                ) : (
+                  <DungCard
+                    key={item.id}
+                    dungs={item}
+                    selected={selectedItems.includes(item.id)}
+                    onSelect={() => handleSelect(item.id, "dung")}
+                  />
+                )
+              )}
             </div>
           )}
-          {data.map((item) => (
-            <div
-              key={item.id}
-              className="border-b py-2 flex items-center gap-2"
-            >
-              <img
-                src={item.image}
-                alt={item.name}
-                className="w-10 h-10 rounded"
-              />
-              <span>{item.name}</span>
-              <span className="ml-2 text-xs text-gray-500">{item.price}đ</span>
-            </div>
-          ))}
         </div>
       </main>
     </>
