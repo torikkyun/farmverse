@@ -80,7 +80,7 @@ async function main() {
             faker.image.urlLoremFlickr({ category: 'food' }),
             faker.image.urlLoremFlickr({ category: 'plants' }),
           ],
-          price: faker.number.float({ min: 10, max: 100 }),
+          price: faker.number.int({ min: 10, max: 100 }),
           quantity: faker.number.int({ min: 1, max: 50 }),
           farm: { connect: { id: farm.id } },
         },

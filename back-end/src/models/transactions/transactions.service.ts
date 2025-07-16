@@ -1,6 +1,7 @@
 import {
   BadGatewayException,
   BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -119,7 +120,7 @@ export class TransactionsService {
     }
 
     if (id === farm.ownerId) {
-      throw new BadRequestException(
+      throw new ConflictException(
         'Bạn không thể mua vật phẩm từ chính trang trại của mình.',
       );
     }
@@ -149,7 +150,7 @@ export class TransactionsService {
     }
 
     if (buyer.fvtBalance < totalPrice) {
-      throw new BadRequestException(
+      throw new ConflictException(
         'Số dư FVT của bạn không đủ để thực hiện giao dịch này',
       );
     }
@@ -286,7 +287,7 @@ export class TransactionsService {
 
     if (!receipt) {
       throw new BadGatewayException(
-        'Giao dịch không thành công, vui lòng thử lại sau',
+        'Lỗi khi ghi nhận giao dịch trên blockchain, vui lòng thử lại sau',
       );
     }
 
@@ -306,6 +307,22 @@ export class TransactionsService {
     return {
       message: 'Mua vật phẩm thành công',
       transaction: this.toTransactionResponse(transaction),
+    };
+  }
+
+  async getHistory({ id }: { id: string }) {
+    const transactions = await this.prisma.transaction.findMany({
+      where: { buyerId: id },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        buyer: true,
+        TransactionItem: { include: { item: true } },
+      },
+    });
+
+    return {
+      message: 'Lấy lịch sử giao dịch thành công',
+      transactions: transactions.map((tx) => this.toTransactionResponse(tx)),
     };
   }
 }

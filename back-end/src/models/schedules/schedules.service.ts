@@ -39,7 +39,7 @@ export class SchedulesService {
     });
 
     if (!farm) {
-      throw new BadRequestException('Không tìm thấy nông trại của bạn');
+      throw new NotFoundException('Không tìm thấy nông trại của bạn');
     }
 
     const schedule = await this.prisma.schedule.create({
@@ -64,7 +64,7 @@ export class SchedulesService {
     });
 
     if (!schedule) {
-      throw new BadRequestException('Không tìm thấy lịch trình');
+      throw new NotFoundException('Không tìm thấy lịch trình');
     }
 
     return {
@@ -82,7 +82,7 @@ export class SchedulesService {
     });
 
     if (!schedules) {
-      throw new Error('Không tìm thấy lịch trình');
+      throw new NotFoundException('Không tìm thấy lịch trình');
     }
 
     return {

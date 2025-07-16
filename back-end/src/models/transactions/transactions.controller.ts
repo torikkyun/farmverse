@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
@@ -26,5 +26,11 @@ export class TransactionsController {
     @Body() purchaseItemsDto: PurchaseItemsDto,
   ) {
     return await this.transactionsService.purchaseItems(user, purchaseItemsDto);
+  }
+
+  @Get('history')
+  @ApiBearerAuth()
+  async getHistory(@CurrentUser() user: { id: string }) {
+    return await this.transactionsService.getHistory(user);
   }
 }
