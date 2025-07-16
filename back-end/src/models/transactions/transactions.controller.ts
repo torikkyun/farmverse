@@ -3,6 +3,7 @@ import { TransactionsService } from './transactions.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { DepositDto } from './dto/deposit.dto';
+import { PurchaseItemsDto } from './dto/purchase-items.dto';
 
 @Controller('api/transactions')
 @ApiTags('transactions')
@@ -16,5 +17,14 @@ export class TransactionsController {
     @Body() depositDto: DepositDto,
   ) {
     return await this.transactionsService.deposit(user, depositDto);
+  }
+
+  @Post('purchase-items')
+  @ApiBearerAuth()
+  async purchaseItems(
+    @CurrentUser() user: { id: string },
+    @Body() purchaseItemsDto: PurchaseItemsDto,
+  ) {
+    return await this.transactionsService.purchaseItems(user, purchaseItemsDto);
   }
 }

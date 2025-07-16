@@ -101,6 +101,8 @@ model Item {
   Transaction     Transaction[]
   ItemInstance    ItemInstance[]
   TransactionItem TransactionItem[]
+
+  @@index([farmId])
 }
 
 model Transaction {
@@ -136,13 +138,16 @@ model TransactionItem {
   transactionId String      @db.ObjectId
   item          Item        @relation(fields: [itemId], references: [id])
   itemId        String      @db.ObjectId
+
+  @@index([transactionId])
+  @@index([itemId])
 }
 
 model ItemInstance {
   id        String                  @id @default(auto()) @map("_id") @db.ObjectId
   type      ItemType
   quantity  Int?
-  status    TreeRootInstanceStatus? @default(GROWING)
+  status    TreeRootInstanceStatus?
   cameraUrl String?
   startDate DateTime?
   endDate   DateTime?
@@ -156,6 +161,10 @@ model ItemInstance {
   item    Item      @relation(fields: [itemId], references: [id])
   itemId  String    @db.ObjectId
   IotData IotData[]
+
+  @@index([userId])
+  @@index([farmId])
+  @@index([itemId])
 }
 
 model IotData {
