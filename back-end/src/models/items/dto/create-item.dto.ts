@@ -45,9 +45,9 @@ export class CreateItemDto {
   @ApiProperty()
   price: number;
 
-  @IsOptional()
+  @IsNotEmpty({ message: ItemValidationMessages.QUANTITY.NOT_EMPTY })
   @IsNumber({}, { message: ItemValidationMessages.QUANTITY.MUST_BE_NUMBER })
   @Min(0, { message: ItemValidationMessages.QUANTITY.MIN_VALUE })
-  @ApiProperty({ required: false })
-  quantity?: number;
+  @ApiProperty({ required: true })
+  quantity: number;
 }

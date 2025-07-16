@@ -14,10 +14,9 @@ class PurchaseItemDto {
   @ApiProperty({ required: true })
   itemId: string;
 
-  @IsOptional()
   @IsNumber()
-  @ApiProperty({ required: false })
-  quantity?: number;
+  @ApiProperty({ required: true })
+  quantity: number;
 
   @IsOptional()
   @IsBoolean()

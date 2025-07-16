@@ -5,6 +5,9 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('Đang xóa tất cả dữ liệu...');
 
+  await prisma.iotData.deleteMany({});
+  await prisma.transactionItem.deleteMany({});
+  await prisma.itemInstance.deleteMany({});
   await prisma.transaction.deleteMany({});
   await prisma.item.deleteMany({});
   await prisma.schedule.deleteMany({});

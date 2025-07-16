@@ -41,29 +41,32 @@ export class SchedulesController {
     return this.schedulesService.findOne(scheduleId);
   }
 
-  @Get()
+  @Get('farm/:farmId')
   @Public()
   findByFarmId(
-    @Query('farmId') farmId: string,
-  ): Promise<{ message: string; schedule: ScheduleResponseDto }> {
+    @Param('farmId') farmId: string,
+  ): Promise<{ message: string; schedules: ScheduleResponseDto[] }> {
     return this.schedulesService.findByFarmId(farmId);
   }
 
-  @Patch()
+  @Patch(':scheduleId')
   @Roles(UserRole.FARMER)
   @ApiBearerAuth()
   update(
     @CurrentUser() user: { id: string },
+    @Param('scheduleId') scheduleId: string,
     @Body() updateScheduleDto: UpdateScheduleDto,
   ): Promise<{ message: string; schedule: ScheduleResponseDto }> {
-    return this.schedulesService.update(user, updateScheduleDto);
+    return this.schedulesService.update(user, scheduleId, updateScheduleDto);
   }
 
-  // @Delete(':scheduleId')
-  // @ApiBearerAuth()
-  // remove(
-  //   @Param('scheduleId') scheduleId: string,
-  // ): Promise<{ message: string }> {
-  //   return this.schedulesService.remove(scheduleId);
-  // }
+  @Delete(':scheduleId')
+  @Roles(UserRole.FARMER)
+  @ApiBearerAuth()
+  remove(
+    @CurrentUser() user: { id: string },
+    @Param('scheduleId') scheduleId: string,
+  ): Promise<{ message: string }> {
+    return this.schedulesService.remove(user, scheduleId);
+  }
 }

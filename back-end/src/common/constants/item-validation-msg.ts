@@ -1,3 +1,5 @@
+import { N } from 'ethers';
+
 export const ItemValidationMessages = {
   NAME: {
     NOT_EMPTY: 'Tên vật phẩm không được để trống',
@@ -20,6 +22,7 @@ export const ItemValidationMessages = {
     MIN_VALUE: 'Giá vật phẩm phải lớn hơn 0',
   },
   QUANTITY: {
+    NOT_EMPTY: 'Số lượng vật phẩm không được để trống',
     MUST_BE_NUMBER: 'Số lượng vật phẩm phải là số',
     MIN_VALUE: 'Số lượng vật phẩm phải lớn hơn hoặc bằng 0',
   },

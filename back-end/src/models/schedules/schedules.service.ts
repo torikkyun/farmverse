@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateScheduleDto } from './dto/create-schedule.dto';
 import { UpdateScheduleDto } from './dto/update-schedule.dto';
 import { PrismaService } from 'src/providers/prisma.service';
@@ -70,24 +75,25 @@ export class SchedulesService {
 
   async findByFarmId(
     farmId: string,
-  ): Promise<{ message: string; schedule: ScheduleResponseDto }> {
-    const schedule = await this.prisma.schedule.findFirst({
+  ): Promise<{ message: string; schedules: ScheduleResponseDto[] }> {
+    const schedules = await this.prisma.schedule.findMany({
       where: { farmId },
       include: { farm: true },
     });
 
-    if (!schedule) {
+    if (!schedules) {
       throw new Error('Không tìm thấy lịch trình');
     }
 
     return {
       message: 'Lấy lịch trình thành công',
-      schedule: this.toScheduleResponse(schedule),
+      schedules: schedules.map((schedule) => this.toScheduleResponse(schedule)),
     };
   }
 
   async update(
     { id }: { id: string },
+    scheduleId: string,
     updateScheduleDto: UpdateScheduleDto,
   ): Promise<{ message: string; schedule: ScheduleResponseDto }> {
     const farm = await this.prisma.farm.findUnique({
@@ -96,11 +102,11 @@ export class SchedulesService {
     });
 
     if (!farm) {
-      throw new BadRequestException('Không tìm thấy nông trại của bạn');
+      throw new NotFoundException('Không tìm thấy nông trại của bạn');
     }
 
     const schedule = await this.prisma.schedule.update({
-      where: { id: farm.id },
+      where: { id: scheduleId },
       data: {
         ...updateScheduleDto,
         farmId: farm.id,
@@ -113,7 +119,29 @@ export class SchedulesService {
     };
   }
 
-  remove(id: string) {
-    return `This action removes a #${id} schedule`;
+  async remove(
+    { id }: { id: string },
+    scheduleId: string,
+  ): Promise<{ message: string }> {
+    const schedule = await this.prisma.schedule.findUnique({
+      where: { id: scheduleId },
+      include: { farm: true },
+    });
+
+    if (!schedule || !schedule.farm) {
+      throw new NotFoundException('Không tìm thấy lịch trình hoặc nông trại');
+    }
+
+    if (schedule.farm.ownerId !== id) {
+      throw new ForbiddenException('Bạn không có quyền xóa lịch trình này');
+    }
+
+    await this.prisma.schedule.delete({
+      where: { id: scheduleId },
+    });
+
+    return {
+      message: 'Xóa lịch trình thành công',
+    };
   }
 }

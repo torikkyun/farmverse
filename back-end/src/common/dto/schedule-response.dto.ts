@@ -9,7 +9,23 @@ export class ScheduleResponseDto {
 
   @Expose()
   @ApiProperty()
-  tasks: string[];
+  name: string;
+
+  @Expose()
+  @ApiProperty()
+  description: string;
+
+  @Expose()
+  @ApiProperty()
+  startTime: Date;
+
+  @Expose()
+  @ApiProperty()
+  endTime: Date;
+
+  @Expose()
+  @ApiProperty()
+  status: boolean;
 
   @Expose()
   @Type(() => FarmResponseDto)

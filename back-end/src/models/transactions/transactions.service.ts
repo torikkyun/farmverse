@@ -129,13 +129,9 @@ export class TransactionsService {
 
     for (const item of items) {
       const record = itemRecordMap.get(item.itemId);
-      const quantityToPurchase = item.quantity || 1;
+      const quantityToPurchase = item.quantity;
 
-      if (
-        !record ||
-        record.quantity === null ||
-        record.quantity < quantityToPurchase
-      ) {
+      if (!record || record.quantity < quantityToPurchase) {
         throw new BadRequestException(
           `Vật phẩm '${record?.name ?? 'Không xác định'}' không đủ số lượng.`,
         );
@@ -173,7 +169,7 @@ export class TransactionsService {
         const updatePromises = items.map((item) =>
           tx.item.update({
             where: { id: item.itemId },
-            data: { quantity: { decrement: item.quantity || 1 } },
+            data: { quantity: { decrement: item.quantity } },
           }),
         );
 
@@ -200,7 +196,7 @@ export class TransactionsService {
           return {
             transactionId: newTransaction.id,
             itemId: itemDto.itemId,
-            quantity: itemDto.quantity || undefined,
+            quantity: itemDto.quantity,
             price: record.price,
             type: record.type,
             includesIot: itemDto.includesIot || undefined,
@@ -251,7 +247,7 @@ export class TransactionsService {
               );
             }
 
-            const quantity = itemDto.quantity || undefined;
+            const quantity = itemDto.quantity;
 
             const baseInstance = {
               userId: buyer.id,
@@ -261,12 +257,10 @@ export class TransactionsService {
             };
 
             if (record.type === ItemType.TREEROOT) {
-              return Array(quantity)
-                .fill(null)
-                .map(() => ({
-                  ...baseInstance,
-                  status: TreeRootInstanceStatus.GROWING,
-                }));
+              return Array.from({ length: quantity }, () => ({
+                ...baseInstance,
+                status: TreeRootInstanceStatus.GROWING,
+              }));
             }
 
             return [
