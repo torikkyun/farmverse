@@ -9,6 +9,7 @@
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "generate:dev": "dotenv -e .env.development.local -- prisma generate",
+    "push:dev": "dotenv -e .env.development.local -- prisma db push",
     "seed:dev": "dotenv -e .env.development.local -- ts-node src/config/database/seed.ts",
     "reset:dev": "dotenv -e .env.development.local -- ts-node src/config/database/reset.ts",
     "start": "nest start",

@@ -25,4 +25,10 @@ export class TransactionItemResponseDto {
 
   @Expose()
   includesIot?: boolean;
+
+  @Expose()
+  startDate?: Date;
+
+  @Expose()
+  endDate?: Date;
 }

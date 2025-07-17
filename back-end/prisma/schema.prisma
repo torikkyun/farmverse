@@ -37,24 +37,27 @@ enum TransactionType {
 }
 
 model User {
-  id                      String         @id @default(auto()) @map("_id") @db.ObjectId
+  id                      String    @id @default(auto()) @map("_id") @db.ObjectId
   name                    String
-  email                   String         @unique
+  email                   String    @unique
   password                String
-  phone                   String?        @unique
-  role                    UserRole       @default(TENANT)
+  phone                   String?   @unique
+  role                    UserRole  @default(TENANT)
   avatar                  String?
-  isEmailVerified         Boolean        @default(false)
+  isEmailVerified         Boolean   @default(false)
   otp                     String?
   otpExpires              DateTime?
   resetPasswordOtp        String?
   resetPasswordOtpExpires DateTime?
-  fvtBalance              Int            @default(0)
-  createdAt               DateTime       @default(now())
-  updatedAt               DateTime       @updatedAt
-  Farm                    Farm?
-  Transaction             Transaction[]
-  ItemInstance            ItemInstance[]
+  fvtBalance              Int       @default(0)
+
+  Farm Farm?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  Transaction  Transaction[]
+  ItemInstance ItemInstance[]
 }
 
 model Farm {
@@ -90,6 +93,8 @@ model Schedule {
 
   farm   Farm   @relation(fields: [farmId], references: [id])
   farmId String @db.ObjectId
+
+  @@index([farmId])
 }
 
 model Item {
@@ -100,11 +105,13 @@ model Item {
   images      String[]
   price       Int
   quantity    Int
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
 
-  farm            Farm              @relation(fields: [farmId], references: [id])
-  farmId          String            @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  farm   Farm   @relation(fields: [farmId], references: [id])
+  farmId String @db.ObjectId
+
   Transaction     Transaction[]
   ItemInstance    ItemInstance[]
   TransactionItem TransactionItem[]
@@ -125,17 +132,22 @@ model Transaction {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  buyer           User              @relation(fields: [buyerId], references: [id])
-  buyerId         String            @db.ObjectId
-  item            Item?             @relation(fields: [itemId], references: [id])
-  itemId          String?           @db.ObjectId
-  Farm            Farm?             @relation(fields: [farmId], references: [id])
-  farmId          String?           @db.ObjectId
+  buyer   User    @relation(fields: [buyerId], references: [id])
+  buyerId String  @db.ObjectId
+  item    Item?   @relation(fields: [itemId], references: [id])
+  itemId  String? @db.ObjectId
+  Farm    Farm?   @relation(fields: [farmId], references: [id])
+  farmId  String? @db.ObjectId
+
   TransactionItem TransactionItem[]
+
+  @@index([buyerId])
+  @@index([itemId])
+  @@index([farmId])
 }
 
 model TransactionItem {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
   name        String
   description String?
   images      String[]
@@ -143,6 +155,8 @@ model TransactionItem {
   quantity    Int
   price       Float
   type        ItemType
+  startDate   DateTime?
+  endDate     DateTime?
 
   transaction   Transaction @relation(fields: [transactionId], references: [id])
   transactionId String      @db.ObjectId
@@ -153,6 +167,7 @@ model TransactionItem {
 
   @@index([transactionId])
   @@index([itemId])
+  @@index([farmId])
 }
 
 model ItemInstance {
@@ -163,16 +178,19 @@ model ItemInstance {
   cameraUrl String?
   startDate DateTime?
   endDate   DateTime?
-  createdAt DateTime                @default(now())
-  updatedAt DateTime                @updatedAt
 
-  user    User      @relation(fields: [userId], references: [id])
-  userId  String    @db.ObjectId
-  farm    Farm      @relation(fields: [farmId], references: [id])
-  farmId  String    @db.ObjectId
-  item    Item      @relation(fields: [itemId], references: [id])
-  itemId  String    @db.ObjectId
-  IotData IotData[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String @db.ObjectId
+  farm   Farm   @relation(fields: [farmId], references: [id])
+  farmId String @db.ObjectId
+  item   Item   @relation(fields: [itemId], references: [id])
+  itemId String @db.ObjectId
+
+  IotData          IotData[]
+  TreeRootSchedule TreeRootSchedule[]
 
   @@index([userId])
   @@index([farmId])
@@ -180,14 +198,36 @@ model ItemInstance {
 }
 
 model IotData {
-  id             String   @id @default(auto()) @map("_id") @db.ObjectId
-  temperature    Float?
-  humidity       Float?
-  soilMoisture   Float?
-  lightIntensity Float?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id                 String @id @default(auto()) @map("_id") @db.ObjectId
+  temperature        Float?
+  humidity           Float?
+  nitogenLevel       Float?
+  phosphorusLevel    Float?
+  kaliumLevel        Float?
+  semiconductorLevel Float?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   itemInstance   ItemInstance @relation(fields: [itemInstanceId], references: [id])
   itemInstanceId String       @db.ObjectId
+
+  @@index([itemInstanceId])
+}
+
+model TreeRootSchedule {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String?
+  startTime   DateTime
+  endTime     DateTime
+  status      Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  itemInstance   ItemInstance @relation(fields: [itemInstanceId], references: [id])
+  itemInstanceId String       @db.ObjectId
+
+  @@index([itemInstanceId])
 }

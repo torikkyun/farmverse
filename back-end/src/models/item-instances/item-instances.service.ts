@@ -1,26 +1,70 @@
-import { Injectable } from '@nestjs/common';
-import { CreateItemInstanceDto } from './dto/create-item-instance.dto';
-import { UpdateItemInstanceDto } from './dto/update-item-instance.dto';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { plainToInstance } from 'class-transformer';
+import { ItemInstanceResponseDto } from 'src/common/dto/item-instance-response.dto';
+import { PrismaService } from 'src/providers/prisma.service';
+import { ItemResponseDto } from 'src/common/dto/item-response.dto';
+import { FarmResponseDto } from 'src/common/dto/farm-response.dto';
 
 @Injectable()
 export class ItemInstancesService {
-  create(createItemInstanceDto: CreateItemInstanceDto) {
-    return 'This action adds a new itemInstance';
+  constructor(private readonly prisma: PrismaService) {}
+
+  toItemInstanceResponse(itemInstance: any): ItemInstanceResponseDto {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const itemResponse = plainToInstance(ItemResponseDto, itemInstance.item, {
+      excludeExtraneousValues: true,
+    });
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const farmResponse = plainToInstance(FarmResponseDto, itemInstance.farm, {
+      excludeExtraneousValues: true,
+    });
+
+    const itemInstanceResponse = plainToInstance(
+      ItemInstanceResponseDto,
+      itemInstance,
+      {
+        excludeExtraneousValues: true,
+      },
+    );
+
+    itemInstanceResponse.item = itemResponse;
+    itemInstanceResponse.farm = farmResponse;
+
+    return itemInstanceResponse;
   }
 
-  findAll() {
-    return `This action returns all itemInstances`;
+  async findAll(user: { id: string }) {
+    const itemInstances = await this.prisma.itemInstance.findMany({
+      where: {
+        userId: user.id,
+      },
+      include: {
+        item: true,
+      },
+    });
+
+    return itemInstances.map((itemInstance) =>
+      this.toItemInstanceResponse(itemInstance),
+    );
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} itemInstance`;
-  }
+  async findOne({ id }: { id: string }, itemInstanceId: string) {
+    const itemInstance = await this.prisma.itemInstance.findUnique({
+      where: {
+        id: itemInstanceId,
+        userId: id,
+      },
+      include: {
+        item: true,
+        farm: true,
+      },
+    });
 
-  update(id: number, updateItemInstanceDto: UpdateItemInstanceDto) {
-    return `This action updates a #${id} itemInstance`;
-  }
+    if (!itemInstance) {
+      throw new NotFoundException('Không tìm thấy vật phẩm');
+    }
 
-  remove(id: number) {
-    return `This action removes a #${id} itemInstance`;
+    return this.toItemInstanceResponse(itemInstance);
   }
 }

@@ -3,6 +3,7 @@ import { Type } from 'class-transformer';
 import {
   IsArray,
   IsBoolean,
+  IsDate,
   IsNumber,
   IsOptional,
   IsString,
@@ -22,6 +23,18 @@ class PurchaseItemDto {
   @IsBoolean()
   @ApiProperty({ required: false })
   includesIot?: boolean;
+
+  @IsOptional()
+  @IsDate()
+  @Type(() => Date)
+  @ApiProperty({ type: Date, required: false })
+  startDate?: Date;
+
+  @IsOptional()
+  @IsDate()
+  @Type(() => Date)
+  @ApiProperty({ type: Date, required: false })
+  endDate?: Date;
 }
 
 export class PurchaseItemsDto {

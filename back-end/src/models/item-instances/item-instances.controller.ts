@@ -1,45 +1,25 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-} from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
 import { ItemInstancesService } from './item-instances.service';
-import { CreateItemInstanceDto } from './dto/create-item-instance.dto';
-import { UpdateItemInstanceDto } from './dto/update-item-instance.dto';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 
-@Controller('item-instances')
+@Controller('api/item-instances')
+@ApiTags('item-instances')
 export class ItemInstancesController {
   constructor(private readonly itemInstancesService: ItemInstancesService) {}
 
-  @Post()
-  create(@Body() createItemInstanceDto: CreateItemInstanceDto) {
-    return this.itemInstancesService.create(createItemInstanceDto);
-  }
-
   @Get()
-  findAll() {
-    return this.itemInstancesService.findAll();
+  @ApiBearerAuth()
+  findAll(@CurrentUser() user: { id: string }) {
+    return this.itemInstancesService.findAll(user);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.itemInstancesService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateItemInstanceDto: UpdateItemInstanceDto,
+  @Get(':itemInstanceId')
+  @ApiBearerAuth()
+  findOne(
+    @CurrentUser() user: { id: string },
+    @Param('itemInstanceId') itemInstanceId: string,
   ) {
-    return this.itemInstancesService.update(+id, updateItemInstanceDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.itemInstancesService.remove(+id);
+    return this.itemInstancesService.findOne(user, itemInstanceId);
   }
 }

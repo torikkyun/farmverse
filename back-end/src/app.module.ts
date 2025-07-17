@@ -11,6 +11,7 @@ import { SchedulesModule } from './models/schedules/schedules.module';
 import { RolesGuard } from './common/guards/roles.guard';
 import { TransactionsModule } from './models/transactions/transactions.module';
 import { ItemInstancesModule } from './models/item-instances/item-instances.module';
+import { IotDataModule } from './models/iot-data/iot-data.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { ItemInstancesModule } from './models/item-instances/item-instances.modu
     SchedulesModule,
     ItemInstancesModule,
     TransactionsModule,
+    IotDataModule,
   ],
   providers: [
     {

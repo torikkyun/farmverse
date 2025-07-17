@@ -19,6 +19,10 @@ import { plainToInstance } from 'class-transformer';
 import { UserResponseDto } from 'src/common/dto/user-response.dto';
 import { PurchaseItemsDto } from './dto/purchase-items.dto';
 import { TransactionItemResponseDto } from 'src/common/dto/transaction-item-response.dto';
+import {
+  ContractTransactionReceipt,
+  ContractTransactionResponse,
+} from 'ethers';
 
 @Injectable()
 export class TransactionsService {
@@ -119,9 +123,20 @@ export class TransactionsService {
       },
     });
 
-    if (itemRecords.length !== items.length) {
-      const foundIds = new Set(itemRecords.map((ir) => ir.id));
-      const notFoundIds = itemIds.filter((id) => !foundIds.has(id));
+    itemRecords.forEach((record) => {
+      if (record.type === ItemType.TREEROOT) {
+        const itemDto = items.find((i) => i.itemId === record.id);
+        if (!itemDto?.includesIot || !itemDto?.startDate || !itemDto?.endDate) {
+          throw new BadRequestException(
+            `Vật phẩm TREEROOT (${record.name}) phải có đủ includesIot, startDate và endDate`,
+          );
+        }
+      }
+    });
+
+    const foundIds = new Set(itemRecords.map((r) => r.id));
+    const notFoundIds = itemIds.filter((id) => !foundIds.has(id));
+    if (notFoundIds.length > 0) {
       throw new NotFoundException(
         `Không tìm thấy vật phẩm với ID: ${notFoundIds.join(', ')}`,
       );
@@ -146,20 +161,16 @@ export class TransactionsService {
     }
 
     const itemRecordMap = new Map(itemRecords.map((item) => [item.id, item]));
-    let totalPrice = 0;
 
-    for (const item of items) {
+    const totalPrice = items.reduce((sum, item) => {
       const record = itemRecordMap.get(item.itemId);
-      const quantityToPurchase = item.quantity;
-
-      if (!record || record.quantity < quantityToPurchase) {
+      if (!record || record.quantity < item.quantity) {
         throw new BadRequestException(
           `Vật phẩm '${record?.name ?? 'Không xác định'}' không đủ số lượng.`,
         );
       }
-
-      totalPrice += record.price * quantityToPurchase;
-    }
+      return sum + record.price * item.quantity;
+    }, 0);
 
     const buyer = await this.prisma.user.findUnique({
       where: { id },
@@ -225,6 +236,8 @@ export class TransactionsService {
             description: record.description,
             images: record.images,
             farmId: record.farmId,
+            startDate: itemDto.startDate || undefined,
+            endDate: itemDto.endDate || undefined,
           };
         });
 
@@ -253,6 +266,8 @@ export class TransactionsService {
               return Array.from({ length: quantity }, () => ({
                 ...baseInstance,
                 status: TreeRootInstanceStatus.GROWING,
+                startDate: itemDto.startDate || new Date(),
+                endDate: itemDto.endDate || undefined,
               }));
             }
 
@@ -274,12 +289,14 @@ export class TransactionsService {
       { timeout: 15000 },
     );
 
-    const tx = await this.blockchainService.recordDeposit(totalPrice);
-    const receipt = await tx.wait();
-
-    if (!receipt) {
+    let tx: ContractTransactionResponse,
+      receipt: ContractTransactionReceipt | null;
+    try {
+      tx = await this.blockchainService.recordDeposit(totalPrice);
+      receipt = await tx.wait();
+    } catch {
       throw new BadGatewayException(
-        'Lỗi khi ghi nhận giao dịch trên blockchain, vui lòng thử lại sau',
+        'Không thể ghi nhận giao dịch lên blockchain',
       );
     }
 
@@ -287,7 +304,7 @@ export class TransactionsService {
       where: { id: transactionResult.id },
       data: {
         transactionHash: tx.hash,
-        blockNumber: receipt.blockNumber,
+        blockNumber: receipt?.blockNumber,
         toAddress: tx.to,
         fromAddress: tx.from,
       },
