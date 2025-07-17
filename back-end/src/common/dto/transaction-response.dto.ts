@@ -5,6 +5,9 @@ import { TransactionItemResponseDto } from './transaction-item-response.dto';
 
 export class TransactionResponseDto {
   @Expose()
+  id: string;
+
+  @Expose()
   buyer: UserResponseDto;
 
   @Expose()

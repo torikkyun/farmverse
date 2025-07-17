@@ -29,7 +29,10 @@ export class TransactionsService {
 
   private toTransactionResponse(
     transaction: Prisma.TransactionGetPayload<{
-      include: { buyer: true; TransactionItem?: { include?: { item?: true } } };
+      include: {
+        buyer: true;
+        TransactionItem?: { include?: { item?: true } };
+      };
     }>,
   ): TransactionResponseDto {
     const buyerResponse = plainToInstance(UserResponseDto, transaction.buyer, {
@@ -56,6 +59,7 @@ export class TransactionsService {
     }
 
     transactionResponse.buyer = buyerResponse;
+
     return transactionResponse;
   }
 
@@ -299,19 +303,38 @@ export class TransactionsService {
     };
   }
 
-  async getHistory({ id }: { id: string }) {
+  async getAllTransactions({ id }: { id: string }) {
     const transactions = await this.prisma.transaction.findMany({
       where: { buyerId: id },
       orderBy: { createdAt: 'desc' },
+    });
+
+    return {
+      message: 'Lấy lịch sử giao dịch thành công',
+      transactions: transactions.map((tx) =>
+        plainToInstance(TransactionResponseDto, tx, {
+          excludeExtraneousValues: true,
+        }),
+      ),
+    };
+  }
+
+  async getTransactionById(
+    { id }: { id: string },
+    transactionId: string,
+  ): Promise<TransactionResponseDto> {
+    const transaction = await this.prisma.transaction.findUnique({
+      where: { id: transactionId, buyerId: id },
       include: {
         buyer: true,
         TransactionItem: { include: { item: true } },
       },
     });
 
-    return {
-      message: 'Lấy lịch sử giao dịch thành công',
-      transactions: transactions.map((tx) => this.toTransactionResponse(tx)),
-    };
+    if (!transaction) {
+      throw new NotFoundException('Giao dịch không tồn tại');
+    }
+
+    return this.toTransactionResponse(transaction);
   }
 }
