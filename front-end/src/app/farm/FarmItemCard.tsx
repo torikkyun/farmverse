@@ -1,4 +1,5 @@
 import { Pencil } from "lucide-react";
+import Image from "next/image";
 import { FarmItem } from "./useFarmItems";
 
 interface Props {
@@ -8,9 +9,7 @@ interface Props {
 
 export default function FarmItemCard({ item, onEdit }: Props) {
   return (
-    <div
-      className="relative group bg-white dark:bg-black border rounded-lg shadow p-4 transition hover:shadow-lg"
-    >
+    <div className="relative group bg-white dark:bg-black border rounded-lg shadow p-4 transition hover:shadow-lg">
       <button
         className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition bg-gray-100 dark:bg-gray-800 p-1 rounded-full"
         title="Sửa"
@@ -18,15 +17,17 @@ export default function FarmItemCard({ item, onEdit }: Props) {
       >
         <Pencil size={20} className="text-gray-600 dark:text-gray-300" />
       </button>
-      {item.images && item.images.length > 0 && (
-        <img
-          src={item.images[0]}
-          alt={item.name}
-          className="w-full h-32 object-cover rounded mb-2"
-        />
-      )}
+      <Image
+        src={item.images?.[0] || `https://picsum.photos/seed/${item.id}/80/80`}
+        alt={item.name}
+        width={80}
+        height={80}
+        className="rounded-lg object-cover"
+      />
       <div className="font-bold text-lg mb-1">{item.name}</div>
-      <div className="text-gray-500 dark:text-gray-400 mb-2">{item.description}</div>
+      <div className="text-gray-500 dark:text-gray-400 mb-2">
+        {item.description}
+      </div>
       <div className="text-sm text-gray-700 dark:text-gray-300">
         {item.createdAt && (
           <div>Ngày tạo: {new Date(item.createdAt).toLocaleDateString()}</div>

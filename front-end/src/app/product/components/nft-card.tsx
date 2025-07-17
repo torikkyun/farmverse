@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 interface NFTItem {
   id: number;
   image: string;
@@ -28,11 +30,13 @@ export default function NFTCard({ item, selected, onSelect }: NFTCardProps) {
         +
       </button>
       {item.image && (
-        <img
+        <Image
           src={item.image}
-          srcSet={`${item.image} 1x, ${item.image.replace("/200/200", "/400/400")} 2x`}
           alt={item.name}
+          width={200}
+          height={128}
           className="w-full h-32 object-cover rounded mb-2 bg-black"
+          priority
         />
       )}
       <div className="font-bold text-lg mb-1 line-clamp-1">{item.name}</div>

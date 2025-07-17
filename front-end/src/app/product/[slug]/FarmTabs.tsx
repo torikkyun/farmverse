@@ -3,7 +3,7 @@ import TabMenu from "../components/tab-menu";
 import NFTCard from "../components/nft-card";
 import DungCard from "../components/dung-card";
 import { Calendar } from "@/components/ui/calendar";
-import { CheckCircle2, Circle } from "lucide-react";
+import { vi } from "date-fns/locale";
 
 type Schedule = {
   id: string;
@@ -12,6 +12,9 @@ type Schedule = {
   startTime: string;
   endTime: string;
   status: boolean;
+  farm?: {
+    name: string;
+  };
   farmName?: string;
 };
 
@@ -30,38 +33,6 @@ interface Props {
   selectedItems: number[];
   handleSelect: (id: number, type: "plant" | "dung") => void;
   farmId?: string;
-}
-
-function ScheduleCard({ schedule }: { schedule: Schedule }) {
-  return (
-    <div className="border border-black rounded-lg p-4 bg-white mb-4 shadow-sm">
-      <div className="flex items-center gap-2 mb-1">
-        <span className="font-bold text-base text-black">{schedule.name}</span>
-        {schedule.status ? (
-          <CheckCircle2 className="w-4 h-4 text-black" />
-        ) : (
-          <Circle className="w-4 h-4 text-gray-400" />
-        )}
-      </div>
-      <p className="text-xs text-gray-700 mb-2">{schedule.description}</p>
-      <div className="text-xs text-gray-500">
-        <div>
-          <span className="font-medium text-black">Bắt đầu:</span>{" "}
-          {new Date(schedule.startTime).toLocaleString()}
-        </div>
-        <div>
-          <span className="font-medium text-black">Kết thúc:</span>{" "}
-          {new Date(schedule.endTime).toLocaleString()}
-        </div>
-        <div>
-          <span className="font-medium text-black">Trạng thái:</span>{" "}
-          <span className="text-black">
-            {schedule.status ? "Đã hoàn thành" : "Chưa hoàn thành"}
-          </span>
-        </div>
-      </div>
-    </div>
-  );
 }
 
 export default function FarmTabs({
@@ -85,11 +56,10 @@ export default function FarmTabs({
   );
 
   // Lọc lịch trình theo ngày chọn
-  const filteredSchedules = selectedDate
+  const selectedSchedules = selectedDate
     ? schedules.filter(
         (s) =>
-          new Date(s.startTime).toDateString() ===
-          selectedDate.toDateString()
+          new Date(s.startTime).toDateString() === selectedDate.toDateString()
       )
     : [];
 
@@ -121,50 +91,93 @@ export default function FarmTabs({
       />
       <main className="flex-1 p-6 bg-white">
         {activeTab === 2 ? (
-          <div className="flex gap-8">
-            {/* Cột trái: Lịch */}
-            <div className="bg-white rounded-lg p-4 w-[320px] shadow-md h-fit">
+          <div className="flex flex-col md:flex-row gap-5 items-stretch">
+            <div className="bg-white dark:bg-black rounded-xl shadow p-2 sm:p-4 md:w-[320px] flex-shrink-0 flex flex-col items-center min-h-[400px]">
               <Calendar
                 mode="single"
                 selected={selectedDate}
                 onSelect={setSelectedDate}
-                className="bg-white text-black"
+                locale={vi}
                 modifiers={{
-                  scheduled: (date) =>
+                  hasSchedule: (date) =>
                     scheduleDates.includes(date.toDateString()),
                 }}
                 modifiersClassNames={{
-                  scheduled: "bg-gray-200 text-black",
-                  selected: "bg-black text-white",
-                  today: "bg-black",
+                  hasSchedule:
+                    "bg-black text-white dark:bg-white dark:text-black font-bold rounded-lg w-8 h-8 text-sm flex items-center justify-center mx-1",
+                  selected:
+                    "text-white font-bold rounded-lg w-8 h-8 text-sm flex items-center justify-center mx-1",
                 }}
+                className="w-full"
               />
-              <div className="mt-2 text-xs text-gray-700">
-                <span className="inline-block w-3 h-3 bg-gray-200 rounded-full mr-1"></span>
-                Ngày có công việc
-              </div>
             </div>
-            {/* Cột phải: Nội dung công việc */}
-            <div className="flex-1 bg-white rounded-lg p-4 min-h-[400px] shadow-md">
-              {loading && <div className="text-black">Đang tải lịch trình...</div>}
+
+            <div className="bg-white dark:bg-black rounded-xl shadow p-2 sm:p-4 flex-1 min-h-[400px] flex flex-col justify-start">
+              {loading && (
+                <div className="text-black">Đang tải lịch trình...</div>
+              )}
               {error && <div className="text-red-600">{error}</div>}
               {!loading && !error && (
                 <>
-                  {selectedDate ? (
-                    <>
-                      <div className="font-semibold text-lg mb-4 text-black">
-                        Công việc ngày {selectedDate.toLocaleDateString("vi-VN")}:
-                      </div>
-                      {filteredSchedules.length > 0 ? (
-                        filteredSchedules.map((schedule) => (
-                          <ScheduleCard key={schedule.id} schedule={schedule} />
-                        ))
-                      ) : (
-                        <div className="text-gray-500">Không có công việc nào cho ngày này.</div>
-                      )}
-                    </>
-                  ) : (
-                    <div className="text-gray-500">Chọn ngày để xem công việc.</div>
+                  <h3 className="font-bold text-base sm:text-lg mb-2 sm:mb-4">
+                    {selectedDate
+                      ? `Công việc ngày ${selectedDate.toLocaleDateString()}:`
+                      : "Bạn hãy chọn ngày để xem công việc"}
+                  </h3>
+
+                  {selectedDate && selectedSchedules.length === 0 && (
+                    <div className="text-gray-500 dark:text-gray-400 italic">
+                      Không có lịch trình nào.
+                    </div>
+                  )}
+
+                  {selectedDate && selectedSchedules.length > 0 && (
+                    <div className="space-y-4 sm:space-y-6">
+                      {selectedSchedules.map((schedule) => (
+                        <div
+                          key={schedule.id}
+                          className="p-3 sm:p-4 border border-gray-300 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-900"
+                        >
+                          <div className="font-semibold text-base mb-2">
+                            <span
+                              className={`inline-block w-2 h-2 rounded-full mr-2 align-middle ${
+                                schedule.status ? "bg-green-500" : "bg-red-500"
+                              }`}
+                            ></span>
+                            {schedule.name}
+                          </div>
+                          <div className="mb-1">
+                            <span className="font-medium">Mô tả:</span>{" "}
+                            {schedule.description}
+                          </div>
+                          <div className="mb-1">
+                            <span className="font-medium">Thời gian:</span>{" "}
+                            {new Date(schedule.startTime).toLocaleDateString()}{" "}
+                            - {new Date(schedule.endTime).toLocaleDateString()}
+                          </div>
+                          <div className="mb-1">
+                            <span className="font-medium">Trạng thái:</span>{" "}
+                            <span
+                              className={
+                                schedule.status
+                                  ? "text-green-600 font-semibold"
+                                  : "text-red-600 font-semibold"
+                              }
+                            >
+                              {schedule.status
+                                ? "Đã kết thúc"
+                                : "Đang tiến hành"}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="font-medium">Nông trại:</span>{" "}
+                            {schedule.farm?.name ||
+                              schedule.farmName ||
+                              "Chưa xác định"}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   )}
                 </>
               )}

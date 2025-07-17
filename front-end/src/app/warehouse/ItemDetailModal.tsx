@@ -1,5 +1,6 @@
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import React from "react";
+import Image from "next/image";
 
 // Định nghĩa type cho item
 type ItemDetail = {
@@ -17,7 +18,11 @@ type ItemDetailModalProps = {
   item?: ItemDetail | null;
 };
 
-export function ItemDetailModal({ open, onOpenChange, item }: ItemDetailModalProps) {
+export function ItemDetailModal({
+  open,
+  onOpenChange,
+  item,
+}: ItemDetailModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md p-0">
@@ -27,10 +32,13 @@ export function ItemDetailModal({ open, onOpenChange, item }: ItemDetailModalPro
               Thông tin vật phẩm
             </div>
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-8">
-              <img
-                src={item.images?.[0]}
+              <Image
+                src={item.images?.[0] || ""}
                 alt={item.name}
+                width={112}
+                height={112}
                 className="w-28 h-28 rounded-2xl border-2 border-blue-300 dark:border-blue-700 object-cover bg-white dark:bg-black shadow-xl"
+                priority
               />
               <div className="flex flex-col gap-3 flex-1 items-center sm:items-start">
                 <div className="text-xl font-bold text-black dark:text-white text-center sm:text-left">

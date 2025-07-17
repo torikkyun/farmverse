@@ -50,7 +50,7 @@ export function LoginForm({
 
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+        const timeoutId = setTimeout(() => controller.abort(), 1000); // 10s timeout
 
         const res = await fetch(`${apiURL}/auth/login`, {
           method: "POST",
@@ -87,8 +87,13 @@ export function LoginForm({
         timeoutRef.current = setTimeout(() => {
           router.push("/dashboard");
         }, 1000);
-      } catch (error: any) {
-        if (error.name === "AbortError") {
+      } catch (error: unknown) {
+        if (
+          typeof error === "object" &&
+          error &&
+          "name" in error &&
+          (error as { name: string }).name === "AbortError"
+        ) {
           setError("Yêu cầu quá thời gian, vui lòng thử lại");
         } else {
           setError("Đăng nhập thất bại, vui lòng kiểm tra kết nối");

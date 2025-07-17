@@ -4,6 +4,7 @@ interface DungItem {
   id: number;
   image: string;
   name: string;
+  price: number;
 }
 
 interface DungGridProps {

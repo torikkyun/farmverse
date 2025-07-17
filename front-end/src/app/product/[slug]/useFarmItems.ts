@@ -4,6 +4,14 @@ import { NFTItem } from "./page";
 const PAGE = 1;
 const PAGE_SIZE = 10;
 
+interface RawItem {
+  id?: string | number;
+  _id?: string | number;
+  name: string;
+  price: number | string;
+  images?: string[];
+}
+
 export function useFarmItems(API_URL: string, farmId: string) {
   const [items, setItems] = useState<NFTItem[]>([]);
   const [dungs, setDungs] = useState<NFTItem[]>([]);
@@ -15,7 +23,7 @@ export function useFarmItems(API_URL: string, farmId: string) {
       .then((res) => res.json())
       .then((json) => {
         setItems(
-          (json?.data?.items || []).map((item: any) => ({
+          (json?.data?.items || []).map((item: RawItem) => ({
             id: item.id || item._id,
             name: item.name,
             price: String(item.price),
@@ -33,7 +41,7 @@ export function useFarmItems(API_URL: string, farmId: string) {
       .then((res) => res.json())
       .then((json) => {
         setDungs(
-          (json?.data?.items || []).map((item: any) => ({
+          (json?.data?.items || []).map((item: RawItem) => ({
             id: item.id || item._id,
             name: item.name,
             price: String(item.price),

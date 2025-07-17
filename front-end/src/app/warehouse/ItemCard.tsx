@@ -1,5 +1,6 @@
 import { MoreHorizontal } from "lucide-react";
 import React from "react";
+import Image from "next/image";
 
 // Định nghĩa type cho props
 type WarehouseItem = {
@@ -34,10 +35,13 @@ export function ItemCard({
       className="relative flex flex-col items-center w-full bg-white dark:bg-neutral-800 rounded-2xl border border-blue-100 dark:border-blue-800 shadow-lg hover:shadow-2xl hover:scale-[1.03] transition-all duration-200 p-6 cursor-pointer"
       onClick={() => onOpenDetail(item)}
     >
-      <img
+      <Image
         src={item.images?.[0] || ""}
         alt={item.name}
+        width={96}
+        height={96}
         className="w-24 h-24 rounded-xl border-2 border-blue-300 dark:border-blue-700 object-cover bg-white dark:bg-black mb-4 shadow group-hover:scale-110 transition"
+        priority
       />
       <div className="font-bold text-black dark:text-white text-center text-lg mb-1 truncate w-full">
         {item.name}

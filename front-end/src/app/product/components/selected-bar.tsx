@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 interface Item {
   id: number;
@@ -63,10 +64,12 @@ export default function SelectedBar({
             .filter((i) => selectedItems.includes(i.id))
             .slice(0, 4)
             .map((i) => (
-              <img
+              <Image
                 key={i.id}
                 src={i.image}
                 alt={i.name}
+                width={36}
+                height={36}
                 className="w-9 h-9 rounded-full border-2 border-white object-cover shadow-md"
               />
             ))}

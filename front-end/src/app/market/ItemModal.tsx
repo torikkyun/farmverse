@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge";
+import Image from "next/image";
 import type { Item } from "./ItemList";
 
 export function ItemModal({
@@ -19,9 +20,11 @@ export function ItemModal({
         >
           ×
         </button>
-        <img
+        <Image
           src={item.images?.[0] || "/images/default.png"}
           alt={item.name}
+          width={600}
+          height={192}
           className="rounded-lg w-full h-48 object-cover mb-4"
         />
         <div className="flex items-center gap-2 mb-2">
@@ -41,7 +44,8 @@ export function ItemModal({
           <span className="font-medium">Nông trại:</span> {item.farm?.name}
         </div>
         <div className="mb-2 text-sm text-muted-foreground">
-          <span className="font-medium">Mô tả:</span> {item.description || "Không có"}
+          <span className="font-medium">Mô tả:</span>{" "}
+          {item.description || "Không có"}
         </div>
         <div className="flex items-center gap-4 mt-4">
           <div className="text-base">

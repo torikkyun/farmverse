@@ -13,11 +13,22 @@ interface Props {
   addScheduleOpen: boolean;
   setAddScheduleOpen: (open: boolean) => void;
   addLoading: boolean;
-  newSchedule: any;
-  range: any;
-  handleChange: any;
-  handleRangeChange: any;
-  handleSave: any;
+  newSchedule: {
+    name: string;
+    description: string;
+    status: boolean;
+  };
+  range:
+    | {
+        from: Date | undefined;
+        to?: Date | undefined;
+      }
+    | undefined;
+  handleChange: (field: string, value: string | boolean) => void;
+  handleRangeChange: (
+    range: { from: Date | undefined; to?: Date | undefined } | undefined
+  ) => void;
+  handleSave: () => void;
   selectedDate: Date | undefined;
   setSelectedDate: (date?: Date) => void;
 }
@@ -40,7 +51,7 @@ export default function ScheduleSection({
 }: Props) {
   function getDatesInRange(start: Date, end: Date) {
     const dates = [];
-    let current = new Date(start);
+    const current = new Date(start); // Đổi từ let sang const
     while (current <= end) {
       dates.push(current.toDateString());
       current.setDate(current.getDate() + 1);
@@ -134,7 +145,7 @@ export default function ScheduleSection({
             <h3 className="font-bold text-base sm:text-lg mb-2 sm:mb-4">
               {selectedDate
                 ? `Công việc ngày ${selectedDate.toLocaleDateString()}:`
-                : "Chọn ngày để xem công việc"}
+                : "Bạn hãy chọn ngày để xem công việc"}
             </h3>
             {selectedDate && selectedSchedules.length === 0 && (
               <div className="text-gray-500 dark:text-gray-400 italic">

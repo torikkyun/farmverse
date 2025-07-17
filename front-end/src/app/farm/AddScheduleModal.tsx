@@ -16,7 +16,7 @@ interface AddScheduleModalProps {
     status: boolean;
   };
   range: DateRange | undefined;
-  onChange: (field: string, value: any) => void;
+  onChange: (field: string, value: string | boolean) => void;
   onRangeChange: (range: DateRange | undefined) => void;
   onClose: () => void;
   onSave: () => void;

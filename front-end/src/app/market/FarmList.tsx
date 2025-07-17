@@ -1,5 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
+import Image from "next/image";
 
 export type Farm = {
   id: string;
@@ -18,7 +19,13 @@ export type Farm = {
   };
 };
 
-export function FarmList({ farms }: { farms: Farm[] }) {
+export function FarmList({
+  farms,
+  viewMode = "grid", // Thêm prop viewMode với giá trị mặc định
+}: {
+  farms: Farm[];
+  viewMode?: "grid" | "list";
+}) {
   return (
     <div className="@container/main flex flex-1 flex-col gap-2">
       <h2 className="text-2xl font-bold text-primary mb-1">
@@ -27,25 +34,38 @@ export function FarmList({ farms }: { farms: Farm[] }) {
       <p className="text-muted-foreground mb-5">
         Những trang trại nổi bật nhất tuần của Farmverse
       </p>
-      <div className="flex gap-6 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-muted-foreground/30">
+      <div
+        className={`grid ${
+          viewMode === "grid"
+            ? "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"
+            : "grid-cols-1 gap-4"
+        } p-4`} // Thêm p-4 để tạo khoảng cách với cạnh ngoài
+        style={{
+          overflowX: "hidden",
+          overflowY: "hidden",
+          scrollbarWidth: "none",
+          msOverflowStyle: "none",
+        }}
+      >
         {farms.map((farm, idx) => (
           <Link
             key={farm.id || idx}
             href={`/product/${farm.id}`}
             className="block"
           >
-            <Card className="w-80 min-w-[320px] bg-card border border-muted-foreground/10 hover:scale-[1.03] transition-transform duration-200 overflow-x-hidden">
+            <Card className="w-full bg-card border border-muted-foreground/10 hover:scale-[1.03] transition-transform duration-200 overflow-x-hidden">
               <CardContent className="p-0">
-                <img
+                <Image
                   src={farm.images?.[0] || "/images/default.jpg"}
                   alt={farm.name}
+                  width={600}
+                  height={176}
                   className="rounded-t-xl h-44 w-full object-cover"
+                  priority
                 />
                 <div className="p-4">
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-base">
-                      {farm.name}
-                    </span>
+                    <span className="font-semibold text-base">{farm.name}</span>
                   </div>
                   <div className="flex items-center gap-2 mt-2 text-sm">
                     <span className="text-muted-foreground">Địa điểm:</span>

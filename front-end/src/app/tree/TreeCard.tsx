@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 
 export interface TreeItem {
   name: string;
@@ -9,16 +10,25 @@ export interface TreeItem {
   img: string;
 }
 
-export function TreeCard({ item, onClick }: { item: TreeItem; onClick: () => void }) {
+export function TreeCard({
+  item,
+  onClick,
+}: {
+  item: TreeItem;
+  onClick: () => void;
+}) {
   return (
     <div
       className="flex flex-col items-center w-full dark:from-neutral-800 dark:via-neutral-900 dark:to-neutral-800 rounded-2xl border shadow-lg hover:shadow-2xl hover:scale-[1.03] transition-all duration-200 p-4 cursor-pointer group"
       onClick={onClick}
     >
-      <img
+      <Image
         src={item.img}
         alt={item.name}
+        width={96}
+        height={96}
         className="w-24 h-24 rounded-2xl border-2 border-green-300 dark:border-green-700 object-cover bg-white dark:bg-black mb-4 shadow group-hover:scale-110 transition"
+        priority
       />
       <div className="font-bold text-black dark:text-white text-center text-base mb-1 truncate w-full">
         {item.name}

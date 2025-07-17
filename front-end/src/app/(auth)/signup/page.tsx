@@ -1,4 +1,5 @@
 import { Tractor } from "lucide-react"
+import Image from "next/image";
 
 import { SignUpForm } from "@/components/signup-form"
 
@@ -21,12 +22,14 @@ export default function SignUpPage() {
         </div>
       </div>
       <div className="bg-muted relative hidden lg:block">
-        <img
-          src=""
-          alt="Image"
-          className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+        <Image
+          src="https://picsum.photos/600/800"
+            alt="Random Image"
+              fill
+            className="object-cover dark:brightness-[0.2] dark:grayscale"
+          priority
         />
       </div>
     </div>
-  )
+  );
 }

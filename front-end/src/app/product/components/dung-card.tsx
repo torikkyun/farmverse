@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 interface DungItem {
   id: number;
   image: string;
@@ -19,14 +21,13 @@ export default function DungCard({ dungs, selected, onSelect }: DungCardProps) {
       `}
     >
       <div className="relative">
-        <img
+        <Image
           src={dungs.image}
-          srcSet={`${dungs.image} 1x, ${dungs.image.replace(
-            "/200/200",
-            "/400/400"
-          )} 2x`}
           alt={dungs.name}
+          width={400}
+          height={400}
           className="w-full aspect-[1/1] object-cover rounded-t-2xl border-b border-black/10 transition-all duration-200 group-hover:scale-105 bg-black"
+          priority
         />
         <button
           onClick={() => onSelect(String(dungs.id))}

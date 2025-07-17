@@ -3,6 +3,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import type { Farm } from "./FarmList";
 import { ItemModal } from "./ItemModal";
+import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 export type Item = {
   id: string;
@@ -19,9 +21,20 @@ function compareMongoIdDesc(a: Item, b: Item) {
   return b.id.localeCompare(a.id);
 }
 
-export function ItemList({ items }: { items: Item[] }) {
-  const sortedItems = [...items].sort(compareMongoIdDesc).slice(0, 6);
+export function ItemList({
+  items,
+  viewMode = "grid",
+}: {
+  items: Item[];
+  viewMode?: "grid" | "list";
+}) {
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
+  const [showAll, setShowAll] = useState(false);
+
+  // Hiển thị tối đa 6 sản phẩm (2 hàng x 3 cột)
+  const maxShow = 6;
+  const sortedItems = [...items].sort(compareMongoIdDesc);
+  const displayItems = showAll ? sortedItems : sortedItems.slice(0, maxShow);
 
   return (
     <div className="@container/main flex flex-1 flex-col gap-2">
@@ -29,28 +42,41 @@ export function ItemList({ items }: { items: Item[] }) {
         Các cây trồng & phân bón mới nhất
       </h2>
       <p className="text-muted-foreground mb-5">
-        Hiển thị 6 sản phẩm mới nhất
+        Các vật phẩm mới nhất của Farmverse
       </p>
-      <div className="flex gap-6 flex-wrap">
-        {sortedItems.map((item, idx) => (
+      <div
+        className={`grid ${
+          viewMode === "grid"
+            ? "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"
+            : "grid-cols-1 gap-4"
+        }`}
+        style={{
+          overflowX: "hidden",
+          overflowY: "hidden",
+          scrollbarWidth: "none",
+          msOverflowStyle: "none",
+        }}
+      >
+        {displayItems.map((item, idx) => (
           <button
             key={item.id || idx}
             className="block focus:outline-none"
             onClick={() => setSelectedItem(item)}
             type="button"
           >
-            <Card className="w-80 min-w-[320px] bg-card border border-muted-foreground/10 hover:scale-[1.03] transition-transform duration-200 overflow-x-hidden">
+            <Card className="w-full bg-card border border-muted-foreground/10 hover:scale-[1.03] transition-transform duration-200 overflow-x-hidden">
               <CardContent className="p-0">
-                <img
+                <Image
                   src={item.images?.[0] || "/images/default.png"}
                   alt={item.name}
+                  width={600}
+                  height={176}
                   className="rounded-t-xl h-44 w-full object-cover"
+                  priority
                 />
                 <div className="p-4">
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-base">
-                      {item.name}
-                    </span>
+                    <span className="font-semibold text-base">{item.name}</span>
                     <Badge
                       variant="outline"
                       className="ml-1 text-xs border-green-500 text-green-600"
@@ -69,7 +95,9 @@ export function ItemList({ items }: { items: Item[] }) {
                   <div className="flex items-center gap-2 mt-1 text-sm">
                     <span className="text-muted-foreground">Giá:</span>
                     <span className="font-medium">{item.price} ETH</span>
-                    <span className="text-muted-foreground ml-2">Số lượng:</span>
+                    <span className="text-muted-foreground ml-2">
+                      Số lượng:
+                    </span>
                     <span className="font-medium">{item.quantity ?? "-"}</span>
                   </div>
                 </div>
@@ -78,6 +106,28 @@ export function ItemList({ items }: { items: Item[] }) {
           </button>
         ))}
       </div>
+      {sortedItems.length > maxShow && !showAll && (
+        <div className="flex justify-center mt-6">
+          <Button
+            variant="outline"
+            className="px-6 py-2 rounded-lg font-semibold transition text-black dark:text-white border-gray-300 dark:border-gray-700 bg-white dark:bg-black"
+            onClick={() => setShowAll(true)}
+          >
+            Xem thêm
+          </Button>
+        </div>
+      )}
+      {showAll && (
+        <div className="flex justify-center mt-4">
+          <Button
+            variant="outline"
+            className="px-6 py-2 rounded-lg font-semibold transition text-black dark:text-white border-gray-300 dark:border-gray-700 bg-white dark:bg-black"
+            onClick={() => setShowAll(false)}
+          >
+            Thu gọn
+          </Button>
+        </div>
+      )}
       {selectedItem && (
         <ItemModal item={selectedItem} onClose={() => setSelectedItem(null)} />
       )}

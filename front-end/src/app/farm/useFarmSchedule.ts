@@ -14,7 +14,7 @@ export interface Schedule {
   };
 }
 
-export function useFarmSchedule(farmId?: string, API_URL?: string) {
+export function useFarmSchedule(farmId?: string) {
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

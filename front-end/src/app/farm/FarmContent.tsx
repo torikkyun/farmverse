@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Farm } from "./useFarmerFarm";
-import { useFarmItems } from "./useFarmItems";
+import { useFarmItems, FarmItem } from "./useFarmItems";
 import FarmItemModal from "./FarmItemModal";
 import FarmAlert from "./FarmAlert";
 import { useAddSchedule } from "./useAddSchedule";
@@ -18,7 +18,7 @@ export default function FarmContent({ selected, farm }: Props) {
   const [showAlert] = useState<null | "plants" | "fertilizers">(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"edit" | "add">("add");
-  const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [selectedItem, setSelectedItem] = useState<FarmItem | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL?.replace(/"/g, "") || "";
@@ -47,12 +47,9 @@ export default function FarmContent({ selected, farm }: Props) {
   });
 
   // Schedule
-  const {
-    schedules,
-    loading,
-    error,
-    reloadSchedules,
-  } = useFarmSchedule(farm?.id ? String(farm.id) : undefined, API_URL);
+  const { schedules, loading, error, reloadSchedules } = useFarmSchedule(
+    farm?.id ? String(farm.id) : undefined,
+  );
 
   // Add schedule logic
   const {
@@ -68,7 +65,7 @@ export default function FarmContent({ selected, farm }: Props) {
   } = useAddSchedule(API_URL, farm?.id ? String(farm.id) : "", reloadSchedules);
 
   // Modal handlers
-  const handleEdit = (item: any) => {
+  const handleEdit = (item: FarmItem) => {
     setSelectedItem(item);
     setModalMode("edit");
     setModalOpen(true);

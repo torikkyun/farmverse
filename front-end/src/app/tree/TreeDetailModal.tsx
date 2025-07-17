@@ -1,4 +1,5 @@
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import Image from "next/image";
 import { TreeItem } from "./TreeCard";
 
 export function TreeDetailModal({
@@ -19,10 +20,13 @@ export function TreeDetailModal({
             Thông tin cây
           </div>
           <div className="flex flex-col sm:flex-row items-center sm:items-center gap-8">
-            <img
+            <Image
               src={selectedTree.img}
               alt={selectedTree.name}
+              width={128}
+              height={128}
               className="w-32 h-32 rounded-2xl border-2 border-green-300 dark:border-green-700 object-cover bg-white dark:bg-black shadow-xl"
+              priority
             />
             <div className="flex flex-col gap-3 flex-1 items-center sm:items-start">
               <div className="text-xl font-bold text-black dark:text-white text-center sm:text-left">

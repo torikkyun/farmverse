@@ -1,6 +1,7 @@
 "use client";
 import { Tractor } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 import { LoginForm } from "@/components/login-form";
 
@@ -46,10 +47,12 @@ export default function LoginPage() {
         </div>
       </div>
       <div className="bg-muted relative hidden lg:block">
-        <img
-          src=""
-          alt="Image"
-          className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+        <Image
+          src="https://picsum.photos/600/800"
+          alt="Random Image"
+          fill
+          className="object-cover dark:brightness-[0.2] dark:grayscale"
+          priority
         />
       </div>
     </div>

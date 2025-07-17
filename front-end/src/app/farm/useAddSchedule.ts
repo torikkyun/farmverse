@@ -1,4 +1,3 @@
-import { log } from "console";
 import { useState } from "react";
 
 type DateRange = {
@@ -24,7 +23,7 @@ export function useAddSchedule(
   });
   const [range, setRange] = useState<DateRange | undefined>(undefined);
 
-  const handleChange = (field: string, value: any) => {
+  const handleChange = (field: string, value: string | boolean) => {
     setNewSchedule((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -39,8 +38,8 @@ export function useAddSchedule(
         typeof window !== "undefined"
           ? JSON.parse(localStorage.getItem("user") || "{}")?.data
               ?.accessToken || ""
-                : "";
-        console.log("token", token);
+          : "";
+      console.log("token", token);
       const res = await fetch(`${API_URL}/schedules`, {
         method: "POST",
         headers: {

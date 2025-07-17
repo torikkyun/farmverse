@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 import { Farm } from "./page";
 
 interface Props {
@@ -8,17 +9,15 @@ interface Props {
   currentUserId?: string;
 }
 
-export default function HeaderFarmInfo({
-  farm,
-  loading,
-  error,
-}: Props) {
+export default function HeaderFarmInfo({ farm, loading, error }: Props) {
   // Không còn nút tạo vật phẩm
   return (
     <div className="flex items-center gap-4 p-6 border-b border-black/10 bg-white">
-      <img
+      <Image
         src={farm?.images?.[0] || "/nft/9917.png"}
         alt="Collection"
+        width={64}
+        height={64}
         className="w-16 h-16 rounded grayscale border border-black/20"
       />
       <div className="flex-1">
