@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LogIn } from "lucide-react";
-import { useState } from "react";
+import { useState, useCallback, useRef } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useRouter } from "next/navigation";
 
@@ -21,44 +21,107 @@ export function LoginForm({
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setSuccess(null);
-    try {
-      const res = await fetch(`${apiURL}/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        setError(data.message || "Đăng nhập thất bại");
-        setTimeout(() => setError(null), 1000); // Ẩn alert lỗi sau 2s
-        return;
-      }
-      setSuccess(data.message || "Đăng nhập thành công!");
-      // Lưu token hoặc thông tin vào localStorage
-      if (data.token) {
-        localStorage.setItem("accessToken", data.token);
-      } else {
-        localStorage.setItem("user", JSON.stringify(data));
-      }
-      setTimeout(() => {
-        setSuccess(null); // Ẩn alert thành công sau 2s
-        router.push("/dashboard");
-      }, 2000);
-    } catch {
-      setError("Đăng nhập thất bại");
-      setTimeout(() => setError(null), 1000); // Ẩn alert lỗi sau 1s
+  // Sử dụng ref để clear timeout
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Clear timeout khi component unmount
+  const clearExistingTimeout = useCallback(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
     }
-  };
+  }, []);
+
+  // Tối ưu handleSubmit với useCallback
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+
+      // Prevent double submission
+      if (isLoading) return;
+
+      setIsLoading(true);
+      setError(null);
+      setSuccess(null);
+      clearExistingTimeout();
+
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+
+        const res = await fetch(`${apiURL}/auth/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+          signal: controller.signal,
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({
+            message: "Đăng nhập thất bại",
+          }));
+          setError(data.message || "Đăng nhập thất bại");
+
+          timeoutRef.current = setTimeout(() => {
+            setError(null);
+          }, 3000);
+          return;
+        }
+
+        const data = await res.json();
+        setSuccess(data.message || "Đăng nhập thành công!");
+
+        // Lưu token
+        if (data.token) {
+          localStorage.setItem("accessToken", data.token);
+        } else {
+          localStorage.setItem("user", JSON.stringify(data));
+        }
+
+        // Chuyển hướng ngay lập tức thay vì đợi 2s
+        timeoutRef.current = setTimeout(() => {
+          router.push("/dashboard");
+        }, 1000);
+      } catch (error: any) {
+        if (error.name === "AbortError") {
+          setError("Yêu cầu quá thời gian, vui lòng thử lại");
+        } else {
+          setError("Đăng nhập thất bại, vui lòng kiểm tra kết nối");
+        }
+
+        timeoutRef.current = setTimeout(() => {
+          setError(null);
+        }, 3000);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [email, password, isLoading, router, clearExistingTimeout]
+  );
+
+  // Tối ưu onChange handlers
+  const handleEmailChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setEmail(e.target.value);
+    },
+    []
+  );
+
+  const handlePasswordChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setPassword(e.target.value);
+    },
+    []
+  );
 
   return (
     <>
-      {/* Alert fixed ở giữa trên màn hình */}
+      {/* Alert tối ưu */}
       {(error || success) && (
         <div className="fixed left-1/2 top-8 z-50 -translate-x-1/2 w-full max-w-xs">
           {error && (
@@ -93,7 +156,9 @@ export function LoginForm({
               placeholder="Nhập gmail của bạn"
               required
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={handleEmailChange}
+              disabled={isLoading}
+              autoComplete="email"
             />
           </div>
           <div className="grid gap-3">
@@ -109,14 +174,18 @@ export function LoginForm({
               placeholder="Nhập mật khẩu của bạn"
               required
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={handlePasswordChange}
+              disabled={isLoading}
+              autoComplete="current-password"
             />
           </div>
           <Button
             type="submit"
             className="w-full text-sm px-4 py-6 cursor-pointer"
+            disabled={isLoading}
           >
-            Đăng nhập <LogIn />
+            {isLoading ? "Đang đăng nhập..." : "Đăng nhập"}{" "}
+            {!isLoading && <LogIn />}
           </Button>
         </div>
         <div className="text-center text-sm">
