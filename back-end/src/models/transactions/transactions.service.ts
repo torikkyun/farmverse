@@ -18,6 +18,7 @@ import { TransactionResponseDto } from 'src/common/dto/transaction-response.dto'
 import { plainToInstance } from 'class-transformer';
 import { UserResponseDto } from 'src/common/dto/user-response.dto';
 import { PurchaseItemsDto } from './dto/purchase-items.dto';
+import { TransactionItemResponseDto } from 'src/common/dto/transaction-item-response.dto';
 
 @Injectable()
 export class TransactionsService {
@@ -26,8 +27,11 @@ export class TransactionsService {
     private readonly prisma: PrismaService,
   ) {}
 
-  private toTransactionResponse(transaction: any): TransactionResponseDto {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+  private toTransactionResponse(
+    transaction: Prisma.TransactionGetPayload<{
+      include: { buyer: true; TransactionItem?: { include?: { item?: true } } };
+    }>,
+  ): TransactionResponseDto {
     const buyerResponse = plainToInstance(UserResponseDto, transaction.buyer, {
       excludeExtraneousValues: true,
     });
@@ -39,6 +43,17 @@ export class TransactionsService {
         excludeExtraneousValues: true,
       },
     );
+
+    if (
+      transaction.TransactionItem &&
+      Array.isArray(transaction.TransactionItem)
+    ) {
+      transactionResponse.items = transaction.TransactionItem.map((item) =>
+        plainToInstance(TransactionItemResponseDto, item, {
+          excludeExtraneousValues: true,
+        }),
+      );
+    }
 
     transactionResponse.buyer = buyerResponse;
     return transactionResponse;
@@ -77,6 +92,7 @@ export class TransactionsService {
         },
         include: {
           buyer: true,
+          TransactionItem: { include: { item: true } },
         },
       }),
     ]);
@@ -201,42 +217,14 @@ export class TransactionsService {
             price: record.price,
             type: record.type,
             includesIot: itemDto.includesIot || undefined,
+            name: record.name,
+            description: record.description,
+            images: record.images,
+            farmId: record.farmId,
           };
         });
 
         await tx.transactionItem.createMany({ data: transactionItemsData });
-
-        // const newTransaction = await tx.transaction.create({
-        //   data: {
-        //     totalPrice,
-        //     type: TransactionType.PURCHASE,
-        //     buyerId: buyer.id,
-        //     farmId: farm.id,
-        //     TransactionItem: {
-        //       create: items.map((itemDto) => {
-        //         const record = itemRecordMap.get(itemDto.itemId);
-
-        //         if (!record) {
-        //           throw new NotFoundException(
-        //             `Vật phẩm với ID ${itemDto.itemId} không tồn tại`,
-        //           );
-        //         }
-
-        //         return {
-        //           itemId: itemDto.itemId,
-        //           quantity: itemDto.quantity || 1,
-        //           price: record.price,
-        //           type: record.type,
-        //           includesIot: itemDto.includesIot,
-        //         };
-        //       }),
-        //     },
-        //   },
-        //   include: {
-        //     buyer: true,
-        //     TransactionItem: { include: { item: true } },
-        //   },
-        // });
 
         const itemInstancesToCreate = items
           .map((itemDto) => {
@@ -301,6 +289,7 @@ export class TransactionsService {
       },
       include: {
         buyer: true,
+        TransactionItem: { include: { item: true } },
       },
     });
 

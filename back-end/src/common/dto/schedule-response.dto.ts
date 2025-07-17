@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose, Type } from 'class-transformer';
 import { FarmResponseDto } from './farm-response.dto';
+import { TransactionItemResponseDto } from './transaction-item-response.dto';
 
 export class ScheduleResponseDto {
   @Expose()
@@ -31,4 +32,8 @@ export class ScheduleResponseDto {
   @Type(() => FarmResponseDto)
   @ApiProperty({ type: FarmResponseDto })
   farm: FarmResponseDto;
+
+  @Expose()
+  @Type(() => TransactionItemResponseDto)
+  item?: TransactionItemResponseDto;
 }

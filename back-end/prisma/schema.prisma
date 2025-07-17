@@ -70,10 +70,11 @@ model Farm {
   owner   User   @relation(fields: [ownerId], references: [id])
   ownerId String @unique @db.ObjectId
 
-  Schedules    Schedule[]
-  Item         Item[]
-  Transaction  Transaction[]
-  ItemInstance ItemInstance[]
+  Schedules       Schedule[]
+  Item            Item[]
+  Transaction     Transaction[]
+  ItemInstance    ItemInstance[]
+  TransactionItem TransactionItem[]
 }
 
 model Schedule {
@@ -135,6 +136,9 @@ model Transaction {
 
 model TransactionItem {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String?
+  images      String[]
   includesIot Boolean?
   quantity    Int
   price       Float
@@ -144,6 +148,8 @@ model TransactionItem {
   transactionId String      @db.ObjectId
   item          Item        @relation(fields: [itemId], references: [id])
   itemId        String      @db.ObjectId
+  farm          Farm        @relation(fields: [farmId], references: [id])
+  farmId        String      @db.ObjectId
 
   @@index([transactionId])
   @@index([itemId])
