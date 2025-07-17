@@ -10,6 +10,7 @@ import HeaderFarmInfo from "./HeaderFarmInfo";
 import FarmTabs from "./FarmTabs";
 import { useFarmDetail } from "./useFarmDetail";
 import { useFarmItems } from "./useFarmItems";
+import DungCard from "../components/dung-card";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL?.replace(/['"]/g, "") || "";
 
@@ -55,12 +56,14 @@ export default function ProductDetailPage() {
   const { items, setItems, dungs, setDungs } = useFarmItems(API_URL, farmId);
 
   const [activeTab, setActiveTab] = useState(0);
-  const [selectedItems, setSelectedItems] = useState<number[]>([]);
+  const [selectedPlants, setSelectedPlants] = useState<number[]>([]);
+  const [selectedDungs, setSelectedDungs] = useState<number[]>([]);
   const [action, setAction] = useState<"buy" | "sell">("buy");
 
   // Reset selectedItems khi đổi farmId
   React.useEffect(() => {
-    setSelectedItems([]);
+    setSelectedPlants([]);
+    setSelectedDungs([]);
     setAction("buy");
   }, [farmId]);
 
@@ -87,10 +90,17 @@ export default function ProductDetailPage() {
     }
   }
 
-  const handleSelect = (id: number) =>
-    setSelectedItems((prev) =>
-      prev.includes(id) ? prev.filter((itemId) => itemId !== id) : [...prev, id]
-    );
+  const handleSelect = (id: number, type: "plant" | "dung") => {
+    if (type === "plant") {
+      setSelectedPlants((prev) =>
+        prev.includes(id) ? prev.filter((itemId) => itemId !== id) : [...prev, id]
+      );
+    } else {
+      setSelectedDungs((prev) =>
+        prev.includes(id) ? prev.filter((itemId) => itemId !== id) : [...prev, id]
+      );
+    }
+  };
 
   const reloadItems = () => {
     fetch(`${API_URL}/items/farm/${farmId}?type=TREEROOT&page=1&pageSize=10`)
@@ -139,19 +149,29 @@ export default function ProductDetailPage() {
             setActiveTab={setActiveTab}
             items={items}
             dungs={dungs}
-            selectedItems={selectedItems}
+            selectedItems={activeTab === 0 ? selectedPlants : selectedDungs}
             handleSelect={handleSelect}
+            farmId={farmId}
           />
-          {selectedItems.length > 0 && (
+          {(activeTab === 0 ? selectedPlants.length : selectedDungs.length) > 0 && (
             <SelectedBar
               items={tabItems}
-              selectedItems={selectedItems}
+              selectedItems={activeTab === 0 ? selectedPlants : selectedDungs}
               action={action}
               setAction={setAction}
-              setSelectedItems={setSelectedItems}
+              setSelectedItems={activeTab === 0 ? setSelectedPlants : setSelectedDungs}
               activeTab={activeTab}
             />
           )}
+          {activeTab === 1 &&
+            dungs.map((item) => (
+              <DungCard
+                key={item.id}
+                dungs={item}
+                selected={selectedDungs.includes(item.id)}
+                onSelect={() => handleSelect(item.id, "dung")}
+              />
+            ))}
         </div>
       </SidebarInset>
     </SidebarProvider>

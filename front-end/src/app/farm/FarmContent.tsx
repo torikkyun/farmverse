@@ -52,9 +52,6 @@ export default function FarmContent({ selected, farm }: Props) {
     loading,
     error,
     reloadSchedules,
-    setSchedules,
-    setError,
-    setLoading,
   } = useFarmSchedule(farm?.id ? String(farm.id) : undefined, API_URL);
 
   // Add schedule logic
@@ -63,7 +60,6 @@ export default function FarmContent({ selected, farm }: Props) {
     setAddScheduleOpen,
     addLoading,
     alert,
-    setAlert,
     newSchedule,
     range,
     handleChange,

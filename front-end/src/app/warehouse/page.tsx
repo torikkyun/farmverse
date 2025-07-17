@@ -3,46 +3,117 @@
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ItemCard } from "./ItemCard";
 import { ItemFormModal } from "./ItemFormModal";
-import { ItemDetailModal } from "./ItemDetailModal";
 import { ItemSearchBar } from "./ItemSearchBar";
 import Pagination from "@/components/ui/pagination";
 
-const apiURL = process.env.NEXT_PUBLIC_API_URL;
+// Sửa type WarehouseItem để có trường images là mảng string
+type WarehouseItem = {
+  id: number;
+  name: string;
+  type: string;
+  image: string;
+  images?: string[]; // Thêm dòng này
+  farm: { owner: { id: number }; name: string };
+  quantity: number;
+  price: number;
+};
+
+const FAKE_ITEMS: WarehouseItem[] = [
+  {
+    id: 1,
+    name: "Phân bón hữu cơ",
+    type: "FERTILIZER",
+    image: "https://api.dicebear.com/9.x/bottts/svg?seed=Felix",
+    farm: { owner: { id: 1 }, name: "Farm A" },
+    quantity: 10,
+    price: 50,
+  },
+  {
+    id: 2,
+    name: "Phân bón NPK",
+    type: "FERTILIZER",
+    image: "https://api.dicebear.com/7.x/bottts/svg?seed=Felix",
+    farm: { owner: { id: 1 }, name: "Farm A" },
+    quantity: 5,
+    price: 75,
+  },
+  {
+    id: 3,
+    name: "Cây lúa",
+    type: "TREEROOT",
+    image: "https://api.dicebear.com/7.x/bottts/svg?seed=Felix",
+    farm: { owner: { id: 2 }, name: "Farm B" },
+    quantity: 100,
+    price: 60,
+  },
+  {
+    id: 4,
+    name: "Cây ngô",
+    type: "TREEROOT",
+    image: "https://api.dicebear.com/7.x/bottts/svg?seed=Felix",
+    farm: { owner: { id: 2 }, name: "Farm B" },
+    quantity: 80,
+    price: 40,
+  },
+  {
+    id: 5,
+    name: "Cây khoai",
+    type: "TREEROOT",
+    image: "https://api.dicebear.com/7.x/bottts/svg?seed=Felix",
+    farm: { owner: { id: 1 }, name: "Farm A" },
+    quantity: 60,
+    price: 55,
+  },
+];
+
+type WarehouseItemForm = {
+  name: string;
+  type: string;
+  description: string;
+  images: string;
+  price: number;
+  quantity: number;
+};
 
 export default function WarehousePage() {
-  const [items, setItems] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [items, setItems] = useState<WarehouseItem[]>(FAKE_ITEMS);
   const [meta, setMeta] = useState({
     currentPage: 1,
     pageSize: 10,
-    totalItems: 0,
+    totalItems: FAKE_ITEMS.length,
     totalPages: 1,
   });
   const [search, setSearch] = useState("");
   const [type, setType] = useState("");
-  const [showAdd, setShowAdd] = useState(false);
-  const [addForm, setAddForm] = useState({
-    name: "",
-    type: "",
-    description: "",
-    images: "",
-    price: "",
-    quantity: "",
-  });
-  // const [editItem, setEditItem] = useState<any | null>(null);
-  const [showMenu, setShowMenu] = useState<string | null>(null);
-  // const [userId, setUserId] = useState<string | null>(null);
+
+  // Modal state
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<WarehouseItem | null>(null);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    fetchItems(1, meta.pageSize, search, type);
-    setMeta((m) => ({ ...m, currentPage: 1 }));
+    // Lọc dữ liệu fake theo search và type
+    let filtered = FAKE_ITEMS;
+    if (search) {
+      filtered = filtered.filter((item) =>
+        item.name.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+    if (type) {
+      filtered = filtered.filter((item) => item.type === type);
+    }
+    setItems(filtered);
+    setMeta((m) => ({
+      ...m,
+      currentPage: 1,
+      totalItems: filtered.length,
+      totalPages: 1,
+    }));
   };
 
-  // Phân trang
   const handlePageChange = (page: number) => {
     setMeta((prev) => ({
       ...prev,
@@ -50,120 +121,33 @@ export default function WarehousePage() {
     }));
   };
 
-  // // Thêm vật phẩm
-  // const handleAddItem = async (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   await fetch(`${apiURL}/items`, {
-  //     method: "POST",
-  //     headers: { "Content-Type": "application/json" },
-  //     body: JSON.stringify({
-  //       name: addForm.name,
-  //       type: addForm.type,
-  //       description: addForm.description,
-  //       images: addForm.images
-  //         .split(",")
-  //         .map((url) => url.trim())
-  //         .filter(Boolean),
-  //       price: Number(addForm.price),
-  //       quantity: Number(addForm.quantity),
-  //     }),
-  //   });
-  //   setShowAdd(false);
-  //   setAddForm({
-  //     name: "",
-  //     type: "",
-  //     description: "",
-  //     images: "",
-  //     price: "",
-  //     quantity: "",
-  //   });
-  //   fetchItems(1, meta.pageSize, search, type);
-  //   setMeta((m) => ({ ...m, currentPage: 1 }));
-  // };
+  // Chuyển WarehouseItem sang WarehouseItemForm
+  const toForm = (item: WarehouseItem): WarehouseItemForm => ({
+    name: item.name,
+    type: item.type,
+    description: "", // Nếu có trường description thì lấy từ item
+    images: item.image, // Nếu là nhiều ảnh thì sửa lại cho phù hợp
+    price: item.price,
+    quantity: item.quantity,
+  });
 
-  // // Sửa vật phẩm
-  // const handleEditItem = async (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   await fetch(`${apiURL}/items/${editItem.id}`, {
-  //     method: "PATCH",
-  //     headers: { "Content-Type": "application/json" },
-  //     body: JSON.stringify({
-  //       name: editItem.name,
-  //       type: editItem.type,
-  //       description: editItem.description,
-  //       images: editItem.images
-  //         .split(",")
-  //         .map((url: string) => url.trim())
-  //         .filter(Boolean),
-  //       price: Number(editItem.price),
-  //       quantity: Number(editItem.quantity),
-  //     }),
-  //   });
-  //   setEditItem(null);
-  //   fetchItems(meta.currentPage, meta.pageSize, search, type);
-  // };
-
-  // // Xóa vật phẩm
-  // const handleDeleteItem = async (id: string) => {
-  //   await fetch(`${apiURL}/items/${id}`, { method: "DELETE" });
-  //   fetchItems(meta.currentPage, meta.pageSize, search, type);
-  // };
-
-  // const [open, setOpen] = useState(false);
-  // const [selectedItem, setSelectedItem] = useState<(typeof items)[0] | null>(
-  //   null
-  // );
-
-  // const handleOpenModal = (item: (typeof items)[0]) => {
-  //   setSelectedItem(item);
-  //   setOpen(true);
-  // };
-
-  const fetchItems = async (
-    page = 1,
-    pageSize = 10,
-    searchValue = "",
-    typeValue = ""
-  ) => {
-    if (!userId) return;
-    setLoading(true);
-    try {
-      const url = `${apiURL}/items?page=${page}&pageSize=${pageSize}${
-        searchValue ? `&search=${encodeURIComponent(searchValue)}` : ""
-      }${typeValue ? `&type=${typeValue}` : ""}`;
-      const res = await fetch(url);
-      const json = await res.json();
-      console.log("userId for filter:", userId);
-      console.log(
-        "owner ids:",
-        json.data.items.map((item: any) => item.farm?.owner?.id)
-      );
-      const filteredItems = json.data.items.filter(
-        (item: any) => String(item.farm?.owner?.id) === String(userId)
-      );
-      setItems(filteredItems);
-      setMeta(json.data.meta || meta);
-    } catch {
-      setItems([]);
-    } finally {
-      setLoading(false);
-    }
+  // Khi click vào card
+  const handleCardClick = (item: WarehouseItem) => {
+    setSelectedItem(item);
+    setModalOpen(true);
   };
 
-  // useEffect(() => {
-  //   if (typeof window !== "undefined") {
-  //     const id = localStorage.getItem("userId");
-  //     console.log("userId in localStorage:", id);
-  //     setUserId(id);
-  //   }
-  // }, []);
+  // Đóng modal
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    setSelectedItem(null);
+  };
 
-  // useEffect(() => {
-  //   if (userId) {
-  //     fetchItems(meta.currentPage, meta.pageSize, search, type);
-  //   }
-  //   // eslint-disable-next-line
-  // }, [userId]);
+  // Dummy submit (không làm gì)
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setModalOpen(false);
+  };
 
   return (
     <SidebarProvider
@@ -190,12 +174,6 @@ export default function WarehousePage() {
                   onSearch={handleSearch}
                 />
               </div>
-              {/* <button
-                className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded font-semibold transition-colors"
-                onClick={() => setShowAdd(true)}
-              >
-                + Thêm vật phẩm
-              </button> */}
             </div>
             {/* Card danh sách vật phẩm */}
             <div className="rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 shadow">
@@ -207,52 +185,48 @@ export default function WarehousePage() {
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
                     {items.map((item) => (
-                      <ItemCard
+                      <div
                         key={item.id}
-                        item={item}
-                        onEdit={(item: any) =>
-                          setEditItem({
-                            ...item,
-                            images: Array.isArray(item.images)
-                              ? item.images.join(", ")
-                              : item.images || "",
-                          })
-                        }
-                        onDelete={handleDeleteItem}
-                        showMenu={showMenu}
-                        setShowMenu={setShowMenu}
-                        onOpenDetail={handleOpenModal}
-                      />
+                        onClick={() => handleCardClick(item)}
+                        style={{ cursor: "pointer" }}
+                      >
+                        <ItemCard
+                          item={{ ...item, images: [item.image] }}
+                          onEdit={() => {}} 
+                          onDelete={() => {}} 
+                          showMenu={null} 
+                          setShowMenu={() => {}} 
+                          onOpenDetail={() => {}} 
+                        />
+                      </div>
                     ))}
                   </div>
                 )}
               </div>
             </div>
-            <ItemDetailModal
-              open={open}
-              onOpenChange={setOpen}
-              item={selectedItem}
-            />
-            <ItemFormModal
-              open={showAdd}
-              onClose={() => setShowAdd(false)}
-              onSubmit={handleAddItem}
-              form={addForm}
-              setForm={setAddForm}
-              isEdit={false}
-            />
-            <ItemFormModal
-              open={!!editItem}
-              onClose={() => setEditItem(null)}
-              onSubmit={handleEditItem}
-              form={editItem || {}}
-              setForm={setEditItem}
-              isEdit={true}
-            />
-            {/* Phân trang */}
             <Pagination meta={meta} onPageChange={handlePageChange} />
           </div>
         </div>
+        {/* Modal hiển thị thông tin vật phẩm */}
+        <ItemFormModal
+          open={modalOpen}
+          onClose={handleCloseModal}
+          onSubmit={handleSubmit}
+          form={
+            selectedItem
+              ? toForm(selectedItem)
+              : {
+                  name: "",
+                  type: "",
+                  description: "",
+                  images: "",
+                  price: 0,
+                  quantity: 0,
+                }
+          }
+          setForm={() => {}}
+          isEdit={false}
+        />
       </SidebarInset>
     </SidebarProvider>
   );

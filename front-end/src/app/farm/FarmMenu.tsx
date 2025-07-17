@@ -18,7 +18,7 @@ export default function FarmMenu({ selected, onSelect }: Props) {
       >
         <li className="flex-shrink-0 min-w-[120px] sm:w-full">
           <button
-            className={`w-full text-left sm:text-center px-4 py-2 rounded whitespace-nowrap ${
+            className={`w-full text-left sm:text-left px-4 py-2 rounded whitespace-nowrap ${
               selected === "farm-info"
                 ? "bg-gray-200 dark:bg-gray-700 font-bold"
                 : ""
@@ -30,7 +30,7 @@ export default function FarmMenu({ selected, onSelect }: Props) {
         </li>
         <li className="flex-shrink-0 min-w-[120px] sm:w-full">
           <button
-            className={`w-full text-left sm:text-center px-4 py-2 rounded whitespace-nowrap ${
+            className={`w-full text-left sm:text-left px-4 py-2 rounded whitespace-nowrap ${
               selected === "plants"
                 ? "bg-gray-200 dark:bg-gray-700 font-bold"
                 : ""
@@ -42,7 +42,7 @@ export default function FarmMenu({ selected, onSelect }: Props) {
         </li>
         <li className="flex-shrink-0 min-w-[120px] sm:w-full">
           <button
-            className={`w-full text-left sm:text-center px-4 py-2 rounded whitespace-nowrap ${
+            className={`w-full text-left sm:text-left px-4 py-2 rounded whitespace-nowrap ${
               selected === "fertilizers"
                 ? "bg-gray-200 dark:bg-gray-700 font-bold"
                 : ""
@@ -54,7 +54,7 @@ export default function FarmMenu({ selected, onSelect }: Props) {
         </li>
         <li className="flex-shrink-0 min-w-[120px] sm:w-full">
           <button
-            className={`w-full text-left sm:text-center px-4 py-2 rounded whitespace-nowrap ${
+            className={`w-full text-left sm:text-left px-4 py-2 rounded whitespace-nowrap ${
               selected === "schedule"
                 ? "bg-gray-200 dark:bg-gray-700 font-bold"
                 : ""

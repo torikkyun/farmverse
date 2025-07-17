@@ -1,12 +1,20 @@
 import React from "react";
 
+type ItemSearchBarProps = {
+  search: string;
+  setSearch: (value: string) => void;
+  type: string;
+  setType: (value: string) => void;
+  onSearch: (e: React.FormEvent<HTMLFormElement>) => void;
+};
+
 export function ItemSearchBar({
   search,
   setSearch,
   type,
   setType,
   onSearch,
-}: any) {
+}: ItemSearchBarProps) {
   return (
     <form
       onSubmit={onSearch}

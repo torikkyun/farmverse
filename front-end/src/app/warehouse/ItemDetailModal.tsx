@@ -1,7 +1,23 @@
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import React from "react";
 
-export function ItemDetailModal({ open, onOpenChange, item }: any) {
+// Định nghĩa type cho item
+type ItemDetail = {
+  images?: string[];
+  name: string;
+  code?: string;
+  amount?: number;
+  unit?: string;
+  // Thêm các trường khác nếu cần
+};
+
+type ItemDetailModalProps = {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  item?: ItemDetail | null;
+};
+
+export function ItemDetailModal({ open, onOpenChange, item }: ItemDetailModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md p-0">

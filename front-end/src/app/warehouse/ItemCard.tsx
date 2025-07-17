@@ -1,6 +1,26 @@
 import { MoreHorizontal } from "lucide-react";
 import React from "react";
 
+// Định nghĩa type cho props
+type WarehouseItem = {
+  id: number;
+  name: string;
+  type: string;
+  images: string[];
+  quantity: number;
+  price: number;
+  // Thêm các trường khác nếu cần
+};
+
+type ItemCardProps = {
+  item: WarehouseItem;
+  onEdit: (item: WarehouseItem) => void;
+  onDelete: (id: number) => void;
+  showMenu: number | null;
+  setShowMenu: (id: number | null) => void;
+  onOpenDetail: (item: WarehouseItem) => void;
+};
+
 export function ItemCard({
   item,
   onEdit,
@@ -8,7 +28,7 @@ export function ItemCard({
   showMenu,
   setShowMenu,
   onOpenDetail,
-}: any) {
+}: ItemCardProps) {
   return (
     <div
       className="relative flex flex-col items-center w-full bg-white dark:bg-neutral-800 rounded-2xl border border-blue-100 dark:border-blue-800 shadow-lg hover:shadow-2xl hover:scale-[1.03] transition-all duration-200 p-6 cursor-pointer"
