@@ -9,11 +9,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   useEffect(() => {
-    console.log("AuthGuard - pathname:", pathname); // Debug
-
     const token = getToken();
-    console.log("AuthGuard - token:", token); // Debug
-
     // Kiểm tra nếu đang ở trong cụm trang auth thì không hiển thị modal
     const isAuthPage =
       pathname?.startsWith("/login") ||
@@ -21,10 +17,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
       pathname?.startsWith("/forgot") ||
       pathname?.startsWith("/confirm");
 
-    console.log("AuthGuard - isAuthPage:", isAuthPage); // Debug
-
     if (!token && !isAuthPage) {
-      console.log("AuthGuard - No token, showing modal"); // Debug
       setShowModal(true);
       const timeout = setTimeout(() => {
         window.location.href = "/login";
@@ -33,7 +26,6 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
       // Cleanup timeout if component unmounts
       return () => clearTimeout(timeout);
     } else {
-      console.log("AuthGuard - Has token or is auth page, hiding modal"); // Debug
       setShowModal(false);
     }
 
@@ -46,15 +38,6 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     pathname?.startsWith("/signup") ||
     pathname?.startsWith("/forgot") ||
     pathname?.startsWith("/confirm");
-
-  console.log(
-    "AuthGuard - Render - isAuthPage:",
-    isAuthPage,
-    "isLoading:",
-    isLoading,
-    "showModal:",
-    showModal
-  ); // Debug
 
   if (isLoading) {
     return <div>Loading...</div>; // Hoặc loading spinner
