@@ -35,7 +35,6 @@ export default function SettingsPage() {
     try {
       const userObj = JSON.parse(userStr);
       const userId = userObj?.data?.user?.id;
-      console.log("User ID from localStorage:", userId);
       if (!userId) return;
 
       fetch(`${API_URL}/users/${userId}`)
