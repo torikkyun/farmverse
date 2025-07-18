@@ -260,6 +260,7 @@ export class TransactionsService {
               farmId: farm.id,
               itemId: record.id,
               type: record.type,
+              images: record.images,
             };
 
             if (record.type === ItemType.TREEROOT) {

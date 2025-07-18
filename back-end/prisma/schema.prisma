@@ -181,6 +181,7 @@ model ItemInstance {
   startDate       DateTime?
   endDate         DateTime?
   harvestedAction HarvestedAction?
+  images          String[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

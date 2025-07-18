@@ -1,10 +1,12 @@
-import { Body, Controller, Get, Param, Patch } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Query } from '@nestjs/common';
 import { ItemInstancesService } from './item-instances.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { UserRole } from 'generated/prisma';
 import { UpdateStatusDto } from './dto/update-status.dto';
+import { UpdateHarvestedActionDto } from './dto/update-harvested-action.dto';
+import { SearchItemInstancesQueryDto } from './dto/search-item-instance.dto';
 
 @Controller('api/item-instances')
 @ApiTags('item-instances')
@@ -13,8 +15,11 @@ export class ItemInstancesController {
 
   @Get()
   @ApiBearerAuth()
-  findAll(@CurrentUser() user: { id: string }) {
-    return this.itemInstancesService.findAll(user);
+  findAll(
+    @CurrentUser() user: { id: string },
+    @Query() searchItemInstancesQueryDto: SearchItemInstancesQueryDto,
+  ) {
+    return this.itemInstancesService.findAll(user, searchItemInstancesQueryDto);
   }
 
   @Get(':itemInstanceId')
@@ -41,16 +46,18 @@ export class ItemInstancesController {
     );
   }
 
-  // @Patch(':itemInstanceId/harvested-action')
-  // @Roles(UserRole.TENANT)
-  // @ApiBearerAuth()
-  // updateHarvestedAction(
-  //   @CurrentUser() user: { id: string },
-  //   @Param('itemInstanceId') itemInstanceId: string,
-  // ) {
-  //   return this.itemInstancesService.updateHarvestedAction(
-  //     user,
-  //     itemInstanceId,
-  //   );
-  // }
+  @Patch(':itemInstanceId/harvested-action')
+  @Roles(UserRole.TENANT)
+  @ApiBearerAuth()
+  updateHarvestedAction(
+    @CurrentUser() user: { id: string },
+    @Param('itemInstanceId') itemInstanceId: string,
+    @Body() updateHarvestedActionDto: UpdateHarvestedActionDto,
+  ) {
+    return this.itemInstancesService.updateHarvestedAction(
+      user,
+      itemInstanceId,
+      updateHarvestedActionDto,
+    );
+  }
 }
