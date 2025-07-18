@@ -14,10 +14,11 @@ import { EmailVerificationDto } from './dto/email-verification.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { plainToInstance } from 'class-transformer';
 import { UserResponseDto } from 'src/common/dto/user-response.dto';
-import { User } from 'generated/prisma';
+import { User, UserRole } from 'generated/prisma';
 import { PrismaService } from 'src/providers/prisma.service';
 import { randomBytes } from 'crypto';
 import { AccountVerificationDto } from './dto/account-verification.dto';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 @Injectable()
 export class AuthService {
@@ -264,4 +265,35 @@ export class AuthService {
 
     return { message: 'Đã gửi lại email đặt lại mật khẩu', email: user.email };
   }
+
+  // async refreshToken({ refreshToken }: RefreshTokenDto): Promise<{
+  //   accessToken: string;
+  //   expiresIn: number;
+  // }> {
+  //   let payload: { id: string; role: UserRole };
+
+  //   try {
+  //     payload = await this.jwtService.verifyAsync(refreshToken, {
+  //       ignoreExpiration: false,
+  //     });
+  //   } catch {
+  //     throw new UnauthorizedException(
+  //       'Refresh token không hợp lệ hoặc đã hết hạn',
+  //     );
+  //   }
+
+  //   const user = await this.findById(payload.id);
+
+  //   if (!user) {
+  //     throw new UnauthorizedException('Người dùng không tồn tại');
+  //   }
+
+  //   const accessPayload = { id: user.id, role: user.role };
+
+  //   const accessToken = await this.jwtService.signAsync(accessPayload);
+
+  //   const expiresIn = 60 * 60;
+
+  //   return { accessToken, expiresIn };
+  // }
 }

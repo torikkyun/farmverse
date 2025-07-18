@@ -267,7 +267,7 @@ export class TransactionsService {
               return Array.from({ length: quantity }, () => ({
                 ...baseInstance,
                 status: TreeRootInstanceStatus.GROWING,
-                startDate: itemDto.startDate || new Date(),
+                startDate: itemDto.startDate || undefined,
                 endDate: itemDto.endDate || undefined,
               }));
             }

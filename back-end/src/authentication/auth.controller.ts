@@ -15,6 +15,7 @@ import { LocalGuard } from 'src/common/guards/local.guard';
 import { Public } from 'src/common/decorators/public.decorator';
 import { AccountVerificationDto } from './dto/account-verification.dto';
 import { UserResponseDto } from 'src/common/dto/user-response.dto';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 @Controller('api/auth')
 @Public()
@@ -25,13 +26,13 @@ export class AuthController {
   @Post('login')
   @UseGuards(LocalGuard)
   login(
-    @Body(new ValidationPipe()) loginDto: LoginDto,
+    @Body() loginDto: LoginDto,
   ): Promise<{ message: string; accessToken: string; user: UserResponseDto }> {
     return this.authService.login(loginDto);
   }
 
   @Post('register')
-  register(@Body(new ValidationPipe()) registerDto: RegisterDto): Promise<{
+  register(@Body() registerDto: RegisterDto): Promise<{
     message: string;
     email: string;
   }> {
@@ -39,9 +40,7 @@ export class AuthController {
   }
 
   @Post('verify-email')
-  verifyEmail(
-    @Body(new ValidationPipe()) accountVerificationDto: AccountVerificationDto,
-  ): Promise<{
+  verifyEmail(@Body() accountVerificationDto: AccountVerificationDto): Promise<{
     message: string;
     email: string;
   }> {
@@ -79,12 +78,20 @@ export class AuthController {
   }
 
   @Post('resend-forgot-password')
-  async resendForgotPassword(
-    @Body(new ValidationPipe()) emailVerificationDto: EmailVerificationDto,
+  resendForgotPassword(
+    @Body() emailVerificationDto: EmailVerificationDto,
   ): Promise<{
     message: string;
     email: string;
   }> {
     return this.authService.resendForgotPassword(emailVerificationDto);
   }
+
+  // @Post('refresh-token')
+  // refreshToken(@Body() refreshTokenDto: RefreshTokenDto): Promise<{
+  //   accessToken: string;
+  //   expiresIn: number;
+  // }> {
+  //   return this.authService.refreshToken(refreshTokenDto);
+  // }
 }

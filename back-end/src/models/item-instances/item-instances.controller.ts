@@ -7,6 +7,9 @@ import { UserRole } from 'generated/prisma';
 import { UpdateStatusDto } from './dto/update-status.dto';
 import { UpdateHarvestedActionDto } from './dto/update-harvested-action.dto';
 import { SearchItemInstancesQueryDto } from './dto/search-item-instance.dto';
+import { UpdateCameraDto } from './dto/update-camera.dto';
+import { ItemInstanceResponseDto } from 'src/common/dto/item-instance-response.dto';
+import { PaginationResponseDto } from 'src/common/dto/pagination.dto';
 
 @Controller('api/item-instances')
 @ApiTags('item-instances')
@@ -18,7 +21,7 @@ export class ItemInstancesController {
   findAll(
     @CurrentUser() user: { id: string },
     @Query() searchItemInstancesQueryDto: SearchItemInstancesQueryDto,
-  ) {
+  ): Promise<PaginationResponseDto<ItemInstanceResponseDto>> {
     return this.itemInstancesService.findAll(user, searchItemInstancesQueryDto);
   }
 
@@ -27,18 +30,18 @@ export class ItemInstancesController {
   findOne(
     @CurrentUser() user: { id: string },
     @Param('itemInstanceId') itemInstanceId: string,
-  ) {
+  ): Promise<ItemInstanceResponseDto> {
     return this.itemInstancesService.findOne(user, itemInstanceId);
   }
 
-  @Patch(':itemInstanceId')
+  @Patch(':itemInstanceId/status')
   @Roles(UserRole.FARMER)
   @ApiBearerAuth()
   updateStatus(
     @CurrentUser() user: { id: string },
     @Param('itemInstanceId') itemInstanceId: string,
     @Body() updateStatusDto: UpdateStatusDto,
-  ) {
+  ): Promise<ItemInstanceResponseDto> {
     return this.itemInstancesService.updateStatus(
       user,
       itemInstanceId,
@@ -53,11 +56,26 @@ export class ItemInstancesController {
     @CurrentUser() user: { id: string },
     @Param('itemInstanceId') itemInstanceId: string,
     @Body() updateHarvestedActionDto: UpdateHarvestedActionDto,
-  ) {
+  ): Promise<ItemInstanceResponseDto> {
     return this.itemInstancesService.updateHarvestedAction(
       user,
       itemInstanceId,
       updateHarvestedActionDto,
+    );
+  }
+
+  @Patch(':itemInstanceId/camera')
+  @Roles(UserRole.FARMER)
+  @ApiBearerAuth()
+  updateCamera(
+    @CurrentUser() user: { id: string },
+    @Param('itemInstanceId') itemInstanceId: string,
+    @Body() updateCameraDto: UpdateCameraDto,
+  ): Promise<ItemInstanceResponseDto> {
+    return this.itemInstancesService.updateCamera(
+      user,
+      itemInstanceId,
+      updateCameraDto,
     );
   }
 }

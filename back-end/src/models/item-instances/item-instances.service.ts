@@ -12,6 +12,7 @@ import {
   PaginationResponseDto,
 } from 'src/common/dto/pagination.dto';
 import { Prisma } from 'generated/prisma';
+import { UpdateCameraDto } from './dto/update-camera.dto';
 
 @Injectable()
 export class ItemInstancesService {
@@ -110,7 +111,7 @@ export class ItemInstancesService {
     user: { id: string },
     itemInstanceId: string,
     { status }: UpdateStatusDto,
-  ) {
+  ): Promise<ItemInstanceResponseDto> {
     const itemInstance = await this.prisma.itemInstance.update({
       where: {
         id: itemInstanceId,
@@ -136,7 +137,7 @@ export class ItemInstancesService {
     user: { id: string },
     itemInstanceId: string,
     { harvestedAction }: UpdateHarvestedActionDto,
-  ) {
+  ): Promise<ItemInstanceResponseDto> {
     const itemInstance = await this.prisma.itemInstance.update({
       where: {
         id: itemInstanceId,
@@ -144,6 +145,32 @@ export class ItemInstancesService {
       },
       data: {
         harvestedAction,
+      },
+      include: {
+        item: true,
+        farm: true,
+      },
+    });
+
+    if (!itemInstance) {
+      throw new NotFoundException('Không tìm thấy vật phẩm');
+    }
+
+    return this.toItemInstanceResponse(itemInstance);
+  }
+
+  async updateCamera(
+    user: { id: string },
+    itemInstanceId: string,
+    { cameraUrl }: UpdateCameraDto,
+  ): Promise<ItemInstanceResponseDto> {
+    const itemInstance = await this.prisma.itemInstance.update({
+      where: {
+        id: itemInstanceId,
+        userId: user.id,
+      },
+      data: {
+        cameraUrl,
       },
       include: {
         item: true,
