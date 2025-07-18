@@ -1,10 +1,4 @@
-import {
-  Controller,
-  Post,
-  Body,
-  UseGuards,
-  ValidationPipe,
-} from '@nestjs/common';
+import { Controller, Post, Body, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { ApiTags } from '@nestjs/swagger';
@@ -54,7 +48,7 @@ export class AuthController {
 
   @Post('resend-verification-email')
   resendVerificationEmail(
-    @Body(new ValidationPipe()) emailVerificationDto: EmailVerificationDto,
+    @Body() emailVerificationDto: EmailVerificationDto,
   ): Promise<{
     message: string;
     email: string;
@@ -63,9 +57,7 @@ export class AuthController {
   }
 
   @Post('forgot-password')
-  forgotPassword(
-    @Body(new ValidationPipe()) emailVerificationDto: EmailVerificationDto,
-  ): Promise<{
+  forgotPassword(@Body() emailVerificationDto: EmailVerificationDto): Promise<{
     message: string;
     email: string;
   }> {
@@ -73,9 +65,7 @@ export class AuthController {
   }
 
   @Post('reset-password')
-  resetPassword(
-    @Body(new ValidationPipe()) resetPasswordDto: ResetPasswordDto,
-  ): Promise<{
+  resetPassword(@Body() resetPasswordDto: ResetPasswordDto): Promise<{
     message: string;
     email: string;
   }> {

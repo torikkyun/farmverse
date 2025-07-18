@@ -10,6 +10,7 @@ import { SearchItemInstancesQueryDto } from './dto/search-item-instance.dto';
 import { UpdateCameraDto } from './dto/update-camera.dto';
 import { ItemInstanceResponseDto } from 'src/common/dto/item-instance-response.dto';
 import { PaginationResponseDto } from 'src/common/dto/pagination.dto';
+import { UpdateHarvestProcessStatusDto } from './dto/update-harvest-process-status.dto';
 
 @Controller('api/item-instances')
 @ApiTags('item-instances')
@@ -40,7 +41,7 @@ export class ItemInstancesController {
   updateStatus(
     @CurrentUser() user: { id: string },
     @Param('itemInstanceId') itemInstanceId: string,
-    @Body() updateStatusDto: UpdateStatusDto,
+    @Query() updateStatusDto: UpdateStatusDto,
   ): Promise<ItemInstanceResponseDto> {
     return this.itemInstancesService.updateStatus(
       user,
@@ -55,7 +56,7 @@ export class ItemInstancesController {
   updateHarvestedAction(
     @CurrentUser() user: { id: string },
     @Param('itemInstanceId') itemInstanceId: string,
-    @Body() updateHarvestedActionDto: UpdateHarvestedActionDto,
+    @Query() updateHarvestedActionDto: UpdateHarvestedActionDto,
   ): Promise<ItemInstanceResponseDto> {
     return this.itemInstancesService.updateHarvestedAction(
       user,
@@ -76,6 +77,21 @@ export class ItemInstancesController {
       user,
       itemInstanceId,
       updateCameraDto,
+    );
+  }
+
+  @Patch(':itemInstanceId/harvest-process-status')
+  @Roles(UserRole.FARMER)
+  @ApiBearerAuth()
+  updateHarvestProcessStatus(
+    @CurrentUser() user: { id: string },
+    @Param('itemInstanceId') itemInstanceId: string,
+    @Query() updateHarvestProcessStatusDto: UpdateHarvestProcessStatusDto,
+  ): Promise<ItemInstanceResponseDto> {
+    return this.itemInstancesService.updateHarvestProcessStatus(
+      user,
+      itemInstanceId,
+      updateHarvestProcessStatusDto,
     );
   }
 }

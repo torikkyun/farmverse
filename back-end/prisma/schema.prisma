@@ -36,6 +36,14 @@ enum HarvestedAction {
   RECEIVE_PRODUCT
 }
 
+enum HarvestProcessStatus {
+  PENDING
+  HARVESTING
+  SUCCESS
+  COMPLETED
+  FAILED
+}
+
 model User {
   id                      String    @id @default(auto()) @map("_id") @db.ObjectId
   name                    String
@@ -105,6 +113,8 @@ model Item {
   images      String[]
   price       Int
   quantity    Int
+  TreeAge     Int?
+  TreeHeight  Int?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -173,15 +183,16 @@ model TransactionItem {
 }
 
 model ItemInstance {
-  id              String                  @id @default(auto()) @map("_id") @db.ObjectId
-  type            ItemType
-  quantity        Int?
-  status          TreeRootInstanceStatus?
-  cameraUrl       String?
-  startDate       DateTime?
-  endDate         DateTime?
-  harvestedAction HarvestedAction?
-  images          String[]
+  id                   String                  @id @default(auto()) @map("_id") @db.ObjectId
+  type                 ItemType
+  quantity             Int?
+  status               TreeRootInstanceStatus?
+  cameraUrl            String?
+  startDate            DateTime?
+  endDate              DateTime?
+  harvestedAction      HarvestedAction?
+  images               String[]
+  harvestProcessStatus HarvestProcessStatus?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -13,8 +13,6 @@ export class UpdateHarvestedActionDto {
   @ApiProperty({
     required: true,
     enum: HarvestedAction,
-    description:
-      'Hành động thu hoạch của vật phẩm: SELL_TO_FARMER, RECEIVE_PRODUCT',
   })
   harvestedAction: HarvestedAction;
 }
