@@ -19,6 +19,7 @@ import { PrismaService } from 'src/providers/prisma.service';
 import { randomBytes } from 'crypto';
 import { AccountVerificationDto } from './dto/account-verification.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
@@ -26,6 +27,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly mailService: MailService,
     private readonly prisma: PrismaService,
+    private readonly configService: ConfigService,
   ) {}
 
   private createOtp(): { otp: string; expires: Date } {
@@ -36,6 +38,10 @@ export class AuthService {
 
   private async findByEmail(email: string): Promise<User | null> {
     return await this.prisma.user.findUnique({ where: { email } });
+  }
+
+  private async findById(id: string): Promise<User | null> {
+    return await this.prisma.user.findUnique({ where: { id } });
   }
 
   async validateUser(email: string, password: string): Promise<User | null> {
@@ -51,6 +57,9 @@ export class AuthService {
   async login({ email }: LoginDto): Promise<{
     message: string;
     accessToken: string;
+    accessTokenExpiresIn: string;
+    refreshToken: string;
+    refreshTokenExpiresIn: string;
     user: UserResponseDto;
   }> {
     const user = await this.findByEmail(email);
@@ -63,10 +72,21 @@ export class AuthService {
 
     const payload = { id: user.id, role: user.role };
     const accessToken = await this.jwtService.signAsync(payload);
+    const accessTokenExpiresIn =
+      this.configService.get<string>('JWT_EXPIRATION')!;
+    const jwtRefreshExpiration = this.configService.get<string>(
+      'JWT_REFRESH_EXPIRATION',
+    )!;
+    const refreshToken = await this.jwtService.signAsync(payload, {
+      expiresIn: jwtRefreshExpiration,
+    });
 
     return {
       message: 'Đăng nhập thành công',
       accessToken,
+      accessTokenExpiresIn,
+      refreshToken,
+      refreshTokenExpiresIn: jwtRefreshExpiration,
       user: plainToInstance(UserResponseDto, user, {
         excludeExtraneousValues: true,
       }),
@@ -266,34 +286,32 @@ export class AuthService {
     return { message: 'Đã gửi lại email đặt lại mật khẩu', email: user.email };
   }
 
-  // async refreshToken({ refreshToken }: RefreshTokenDto): Promise<{
-  //   accessToken: string;
-  //   expiresIn: number;
-  // }> {
-  //   let payload: { id: string; role: UserRole };
+  async refreshToken({ refreshToken }: RefreshTokenDto): Promise<{
+    accessToken: string;
+    expiresIn: string;
+  }> {
+    let payload: { id: string; role: UserRole };
 
-  //   try {
-  //     payload = await this.jwtService.verifyAsync(refreshToken, {
-  //       ignoreExpiration: false,
-  //     });
-  //   } catch {
-  //     throw new UnauthorizedException(
-  //       'Refresh token không hợp lệ hoặc đã hết hạn',
-  //     );
-  //   }
+    try {
+      payload = await this.jwtService.verifyAsync(refreshToken, {
+        ignoreExpiration: false,
+      });
+    } catch {
+      throw new UnauthorizedException(
+        'Refresh token không hợp lệ hoặc đã hết hạn',
+      );
+    }
 
-  //   const user = await this.findById(payload.id);
+    const user = await this.findById(payload.id);
 
-  //   if (!user) {
-  //     throw new UnauthorizedException('Người dùng không tồn tại');
-  //   }
+    if (!user) {
+      throw new NotFoundException('Người dùng không tồn tại');
+    }
 
-  //   const accessPayload = { id: user.id, role: user.role };
+    const accessPayload = { id: user.id, role: user.role };
+    const accessToken = await this.jwtService.signAsync(accessPayload);
+    const expiresIn = this.configService.get<string>('JWT_REFRESH_EXPIRATION')!;
 
-  //   const accessToken = await this.jwtService.signAsync(accessPayload);
-
-  //   const expiresIn = 60 * 60;
-
-  //   return { accessToken, expiresIn };
-  // }
+    return { accessToken, expiresIn };
+  }
 }

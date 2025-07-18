@@ -25,9 +25,14 @@ export class AuthController {
 
   @Post('login')
   @UseGuards(LocalGuard)
-  login(
-    @Body() loginDto: LoginDto,
-  ): Promise<{ message: string; accessToken: string; user: UserResponseDto }> {
+  login(@Body() loginDto: LoginDto): Promise<{
+    message: string;
+    accessToken: string;
+    accessTokenExpiresIn: string;
+    refreshToken: string;
+    refreshTokenExpiresIn: string;
+    user: UserResponseDto;
+  }> {
     return this.authService.login(loginDto);
   }
 
@@ -87,11 +92,11 @@ export class AuthController {
     return this.authService.resendForgotPassword(emailVerificationDto);
   }
 
-  // @Post('refresh-token')
-  // refreshToken(@Body() refreshTokenDto: RefreshTokenDto): Promise<{
-  //   accessToken: string;
-  //   expiresIn: number;
-  // }> {
-  //   return this.authService.refreshToken(refreshTokenDto);
-  // }
+  @Post('refresh-token')
+  refreshToken(@Body() refreshTokenDto: RefreshTokenDto): Promise<{
+    accessToken: string;
+    expiresIn: string;
+  }> {
+    return this.authService.refreshToken(refreshTokenDto);
+  }
 }
