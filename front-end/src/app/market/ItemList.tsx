@@ -64,8 +64,8 @@ export function ItemList({
             onClick={() => setSelectedItem(item)}
             type="button"
           >
-            <Card className="w-full bg-card border border-muted-foreground/10 hover:scale-[1.03] transition-transform duration-200 overflow-x-hidden">
-              <CardContent className="p-0">
+            <Card className="w-full h-full flex flex-col bg-card border border-muted-foreground/10 hover:scale-[1.03] transition-transform duration-200 overflow-x-hidden">
+              <CardContent className="flex flex-col flex-1 p-0">
                 <Image
                   src={item.images?.[0] || "/images/default.png"}
                   alt={item.name}
@@ -74,31 +74,37 @@ export function ItemList({
                   className="rounded-t-xl h-44 w-full object-cover"
                   priority
                 />
-                <div className="p-4">
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold text-base">{item.name}</span>
-                    <Badge
-                      variant="outline"
-                      className="ml-1 text-xs border-green-500 text-green-600"
-                    >
-                      {item.type === "FERTILIZER"
-                        ? "Phân bón"
-                        : item.type === "TREEROOT"
-                        ? "Cây trồng"
-                        : item.type}
-                    </Badge>
-                  </div>
-                  <div className="flex items-center gap-2 mt-2 text-sm">
-                    <span className="text-muted-foreground">Nông trại:</span>
-                    <span className="font-medium">{item.farm?.name}</span>
-                  </div>
-                  <div className="flex items-center gap-2 mt-1 text-sm">
-                    <span className="text-muted-foreground">Giá:</span>
-                    <span className="font-medium">{item.price} ETH</span>
-                    <span className="text-muted-foreground ml-2">
-                      Số lượng:
-                    </span>
-                    <span className="font-medium">{item.quantity ?? "-"}</span>
+                <div className="p-4 flex flex-col flex-1 justify-between">
+                  <div>
+                    <div className="flex items-left gap-2">
+                      <span className="font-semibold text-base">
+                        {item.name}
+                      </span>
+                      <Badge
+                        variant="outline"
+                        className="ml-1 text-xs border-green-500 text-green-600"
+                      >
+                        {item.type === "FERTILIZER"
+                          ? "Phân bón"
+                          : item.type === "TREEROOT"
+                          ? "Cây trồng"
+                          : item.type}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center gap-2 mt-2 text-sm">
+                      <span className="text-muted-foreground">Nông trại:</span>
+                      <span className="font-medium">{item.farm?.name}</span>
+                    </div>
+                    <div className="flex items-center gap-2 mt-1 text-sm">
+                      <span className="text-muted-foreground">Giá:</span>
+                      <span className="font-medium">{item.price} ETH</span>
+                      <span className="text-muted-foreground ml-2">
+                        Số lượng:
+                      </span>
+                      <span className="font-medium">
+                        {item.quantity ?? "-"}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </CardContent>

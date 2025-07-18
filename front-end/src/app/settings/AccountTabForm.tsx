@@ -39,18 +39,43 @@ export default function AccountTabForm({ form, setForm }: AccountTabFormProps) {
     }
   }, [alert]);
 
+  useEffect(() => {
+    const userStr = localStorage.getItem("user");
+    if (userStr) {
+      try {
+        const userObj = JSON.parse(userStr);
+        if (userObj?.user) {
+          setForm((f) => ({
+            ...f,
+            name: userObj.user.name || "",
+            email: userObj.user.email || "",
+            phone: userObj.user.phone || "",
+            avatar: userObj.user.avatar || "",
+          }));
+        }
+      } catch {
+        // Nếu lỗi thì giữ nguyên form
+      }
+    }
+  }, [setForm]);
+
   const handleChangePassword = async () => {
     setLoading(true);
     setAlert(null);
     try {
       const userStr = localStorage.getItem("user");
+      console.log("Raw userStr:", userStr); // Thêm dòng này
       if (!userStr) throw new Error("Không tìm thấy thông tin người dùng.");
       const userObj = JSON.parse(userStr);
-      const accessToken = userObj?.data?.accessToken;
+      console.log("Parsed userObj:", userObj); // Thêm dòng này
+      const accessToken = userObj?.accessToken;
       if (!accessToken) throw new Error("Thiếu thông tin xác thực.");
 
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "")}/users/change-password`,
+        `${process.env.NEXT_PUBLIC_API_URL?.replace(
+          /\/$/,
+          ""
+        )}/users/change-password`,
         {
           method: "PATCH",
           headers: {
@@ -74,7 +99,11 @@ export default function AccountTabForm({ form, setForm }: AccountTabFormProps) {
       setNewPassword("");
       setConfirmNewPassword("");
 
-      const updatedUser = { ...userObj, data: { ...userObj.data, user: { ...userObj.data.user, email: form.email } } };
+      // Nếu muốn cập nhật lại email trong localStorage:
+      const updatedUser = {
+        ...userObj,
+        user: { ...userObj.user, email: form.email },
+      };
       localStorage.setItem("user", JSON.stringify(updatedUser));
     } catch (e) {
       const error = e as Error;
@@ -90,7 +119,15 @@ export default function AccountTabForm({ form, setForm }: AccountTabFormProps) {
         <Alert
           variant={alert.type === "success" ? "default" : "destructive"}
           className="mb-4"
-          style={{ position: "fixed", top: 24, left: "50%", transform: "translateX(-50%)", zIndex: 50, width: "100%", maxWidth: 400 }}
+          style={{
+            position: "fixed",
+            top: 24,
+            left: "50%",
+            transform: "translateX(-50%)",
+            zIndex: 50,
+            width: "100%",
+            maxWidth: 400,
+          }}
         >
           <AlertTitle>
             {alert.type === "success" ? "Thành công" : "Lỗi"}

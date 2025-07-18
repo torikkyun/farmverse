@@ -37,11 +37,10 @@ export function NavUser() {
     if (raw) {
       try {
         const parsed = JSON.parse(raw);
-        // Sửa ở đây: lấy từ parsed.data.user
         setUser({
-          name: parsed.data?.user?.name || "",
-          email: parsed.data?.user?.email || "",
-          avatar: parsed.data?.user?.avatar || "",
+          name: parsed.user?.name || "",
+          email: parsed.user?.email || "",
+          avatar: parsed.user?.avatar || "",
         });
       } catch {
         setUser({ name: "", email: "", avatar: "" });
@@ -96,7 +95,7 @@ export function NavUser() {
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem
-                onClick = {() => {
+                onClick={() => {
                   window.location.href = "/settings";
                 }}
               >

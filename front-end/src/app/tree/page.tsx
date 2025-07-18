@@ -16,6 +16,11 @@ const treeItems = [
     yield: 50,
     status: "Đang phát triển",
     img: "https://api.dicebear.com/7.x/icons/png?seed=tree1&backgroundColor=ffffff,000000&backgroundType=solid",
+    schedule: [
+      { date: "2025-07-01", action: "Tưới nước" },
+      { date: "2025-07-05", action: "Bón phân" },
+      { date: "2025-07-10", action: "Kiểm tra sâu bệnh" },
+    ],
   },
   {
     name: "Cây 2",

@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Calendar } from "@/components/ui/calendar";
 import { Checkbox } from "@/components/ui/checkbox";
+import { DateRange } from "react-day-picker";
+import Image from "next/image";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -13,24 +15,22 @@ type Item = {
   quantity?: number;
 };
 
-type DateRange = {
-  from?: Date;
-  to?: Date;
-};
-
 type ModalCheckoutProps = {
   items: Item[];
   onClose: () => void;
   action: "buy" | "sell" | string;
+  onHideSelectedBar?: () => void; // Thêm prop này
 };
 
 export default function ModalCheckout({
   items,
   onClose,
   action,
+  onHideSelectedBar, // nhận prop này
 }: ModalCheckoutProps) {
   const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false); // Thêm state loading
+  const [success, setSuccess] = useState<string | null>(null); // Thêm state success
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   React.useEffect(() => {
     if (error) {
@@ -38,6 +38,17 @@ export default function ModalCheckout({
       return () => clearTimeout(timer);
     }
   }, [error]);
+
+  React.useEffect(() => {
+    if (success) {
+      const timer = setTimeout(() => {
+        setSuccess(null);
+        if (onHideSelectedBar) onHideSelectedBar(); // Ẩn selectedBar
+        onClose(); // Đóng modal
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [success, onClose, onHideSelectedBar]);
 
   const [range, setRange] = useState<DateRange>({
     from: new Date(),
@@ -48,11 +59,20 @@ export default function ModalCheckout({
   // Hàm gọi API mua hàng
   const handleCheckout = async () => {
     if (action !== "buy") return;
-    setIsLoading(true); // Bắt đầu loading
+    setIsLoading(true);
     try {
       const token =
         typeof window !== "undefined"
-          ? JSON.parse(localStorage.getItem("user") || "{}")?.data?.accessToken || ""
+          ? (() => {
+              const raw = localStorage.getItem("user");
+              if (!raw) return "";
+              try {
+                const parsed = JSON.parse(raw);
+                return parsed.accessToken || "";
+              } catch {
+                return "";
+              }
+            })()
           : "";
       const body = {
         items: items.map((item) => ({
@@ -71,12 +91,17 @@ export default function ModalCheckout({
         },
         body: JSON.stringify(body),
       });
-      if (!res.ok) throw new Error("Lỗi khi mua hàng");
-      onClose();
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        setError(errorData.message || "Lỗi khi mua hàng");
+        setIsLoading(false);
+        return;
+      }
+      setSuccess("Mua hàng thành công!"); // Báo thành công
     } catch {
       setError("Có lỗi xảy ra khi mua hàng!");
     } finally {
-      setIsLoading(false); // Kết thúc loading
+      setIsLoading(false);
     }
   };
 
@@ -86,8 +111,13 @@ export default function ModalCheckout({
       {isLoading && (
         <div className="fixed inset-0 bg-black/70 z-[100] flex flex-col items-center justify-center">
           <div className="animate-spin rounded-full h-20 w-20 border-t-4 border-b-4 border-white mb-8"></div>
-          <div className="text-white text-2xl font-bold mb-2">Đang xử lý giao dịch...</div>
-          <div className="text-white text-lg">Vui lòng đợi trong giây lát, FarmVerse đang xác nhận đơn hàng của bạn 🌱</div>
+          <div className="text-white text-2xl font-bold mb-2">
+            Đang xử lý giao dịch...
+          </div>
+          <div className="text-white text-lg">
+            Vui lòng đợi trong giây lát, FarmVerse đang xác nhận đơn hàng của
+            bạn 🌱
+          </div>
         </div>
       )}
       <div className="bg-white rounded-xl w-screen max-w-none h-screen relative flex flex-col p-0">
@@ -96,6 +126,14 @@ export default function ModalCheckout({
             <Alert variant="destructive">
               <AlertTitle>Lỗi</AlertTitle>
               <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          </div>
+        )}
+        {success && (
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-md">
+            <Alert variant="default">
+              <AlertTitle>Thành công</AlertTitle>
+              <AlertDescription>{success}</AlertDescription>
             </Alert>
           </div>
         )}
@@ -112,9 +150,11 @@ export default function ModalCheckout({
             <div className="mb-8">
               {items.map((item) => (
                 <div key={item.id} className="flex items-center gap-6 mb-6">
-                  <img
+                  <Image
                     src={item.image}
                     alt={item.name}
+                    width={80}
+                    height={80}
                     className="w-20 h-20 rounded-lg object-cover border border-black/10"
                   />
                   <div className="flex-1">
@@ -137,6 +177,7 @@ export default function ModalCheckout({
                 mode="range"
                 selected={range}
                 onSelect={setRange}
+                required
                 className="rounded border"
               />
               <div className="mt-2 text-sm text-gray-700">
@@ -151,7 +192,10 @@ export default function ModalCheckout({
                 onCheckedChange={(checked) => setIncludesIot(!!checked)}
                 id="iot-checkbox"
               />
-              <label htmlFor="iot-checkbox" className="font-bold text-black cursor-pointer">
+              <label
+                htmlFor="iot-checkbox"
+                className="font-bold text-black cursor-pointer"
+              >
                 Thuê thiết bị theo dõi cây IOT
               </label>
             </div>

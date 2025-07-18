@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
@@ -11,15 +11,39 @@ import FarmContent from "./FarmContent";
 
 export default function FarmPage() {
   const [selectedMenu, setSelectedMenu] = useState<string>("farm-info");
+  const [token, setToken] = useState<string | null>(null);
+  const [isTokenLoaded, setIsTokenLoaded] = useState(false); // Thêm state này
   const { userFarm, userRole } = useFarmerFarm();
   const addFarm = useAddFarmForm();
+
+  // Lấy token safely sau khi component mount
+  useEffect(() => {
+    const userData = localStorage.getItem("user");
+
+    if (userData) {
+      try {
+        const parsed = JSON.parse(userData);
+
+        const accessToken = parsed.accessToken || parsed.accessToken;
+
+        setToken(accessToken || null);
+      } catch {
+        setToken(null);
+      }
+    }
+    setIsTokenLoaded(true);
+  }, []);
 
   const handleAddFarm = async (e: React.FormEvent) => {
     e.preventDefault();
     addFarm.setError(null);
     addFarm.setSuccess(null);
-    const userData = localStorage.getItem("user");
-    const token = userData ? JSON.parse(userData).data?.accessToken : null;
+
+    if (!token) {
+      addFarm.setError("Không tìm thấy token xác thực");
+      return;
+    }
+
     try {
       const imagesArray = Array.isArray(addFarm.form.images)
         ? addFarm.form.images
@@ -32,7 +56,7 @@ export default function FarmPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           name: addFarm.form.name,
@@ -42,10 +66,13 @@ export default function FarmPage() {
           images: imagesArray,
         }),
       });
+
       if (!res.ok) {
-        addFarm.setError("Thêm nông trại thất bại");
+        const errorData = await res.json().catch(() => ({}));
+        addFarm.setError(errorData.message || "Thêm nông trại thất bại");
         return;
       }
+
       addFarm.setSuccess("Thêm nông trại thành công!");
       addFarm.setForm({
         name: "",
@@ -56,10 +83,16 @@ export default function FarmPage() {
       });
       addFarm.setOpen(false);
       window.location.reload();
-    } catch {
+    } catch (error) {
+      console.error("Error adding farm:", error);
       addFarm.setError("Thêm nông trại thất bại");
     }
   };
+
+  // Hiển thị loading khi chưa load token xong
+  if (!isTokenLoaded) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <SidebarProvider
@@ -79,7 +112,10 @@ export default function FarmPage() {
               <>
                 {userFarm && userFarm.id ? (
                   <div className="flex flex-row gap-5">
-                    <FarmMenu selected={selectedMenu} onSelect={setSelectedMenu} />
+                    <FarmMenu
+                      selected={selectedMenu}
+                      onSelect={setSelectedMenu}
+                    />
                     <div className="flex-1">
                       <FarmContent selected={selectedMenu} farm={userFarm} />
                     </div>

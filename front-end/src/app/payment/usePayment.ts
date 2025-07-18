@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import { Transaction } from "./PaymentHistory";
+import { TransactionDetail } from "./PaymentDetailDialog";
+import type { Transaction } from "./PaymentHistory";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -11,19 +12,27 @@ export function usePayment() {
   const [loadingHistory, setLoadingHistory] = useState(true);
 
   const [openDetail, setOpenDetail] = useState(false);
-  const [detail, setDetail] = useState<Transaction | null>(null);
+  const [detail, setDetail] = useState<TransactionDetail | null>(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
+
+  const getToken = () => {
+    if (typeof window === "undefined") return "";
+    try {
+      const raw = localStorage.getItem("user");
+      if (!raw) return "";
+      const userObj = JSON.parse(raw);
+      return userObj?.accessToken || "";
+    } catch {
+      return "";
+    }
+  };
 
   // Fetch lịch sử giao dịch
   useEffect(() => {
     const fetchHistory = async () => {
       setLoadingHistory(true);
       try {
-        const token =
-          typeof window !== "undefined"
-            ? JSON.parse(localStorage.getItem("user") || "{}")?.data
-                ?.accessToken || ""
-            : "";
+        const token = getToken();
         const res = await fetch(`${API_URL}/transactions`, {
           method: "GET",
           headers: {
@@ -33,7 +42,9 @@ export function usePayment() {
         });
         if (!res.ok) throw new Error("Không lấy được lịch sử giao dịch!");
         const data = await res.json();
-        setHistory(Array.isArray(data.data?.transactions) ? data.data.transactions : []);
+        setHistory(
+          Array.isArray(data.data?.transactions) ? data.data.transactions : []
+        );
       } catch {
         setHistory([]);
       } finally {
@@ -51,11 +62,7 @@ export function usePayment() {
       return;
     }
     try {
-      const token =
-        typeof window !== "undefined"
-          ? JSON.parse(localStorage.getItem("user") || "{}")?.data
-              ?.accessToken || ""
-          : "";
+      const token = getToken();
       const res = await fetch(`${API_URL}/transactions/deposit`, {
         method: "POST",
         headers: {
@@ -88,11 +95,7 @@ export function usePayment() {
     setLoadingDetail(true);
     setOpenDetail(true);
     try {
-      const token =
-        typeof window !== "undefined"
-          ? JSON.parse(localStorage.getItem("user") || "{}")?.data
-              ?.accessToken || ""
-          : "";
+      const token = getToken();
       const res = await fetch(`${API_URL}/transactions/${transactionId}`, {
         method: "GET",
         headers: {
@@ -102,7 +105,7 @@ export function usePayment() {
       });
       if (!res.ok) throw new Error("Không lấy được chi tiết giao dịch!");
       const data = await res.json();
-      setDetail(data);
+      setDetail(data.data); // Sửa lại lấy data.data
     } catch {
       setDetail(null);
     } finally {

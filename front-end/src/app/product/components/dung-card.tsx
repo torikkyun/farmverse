@@ -21,6 +21,7 @@ export default function DungCard({ dungs, selected, onSelect }: DungCardProps) {
     <div
       className={`group bg-white border rounded-2xl p-0 flex flex-col items-stretch text-black relative overflow-hidden shadow-sm hover:shadow-xl transition-all duration-200
         ${selected ? "border-black ring-2 ring-black" : "border-black/10"}
+        h-full
       `}
     >
       <div className="relative">
@@ -49,7 +50,9 @@ export default function DungCard({ dungs, selected, onSelect }: DungCardProps) {
       </div>
       <div className="flex-1 flex flex-col px-4 py-3 gap-1">
         <div className="font-bold text-base truncate">{dungs.name}</div>
-        <div className="text-black text-sm">Số lượng: {dungs.quantity ?? 1}</div>
+        <div className="text-black text-sm">
+          Số lượng: {dungs.quantity ?? 1}
+        </div>
         <div className="font-bold text-base">Giá: {dungs.price} FVT</div>
       </div>
     </div>

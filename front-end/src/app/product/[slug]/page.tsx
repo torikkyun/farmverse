@@ -102,18 +102,14 @@ export default function ProductDetailPage() {
     reloadItems();
   }, [farmId, reloadItems]);
 
-  // Lấy user từ localStorage
+  // Lấy userId và accessToken từ localStorage
   let userId: string | undefined = undefined;
   if (typeof window !== "undefined") {
     try {
       const userStr = localStorage.getItem("user");
       if (userStr) {
         const userObj = JSON.parse(userStr);
-        userId =
-          userObj?.data?.user?.id ||
-          userObj?.data?.id ||
-          userObj?.user?.id ||
-          userObj?.id;
+        userId = userObj?.user?.id || userObj?.id;
       }
     } catch {
       userId = undefined;
@@ -160,7 +156,8 @@ export default function ProductDetailPage() {
             handleSelect={handleSelect}
             farmId={farmId}
           />
-          {(activeTab === 0 ? selectedPlants.length : selectedDungs.length) > 0 && (
+          {(activeTab === 0 ? selectedPlants.length : selectedDungs.length) >
+            0 && (
             <SelectedBar
               items={tabItems}
               selectedItems={activeTab === 0 ? selectedPlants : selectedDungs}
@@ -175,7 +172,11 @@ export default function ProductDetailPage() {
           )}
           {showCheckout && (
             <ModalCheckout
-              items={tabItems.filter(item => (activeTab === 0 ? selectedPlants : selectedDungs).includes(item.id))}
+              items={tabItems.filter((item) =>
+                (activeTab === 0 ? selectedPlants : selectedDungs).includes(
+                  item.id
+                )
+              )}
               onClose={() => setShowCheckout(false)}
               action={action}
             />

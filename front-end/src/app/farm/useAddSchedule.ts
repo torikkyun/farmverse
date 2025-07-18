@@ -36,8 +36,7 @@ export function useAddSchedule(
     try {
       const token =
         typeof window !== "undefined"
-          ? JSON.parse(localStorage.getItem("user") || "{}")?.data
-              ?.accessToken || ""
+          ? JSON.parse(localStorage.getItem("user") || "{}")?.accessToken || ""
           : "";
       console.log("token", token);
       const res = await fetch(`${API_URL}/schedules`, {

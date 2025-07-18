@@ -17,7 +17,12 @@ interface ProfileTabFormProps {
     role: string;
   } | null;
   setForm: (
-    f: (prev: { name: string; email: string; phone: string; avatar: string }) => {
+    f: (prev: {
+      name: string;
+      email: string;
+      phone: string;
+      avatar: string;
+    }) => {
       name: string;
       email: string;
       phone: string;
@@ -32,7 +37,10 @@ export default function ProfileTabForm({
   setForm,
 }: ProfileTabFormProps) {
   const [loading, setLoading] = useState(false);
-  const [alert, setAlert] = useState<{ type: "success" | "error"; message: string } | null>(null);
+  const [alert, setAlert] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
 
   // Tự động ẩn thông báo sau 1 giây
   useEffect(() => {
@@ -49,7 +57,7 @@ export default function ProfileTabForm({
       const userStr = localStorage.getItem("user");
       if (!userStr) throw new Error("Không tìm thấy thông tin người dùng.");
       const userObj = JSON.parse(userStr);
-      const accessToken = userObj?.data?.accessToken;
+      const accessToken = userObj?.accessToken;
       if (!accessToken) throw new Error("Thiếu thông tin xác thực.");
 
       const res = await fetch(
@@ -93,7 +101,9 @@ export default function ProfileTabForm({
             maxWidth: 400,
           }}
         >
-          <AlertTitle>{alert.type === "success" ? "Thành công" : "Lỗi"}</AlertTitle>
+          <AlertTitle>
+            {alert.type === "success" ? "Thành công" : "Lỗi"}
+          </AlertTitle>
           <AlertDescription>{alert.message}</AlertDescription>
         </Alert>
       )}

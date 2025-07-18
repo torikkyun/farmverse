@@ -20,7 +20,7 @@ export function useFarmerFarm() {
     const userData = localStorage.getItem("user");
     if (userData) {
       const userObj = JSON.parse(userData);
-      setUserRole(userObj.data?.user?.role || null);
+      setUserRole(userObj.user?.role || null);
     }
   }, []);
 
@@ -35,8 +35,8 @@ export function useFarmerFarm() {
       try {
         const userData = localStorage.getItem("user");
         const userObj = userData ? JSON.parse(userData) : null;
-        const ownerId = userObj?.data?.user?.id;
-        const token = userObj?.data?.accessToken;
+        const ownerId = userObj?.user?.id;
+        const token = userObj?.accessToken;
         if (!ownerId) {
           setUserFarm(null);
           return;

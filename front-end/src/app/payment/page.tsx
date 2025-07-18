@@ -41,7 +41,7 @@ export default function PaymentPage() {
       <SidebarInset>
         <SiteHeader />
         <div className="flex flex-1 flex-col min-h-screen bg-white">
-          <div className="flex flex-1 flex-col md:flex-row items-stretch justify-center px-4 py-12 gap-10 max-w-6xl mx-auto w-full">
+          <div className="flex flex-1 flex-col md:flex-row justify-start items-start px-4 py-4 gap-5 max-w-6xl mx-auto w-full">
             {/* Cột trái: Nạp tiền */}
             <div className="w-full md:w-1/2 flex items-center justify-center">
               <Card className="w-full max-w-md border-black/10 shadow-xl bg-white p-7">

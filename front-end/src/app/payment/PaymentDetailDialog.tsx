@@ -5,13 +5,45 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Transaction } from "./PaymentHistory";
 
 interface PaymentDetailDialogProps {
   open: boolean;
   setOpen: (open: boolean) => void;
   loadingDetail: boolean;
-  detail: Transaction | null;
+  detail: TransactionDetail | null;
+}
+
+// Đầu file, thêm interface cho item nếu chưa có:
+export interface TransactionDetail {
+  id: string;
+  buyer: {
+    id: string;
+    name: string;
+    email: string;
+    phone: string;
+    role: string;
+    avatar: string;
+    fvtBalance: number;
+  };
+  totalPrice: number;
+  type: string;
+  transactionHash: string;
+  blockNumber: number;
+  fromAddress: string;
+  toAddress: string;
+  items: Array<{
+    itemId: string;
+    name: string;
+    description: string;
+    images: string[];
+    quantity: number;
+    price: number;
+    type: string;
+    includesIot: boolean;
+    startDate: string;
+    endDate: string;
+  }>;
+  timestamp?: string;
 }
 
 export const PaymentDetailDialog: React.FC<PaymentDetailDialogProps> = ({
@@ -36,31 +68,42 @@ export const PaymentDetailDialog: React.FC<PaymentDetailDialogProps> = ({
           <div className="space-y-4">
             <div className="flex justify-between">
               <span className="font-semibold text-black">
-                {detail.type || detail.transactionType || "Giao dịch"}
+                {detail.type === "PURCHASE"
+                  ? "Mua vật phẩm"
+                  : detail.type === "DEPOSIT"
+                  ? "Bán vật phẩm"
+                  : "Giao dịch"}
               </span>
               <span
                 className={`font-bold ${
-                  String(detail.amount).startsWith("+")
+                  String(detail.totalPrice).startsWith("+")
                     ? "text-green-600"
-                    : String(detail.amount).startsWith("-")
+                    : String(detail.totalPrice).startsWith("-")
                     ? "text-red-600"
                     : "text-black"
                 }`}
               >
-                {detail.amount} FVT
+                {detail.totalPrice} FVT
               </span>
             </div>
-            {detail.item && (
-              <div className="text-sm text-gray-700">
-                <span className="font-semibold">Vật phẩm:</span>{" "}
-                {detail.item}
+            {detail?.items &&
+            Array.isArray(detail.items) &&
+            detail.items.length > 0 ? (
+              <div>
+                <span className="font-semibold">Vật phẩm:</span>
+                <ul className="list-disc ml-6">
+                  {detail.items.map((item) => (
+                    <li key={item.itemId}>
+                      {item.name} - {item.quantity} x {item.price} FVT
+                    </li>
+                  ))}
+                </ul>
               </div>
-            )}
+            ) : null}
             <div className="text-xs text-gray-500">
-              {detail.date ||
-                (typeof detail.createdAt === "string"
-                  ? detail.createdAt.slice(0, 16).replace("T", " ")
-                  : "")}
+              {detail.timestamp
+                ? new Date(detail.timestamp).toLocaleString("vi-VN")
+                : ""}
             </div>
             {/* Thêm thông tin chi tiết khác ở đây nếu cần */}
           </div>
@@ -72,4 +115,4 @@ export const PaymentDetailDialog: React.FC<PaymentDetailDialogProps> = ({
       </div>
     </DialogContent>
   </Dialog>
-)
+);

@@ -8,6 +8,7 @@ export interface Transaction {
   type?: string;
   transactionType?: string;
   item?: string;
+  totalPrice?: string | number;
   amount: string | number;
   date?: string;
   createdAt?: string;
@@ -49,17 +50,26 @@ export const PaymentHistory: React.FC<PaymentHistoryProps> = ({
             >
               <div className="flex justify-between items-center mb-1">
                 <span className="font-semibold text-black">
-                  {h.type || h.transactionType || "Giao dịch"}
+                  {h.type === "PURCHASE" || h.transactionType === "PURCHASE"
+                    ? "Mua vật phẩm"
+                    : h.type === "DEPOSIT" || h.transactionType === "DEPOSIT"
+                    ? "Nạp tiền"
+                    : h.type || h.transactionType || "Giao dịch"}
                 </span>
                 <span
                   className={`font-bold ${
-                    String(h.amount).startsWith("+")
+                    h.type === "PURCHASE" || h.transactionType === "PURCHASE"
+                      ? "text-red-600"
+                      : h.type === "DEPOSIT" || h.transactionType === "DEPOSIT"
+                      ? "text-green-600"
+                      : String(h.amount).startsWith("+")
                       ? "text-green-600"
                       : String(h.amount).startsWith("-")
                       ? "text-red-600"
                       : "text-black"
                   }`}
                 >
+                  {h.totalPrice !== undefined ? `${h.totalPrice} ` : ""}
                   {h.amount} FVT
                 </span>
               </div>
@@ -87,4 +97,4 @@ export const PaymentHistory: React.FC<PaymentHistoryProps> = ({
       </div>
     </CardContent>
   </Card>
-)
+);

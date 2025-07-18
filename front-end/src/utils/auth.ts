@@ -9,14 +9,14 @@ export function saveAuth(data: Record<string, unknown>) {
       expireTime = Date.now() + 60 * 60 * 1000;
     }
   }
-  localStorage.setItem("auth", JSON.stringify({
+  localStorage.setItem("user", JSON.stringify({
     ...data,
     accessTokenExpireTime: expireTime,
   }));
 }
 
 export function getAuth() {
-  return JSON.parse(localStorage.getItem("auth") || "{}");
+  return JSON.parse(localStorage.getItem("user") || "{}");
 }
 
 export function getToken() {
