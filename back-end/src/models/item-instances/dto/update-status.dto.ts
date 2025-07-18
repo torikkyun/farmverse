@@ -13,8 +13,6 @@ export class UpdateStatusDto {
   @ApiProperty({
     required: true,
     enum: TreeRootInstanceStatus,
-    description:
-      'Trạng thái của vật phẩm bao gồm: GROWING, HARVESTED, CANCELED',
   })
   status: TreeRootInstanceStatus;
 }
