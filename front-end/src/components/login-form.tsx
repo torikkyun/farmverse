@@ -50,7 +50,7 @@ export function LoginForm({
 
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 1000); // 10s timeout
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
 
         const res = await fetch(`${apiURL}/auth/login`, {
           method: "POST",
