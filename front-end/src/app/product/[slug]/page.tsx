@@ -10,7 +10,8 @@ import HeaderFarmInfo from "./HeaderFarmInfo";
 import FarmTabs from "./FarmTabs";
 import { useFarmDetail } from "./useFarmDetail";
 import { useFarmItems } from "./useFarmItems";
-import DungCard from "../components/dung-card";
+// import DungCard from "../components/dung-card";
+import ModalCheckout from "../components/ModalCheckout";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL?.replace(/['"]/g, "") || "";
 
@@ -87,6 +88,7 @@ export default function ProductDetailPage() {
   const [selectedPlants, setSelectedPlants] = useState<number[]>([]);
   const [selectedDungs, setSelectedDungs] = useState<number[]>([]);
   const [action, setAction] = useState<"buy" | "sell">("buy");
+  const [showCheckout, setShowCheckout] = useState(false);
 
   // Reset selectedItems khi đổi farmId
   React.useEffect(() => {
@@ -158,8 +160,7 @@ export default function ProductDetailPage() {
             handleSelect={handleSelect}
             farmId={farmId}
           />
-          {(activeTab === 0 ? selectedPlants.length : selectedDungs.length) >
-            0 && (
+          {(activeTab === 0 ? selectedPlants.length : selectedDungs.length) > 0 && (
             <SelectedBar
               items={tabItems}
               selectedItems={activeTab === 0 ? selectedPlants : selectedDungs}
@@ -169,17 +170,25 @@ export default function ProductDetailPage() {
                 activeTab === 0 ? setSelectedPlants : setSelectedDungs
               }
               activeTab={activeTab}
+              onCheckout={() => setShowCheckout(true)}
             />
           )}
-          {activeTab === 1 &&
+          {showCheckout && (
+            <ModalCheckout
+              items={tabItems.filter(item => (activeTab === 0 ? selectedPlants : selectedDungs).includes(item.id))}
+              onClose={() => setShowCheckout(false)}
+              action={action}
+            />
+          )}
+          {/* {activeTab === 1 &&
             dungs.map((item) => (
-              <DungCard
-                key={item.id}
-                dungs={item}
-                selected={selectedDungs.includes(item.id)}
-                onSelect={() => handleSelect(item.id, "dung")}
-              />
-            ))}
+              // <DungCard
+              //   key={item.id}
+              //   dungs={item}
+              //   selected={selectedDungs.includes(item.id)}
+              //   onSelect={(id) => handleSelect(Number(id), "dung")}
+              // />
+            ))} */}
         </div>
       </SidebarInset>
     </SidebarProvider>

@@ -103,7 +103,11 @@ export function NavUser() {
                 <IconUserCircle />
                 Tài khoản
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  window.location.href = "/payment";
+                }}
+              >
                 <IconCreditCard />
                 Thanh toán
               </DropdownMenuItem>

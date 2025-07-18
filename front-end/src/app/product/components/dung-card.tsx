@@ -5,6 +5,9 @@ interface DungItem {
   image: string;
   name: string;
   price: number;
+  description?: string;
+  type?: string;
+  quantity?: number;
 }
 
 interface DungCardProps {
@@ -17,15 +20,15 @@ export default function DungCard({ dungs, selected, onSelect }: DungCardProps) {
   return (
     <div
       className={`group bg-white border rounded-2xl p-0 flex flex-col items-stretch text-black relative overflow-hidden shadow-sm hover:shadow-xl transition-all duration-200
-        ${selected ? "border-blue-600 ring-2 ring-blue-400" : "border-black/10"}
+        ${selected ? "border-black ring-2 ring-black" : "border-black/10"}
       `}
     >
       <div className="relative">
         <Image
           src={dungs.image}
           alt={dungs.name}
-          width={400}
-          height={400}
+          width={150}
+          height={150}
           className="w-full aspect-[1/1] object-cover rounded-t-2xl border-b border-black/10 transition-all duration-200 group-hover:scale-105 bg-black"
           priority
         />
@@ -34,7 +37,7 @@ export default function DungCard({ dungs, selected, onSelect }: DungCardProps) {
           className={`absolute top-3 right-3 rounded-full w-9 h-9 flex items-center justify-center transition-all duration-200 shadow-lg
             ${
               selected
-                ? "bg-blue-600 text-white opacity-100"
+                ? "bg-black text-white opacity-100"
                 : "bg-black/80 text-white opacity-0 group-hover:opacity-100 hover:bg-black"
             }
           `}
@@ -44,9 +47,10 @@ export default function DungCard({ dungs, selected, onSelect }: DungCardProps) {
           +
         </button>
       </div>
-      <div className="flex-1 flex flex-col px-4 py-3">
+      <div className="flex-1 flex flex-col px-4 py-3 gap-1">
         <div className="font-bold text-base truncate">{dungs.name}</div>
-        <div className="font-bold text-base truncate">{dungs.price}</div>
+        <div className="text-black text-sm">Số lượng: {dungs.quantity ?? 1}</div>
+        <div className="font-bold text-base">Giá: {dungs.price} FVT</div>
       </div>
     </div>
   );

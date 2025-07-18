@@ -8,6 +8,7 @@ import { LogIn } from "lucide-react";
 import { useState, useCallback, useRef } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useRouter } from "next/navigation";
+import { saveAuth } from "../utils/auth";
 
 const apiURL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -76,14 +77,11 @@ export function LoginForm({
         const data = await res.json();
         setSuccess(data.message || "Đăng nhập thành công!");
 
-        // Lưu token
-        if (data.token) {
-          localStorage.setItem("accessToken", data.token);
-        } else {
-          localStorage.setItem("user", JSON.stringify(data));
+        // Lưu token, refreshToken, user và thời gian hết hạn
+        if (data.data) {
+          saveAuth(data.data);
         }
 
-        // Chuyển hướng ngay lập tức thay vì đợi 2s
         timeoutRef.current = setTimeout(() => {
           router.push("/dashboard");
         }, 1000);

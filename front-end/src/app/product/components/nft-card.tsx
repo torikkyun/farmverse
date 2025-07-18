@@ -40,7 +40,7 @@ export default function NFTCard({ item, selected, onSelect }: NFTCardProps) {
         />
       )}
       <div className="font-bold text-lg mb-1 line-clamp-1">{item.name}</div>
-      <div className="text-blue-600 font-semibold mb-1">{item.price} ETH</div>
+      <div className="text-blue-600 font-semibold mb-1">Giá: {item.price} FVT</div>
     </div>
   );
 }

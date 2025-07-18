@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { getToken } from "../utils/auth";
+import { getValidAccessToken } from "../utils/auth";
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const [showModal, setShowModal] = useState(false);
@@ -9,27 +9,27 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   useEffect(() => {
-    const token = getToken();
-    // Kiểm tra nếu đang ở trong cụm trang auth thì không hiển thị modal
-    const isAuthPage =
-      pathname?.startsWith("/login") ||
-      pathname?.startsWith("/signup") ||
-      pathname?.startsWith("/forgot") ||
-      pathname?.startsWith("/confirm");
+    async function checkToken() {
+      const token = await getValidAccessToken();
+      // Kiểm tra nếu đang ở trong cụm trang auth thì không hiển thị modal
+      const isAuthPage =
+        pathname?.startsWith("/login") ||
+        pathname?.startsWith("/signup") ||
+        pathname?.startsWith("/forgot") ||
+        pathname?.startsWith("/confirm");
 
-    if (!token && !isAuthPage) {
-      setShowModal(true);
-      const timeout = setTimeout(() => {
-        window.location.href = "/login";
-      }, 2000);
-
-      // Cleanup timeout if component unmounts
-      return () => clearTimeout(timeout);
-    } else {
-      setShowModal(false);
+      if (!token && !isAuthPage) {
+        setShowModal(true);
+        const timeout = setTimeout(() => {
+          window.location.href = "/login";
+        }, 2000);
+        return () => clearTimeout(timeout);
+      } else {
+        setShowModal(false);
+      }
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
+    checkToken();
   }, [pathname]);
 
   // Kiểm tra isAuthPage một lần duy nhất
