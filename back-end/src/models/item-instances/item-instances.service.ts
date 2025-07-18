@@ -4,6 +4,8 @@ import { ItemInstanceResponseDto } from 'src/common/dto/item-instance-response.d
 import { PrismaService } from 'src/providers/prisma.service';
 import { ItemResponseDto } from 'src/common/dto/item-response.dto';
 import { FarmResponseDto } from 'src/common/dto/farm-response.dto';
+import { UpdateStatusDto } from './dto/update-status.dto';
+// import { UpdateHarvestedActionDto } from './dto/update-harvested-action.dto';
 
 @Injectable()
 export class ItemInstancesService {
@@ -67,4 +69,56 @@ export class ItemInstancesService {
 
     return this.toItemInstanceResponse(itemInstance);
   }
+
+  async updateStatus(
+    user: { id: string },
+    itemInstanceId: string,
+    { status }: UpdateStatusDto,
+  ) {
+    const itemInstance = await this.prisma.itemInstance.update({
+      where: {
+        id: itemInstanceId,
+        userId: user.id,
+      },
+      data: {
+        status,
+      },
+      include: {
+        item: true,
+        farm: true,
+      },
+    });
+
+    if (!itemInstance) {
+      throw new NotFoundException('Không tìm thấy vật phẩm');
+    }
+
+    return this.toItemInstanceResponse(itemInstance);
+  }
+
+  // async updateHarvestedAction(
+  //   user: { id: string },
+  //   itemInstanceId: string,
+  //   { harvestedAction }: UpdateHarvestedActionDto,
+  // ) {
+  //   const itemInstance = await this.prisma.itemInstance.update({
+  //     where: {
+  //       id: itemInstanceId,
+  //       userId: user.id,
+  //     },
+  //     data: {
+  //       harvestedAction,
+  //     },
+  //     include: {
+  //       item: true,
+  //       farm: true,
+  //     },
+  //   });
+
+  //   if (!itemInstance) {
+  //     throw new NotFoundException('Không tìm thấy vật phẩm');
+  //   }
+
+  //   return this.toItemInstanceResponse(itemInstance);
+  // }
 }

@@ -37,6 +37,7 @@ export function ItemCard({
     >
       <Image
         src={item.images?.[0] || ""}
+        unoptimized
         alt={item.name}
         width={96}
         height={96}

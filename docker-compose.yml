@@ -13,17 +13,17 @@ services:
     volumes:
       - ./back-end/static:/app/static
 
-  # front-end:
-  #   container_name: front-end
-  #   build:
-  #     context: ./front-end
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - ${PORT:-3000}:3000
-  #   env_file:
-  #     - ./front-end/.env.production.local
-  #   networks:
-  #     - farmverse-net
+  front-end:
+    container_name: front-end
+    build:
+      context: ./front-end
+      dockerfile: Dockerfile
+    ports:
+      - ${PORT:-3000}:3000
+    env_file:
+      - ./front-end/.env.production.local
+    networks:
+      - farmverse-net
 
 networks:
   farmverse-net:
