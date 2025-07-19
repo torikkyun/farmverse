@@ -6,6 +6,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { TreeCard } from "./TreeCard";
 import { TreeDetailModal } from "./TreeDetailModal";
+import { TreeHarvestModal } from "./TreeHarvestModal";
 import Pagination from "@/components/ui/pagination";
 
 const treeItems = [
@@ -27,14 +28,26 @@ const treeItems = [
     type: "Giống B",
     age: 3,
     yield: 100,
-    status: "Đã thu hoạch",
+    status: "Có thể thu hoạch", // <-- Sửa lại trạng thái này
     img: "https://api.dicebear.com/7.x/icons/png?seed=tree2&backgroundColor=ffffff,000000&backgroundType=solid",
   },
-  // ...thêm các cây khác tương tự...
+  {
+    name: "Cây 3",
+    type: "Giống C",
+    age: 1,
+    yield: 30,
+    status: "Đang phát triển",
+    img: "https://api.dicebear.com/7.x/icons/png?seed=tree3&backgroundColor=ffffff,000000&backgroundType=solid",
+    schedule: [
+      { date: "2025-07-15", action: "Tưới nước" },
+      { date: "2025-07-20", action: "Cắt tỉa" },
+    ],
+  },
 ];
 
 export default function TreePage() {
   const [open, setOpen] = useState(false);
+  const [harvestOpen, setHarvestOpen] = useState(false);
   const [selectedTree, setSelectedTree] = useState<
     (typeof treeItems)[0] | null
   >(null);
@@ -43,10 +56,42 @@ export default function TreePage() {
     totalPages: 5,
     totalItems: 50,
   });
+  const userRole = "FARMER"; // hoặc lấy từ context, redux, v.v.
 
   const handleOpenModal = (item: (typeof treeItems)[0]) => {
     setSelectedTree(item);
     setOpen(true);
+  };
+
+  const handleOpenHarvestModal = (item: (typeof treeItems)[0]) => {
+    setSelectedTree(item);
+    setHarvestOpen(true);
+  };
+
+  const handleHarvest = (
+    mode: "sell" | "storage",
+    quantity: number,
+    price?: number
+  ) => {
+    if (!selectedTree) return;
+
+    console.log("Thu hoạch:", {
+      tree: selectedTree.name,
+      mode,
+      quantity,
+      price,
+    });
+
+    // Thực hiện logic thu hoạch ở đây
+    // Ví dụ: gọi API, cập nhật state, hiển thị thông báo thành công
+
+    alert(
+      `Đã thu hoạch ${quantity}kg ${selectedTree.name} - ${
+        mode === "sell"
+          ? `Bán với giá ${price?.toLocaleString()} VNĐ`
+          : "Lưu vào kho"
+      }`
+    );
   };
 
   const handlePageChange = (page: number) => {
@@ -116,11 +161,41 @@ export default function TreePage() {
                   "
                 >
                   {treeItems.map((item, i) => (
-                    <TreeCard
-                      key={i}
-                      item={item}
-                      onClick={() => handleOpenModal(item)}
-                    />
+                    <div key={i} className="relative flex flex-col items-center">
+                      {/* Badge trạng thái thu hoạch nằm ngoài border */}
+                      {item.status === "Có thể thu hoạch" && (
+                        <span
+                          className="mb-[-16px] z-10 bg-green-600 text-white text-xs font-semibold px-4 py-1 rounded-full shadow"
+                          style={{ marginBottom: "-16px" }}
+                        >
+                          Có thể thu hoạch
+                        </span>
+                      )}
+                      <div
+                        className={`relative rounded-xl transition-all w-full ${
+                          item.status === "Có thể thu hoạch"
+                            ? "border-2 border-green-600 shadow-lg"
+                            : "border border-transparent"
+                        }`}
+                      >
+                        <TreeCard
+                          item={item}
+                          onClick={() => handleOpenModal(item)}
+                        />
+                      </div>
+                      {/* Nút thu hoạch nằm dưới card, căn giữa */}
+                      {item.status === "Có thể thu hoạch" && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOpenHarvestModal(item);
+                          }}
+                          className="mt-3 bg-black text-white rounded-lg px-2 py-2 text-sm font-medium transition shadow"
+                        >
+                          Thu hoạch
+                        </button>
+                      )}
+                    </div>
                   ))}
                 </div>
               </div>
@@ -131,6 +206,15 @@ export default function TreePage() {
               open={open}
               setOpen={setOpen}
               selectedTree={selectedTree}
+            />
+
+            {/* Modal thu hoạch */}
+            <TreeHarvestModal
+              open={harvestOpen}
+              setOpen={setHarvestOpen}
+              selectedTree={selectedTree}
+              onHarvest={handleHarvest}
+              userRole={userRole}
             />
 
             {/* Phân trang */}
