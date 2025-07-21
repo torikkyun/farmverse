@@ -4,107 +4,54 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useParams } from "next/navigation";
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import SelectedBar from "../components/selected-bar";
 import HeaderFarmInfo from "./HeaderFarmInfo";
 import FarmTabs from "./FarmTabs";
-import { useFarmDetail } from "./useFarmDetail";
-import { useFarmItems } from "./useFarmItems";
-// import DungCard from "../components/dung-card";
 import ModalCheckout from "../components/ModalCheckout";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL?.replace(/['"]/g, "") || "";
-
-export interface NFTItem {
-  id: number;
-  name: string;
-  price: number;
-  image: string;
-}
-
-export interface FarmOwner {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  role: string;
-  avatar: string;
-}
-
-export interface Farm {
-  id: string;
-  name: string;
-  description: string;
-  location: string;
-  size: number;
-  images: string[];
-  owner: FarmOwner;
-}
-
-interface Item {
-  id?: number;
-  _id?: number;
-  name: string;
-  price: number | string;
-  images: string[];
-}
+import { FARMS_MARKET } from "@/data/market";
+import { TREE_ITEMS, ITEMS } from "@/data/product";
 
 export default function ProductDetailPage() {
   const { slug } = useParams();
   const farmId = slug as string;
 
-  const { farm, loading, error } = useFarmDetail(API_URL, farmId);
-  const { items, setItems, dungs, setDungs } = useFarmItems(API_URL, farmId);
+  // Lấy dữ liệu farm từ FARMS_MARKET
+  const farm = FARMS_MARKET.find((f) => f.id === farmId);
 
-  // Đặt reloadItems lên trên trước khi dùng trong useEffect
-  const reloadItems = useCallback(() => {
-    fetch(`${API_URL}/items/farm/${farmId}?type=TREEROOT&page=1&pageSize=10`)
-      .then((res) => res.json())
-      .then((json) => {
-        setItems(
-          (json?.data?.items || []).map((item: Item) => ({
-            id: item.id || item._id,
-            name: item.name,
-            price: Number(item.price),
-            image: Array.isArray(item.images) ? item.images[0] : "",
-            type: "caytrong", // hoặc "vatpham" tùy loại
-          }))
-        );
-      });
-    fetch(`${API_URL}/items/farm/${farmId}?type=FERTILIZER&page=1&pageSize=10`)
-      .then((res) => res.json())
-      .then((json) => {
-        setDungs(
-          (json?.data?.items || []).map((item: Item) => ({
-            id: item.id || item._id,
-            name: item.name,
-            price: Number(item.price),
-            image: Array.isArray(item.images) ? item.images[0] : "",
-            type: "vatpham", // hoặc "dung" tùy loại
-          }))
-        );
-      });
-  }, [farmId, setItems, setDungs]); // <-- XÓA API_URL khỏi dependency
+  // Lấy cây trồng từ TREE_ITEMS
+  const items = TREE_ITEMS.filter((item) => item.farm === farmId).map(
+    (item) => ({
+      id: Number(item.id),
+      name: item.name,
+      price: item.price,
+      image: item.images[0],
+      quantity: item.quantity,
+      type: "tree" as const, // Đúng kiểu cho SelectedBar
+    })
+  );
+
+  // Lấy phân bón/dụng cụ từ ITEMS
+  const dungs = ITEMS.filter((item) => item.farm === farmId).map((item) => ({
+    id: Number(item.id),
+    name: item.name,
+    price: item.price,
+    image: item.images[0],
+    quantity: item.quantity,
+    type: "fertilizer" as const, // Đúng kiểu cho SelectedBar
+  }));
 
   const [activeTab, setActiveTab] = useState(0);
-  const [selectedPlants, setSelectedPlants] = useState<number[]>([]);
-  const [selectedDungs, setSelectedDungs] = useState<number[]>([]);
-  const [action, setAction] = useState<"rent">("rent");
+  const [selectedPlants, setSelectedPlants] = useState<string[]>([]);
+  const [selectedDungs, setSelectedDungs] = useState<string[]>([]);
   const [showCheckout, setShowCheckout] = useState(false);
 
-  // Reset selectedItems khi đổi farmId
   React.useEffect(() => {
     setSelectedPlants([]);
     setSelectedDungs([]);
-    // Không cần setAction("buy") nữa
   }, [farmId]);
 
-  // Reload vật phẩm khi đổi farmId
-  React.useEffect(() => {
-    reloadItems();
-  }, [farmId, reloadItems]);
-
-  // Lấy userId và accessToken từ localStorage
+  // Lấy userId từ localStorage nếu cần
   let userId: string | undefined = undefined;
   if (typeof window !== "undefined") {
     try {
@@ -119,22 +66,22 @@ export default function ProductDetailPage() {
   }
 
   const handleSelect = (id: number, type: "plant" | "dung") => {
+    const idStr = String(id);
     if (type === "plant") {
       setSelectedPlants((prev) =>
-        prev.includes(id)
-          ? prev.filter((itemId) => itemId !== id)
-          : [...prev, id]
+        prev.includes(idStr)
+          ? prev.filter((itemId) => itemId !== idStr)
+          : [...prev, idStr]
       );
     } else {
       setSelectedDungs((prev) =>
-        prev.includes(id)
-          ? prev.filter((itemId) => itemId !== id)
-          : [...prev, id]
+        prev.includes(idStr)
+          ? prev.filter((itemId) => itemId !== idStr)
+          : [...prev, idStr]
       );
     }
   };
 
-  // Render đúng vật phẩm theo tab
   const tabItems = activeTab === 1 ? dungs : items;
 
   return (
@@ -144,9 +91,9 @@ export default function ProductDetailPage() {
         <SiteHeader />
         <div className="flex flex-1 flex-col bg-white min-h-screen">
           <HeaderFarmInfo
-            farm={farm}
-            loading={loading}
-            error={error}
+            farmId={farmId}
+            loading={false}
+            error={farm ? null : "Không tìm thấy nông trại"}
             currentUserId={userId}
           />
           <FarmTabs
@@ -154,7 +101,11 @@ export default function ProductDetailPage() {
             setActiveTab={setActiveTab}
             items={items}
             dungs={dungs}
-            selectedItems={activeTab === 0 ? selectedPlants : selectedDungs}
+            selectedItems={
+              activeTab === 0
+                ? selectedPlants.map(Number)
+                : selectedDungs.map(Number)
+            }
             handleSelect={handleSelect}
             farmId={farmId}
           />
@@ -162,11 +113,15 @@ export default function ProductDetailPage() {
             0 && (
             <SelectedBar
               items={tabItems}
-              selectedItems={activeTab === 0 ? selectedPlants : selectedDungs}
-              action="rent"
-              setAction={() => {}}
+              selectedItems={
+                activeTab === 0
+                  ? selectedPlants.map(Number)
+                  : selectedDungs.map(Number)
+              }
               setSelectedItems={
-                activeTab === 0 ? setSelectedPlants : setSelectedDungs
+                activeTab === 0
+                  ? (ids: number[]) => setSelectedPlants(ids.map(String))
+                  : (ids: number[]) => setSelectedDungs(ids.map(String))
               }
               activeTab={activeTab}
               onCheckout={() => setShowCheckout(true)}
@@ -176,7 +131,7 @@ export default function ProductDetailPage() {
             <ModalCheckout
               items={tabItems.filter((item) =>
                 (activeTab === 0 ? selectedPlants : selectedDungs).includes(
-                  item.id
+                  String(item.id)
                 )
               )}
               onClose={() => setShowCheckout(false)}
@@ -186,15 +141,4 @@ export default function ProductDetailPage() {
       </SidebarInset>
     </SidebarProvider>
   );
-}
-
-// Trong selected-bar.tsx
-export interface SelectedBarProps {
-  items: Item[];
-  selectedItems: number[];
-  setSelectedItems: (ids: number[]) => void;
-  activeTab: number;
-  onCheckout: () => void;
-  action: "rent";
-  setAction: (action: "rent") => void;
 }

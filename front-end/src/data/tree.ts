@@ -14,7 +14,7 @@ export const TREE_ITEMS = [
       end: 7,
     },
     soilType: "Đất thịt",
-    farm: "farm2",
+    farm: "farm1",
     careSchedule: [
       { month: 1, activities: ["Bón phân hữu cơ", "Tưới nước"] },
       { month: 2, activities: ["Kiểm tra sâu bệnh", "Tỉa cành"] },
