@@ -31,17 +31,18 @@ export class TransactionsService {
     private readonly prisma: PrismaService,
   ) {}
 
-  private toTransactionResponse(
-    transaction: Prisma.TransactionGetPayload<{
-      include: {
-        buyer: true;
-        TransactionItem?: { include?: { item?: true } };
-      };
-    }>,
-  ): TransactionResponseDto {
+  private toTransactionResponse(transaction: any): TransactionResponseDto {
     const buyerResponse = plainToInstance(UserResponseDto, transaction.buyer, {
       excludeExtraneousValues: true,
     });
+
+    const itemResponse = plainToInstance(
+      TransactionItemResponseDto,
+      transaction.item,
+      {
+        excludeExtraneousValues: true,
+      },
+    );
 
     const transactionResponse = plainToInstance(
       TransactionResponseDto,
@@ -51,18 +52,8 @@ export class TransactionsService {
       },
     );
 
-    if (
-      transaction.TransactionItem &&
-      Array.isArray(transaction.TransactionItem)
-    ) {
-      transactionResponse.items = transaction.TransactionItem.map((item) =>
-        plainToInstance(TransactionItemResponseDto, item, {
-          excludeExtraneousValues: true,
-        }),
-      );
-    }
-
     transactionResponse.buyer = buyerResponse;
+    // transactionResponse.item = itemResponse;
 
     return transactionResponse;
   }
@@ -325,15 +316,12 @@ export class TransactionsService {
     const transactions = await this.prisma.transaction.findMany({
       where: { buyerId: id },
       orderBy: { createdAt: 'desc' },
+      include: { TransactionItem: { include: { item: true } } },
     });
 
     return {
       message: 'Lấy lịch sử giao dịch thành công',
-      transactions: transactions.map((tx) =>
-        plainToInstance(TransactionResponseDto, tx, {
-          excludeExtraneousValues: true,
-        }),
-      ),
+      transactions: transactions.map((tx) => this.toTransactionResponse(tx)),
     };
   }
 

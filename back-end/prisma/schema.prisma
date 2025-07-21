@@ -59,11 +59,10 @@ model User {
   resetPasswordOtpExpires DateTime?
   fvtBalance              Int       @default(0)
 
-  Farm Farm?
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  Farm         Farm?
   Transaction  Transaction[]
   ItemInstance ItemInstance[]
 }
@@ -75,8 +74,9 @@ model Farm {
   size        Float
   description String?
   images      String[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   owner   User   @relation(fields: [ownerId], references: [id])
   ownerId String @unique @db.ObjectId

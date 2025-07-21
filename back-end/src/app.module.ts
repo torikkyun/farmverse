@@ -9,7 +9,7 @@ import { JwtGuard } from './common/guards/jwt.guard';
 import { ItemsModule } from './models/items/items.module';
 import { SchedulesModule } from './models/schedules/schedules.module';
 import { RolesGuard } from './common/guards/roles.guard';
-import { TransactionsModule } from './models/transactions/transactions.module';
+// import { TransactionsModule } from './models/transactions/transactions.module';
 import { ItemInstancesModule } from './models/item-instances/item-instances.module';
 import { IotDataModule } from './models/iot-data/iot-data.module';
 
@@ -27,7 +27,7 @@ import { IotDataModule } from './models/iot-data/iot-data.module';
     ItemsModule,
     SchedulesModule,
     ItemInstancesModule,
-    TransactionsModule,
+    // TransactionsModule,
     IotDataModule,
   ],
   providers: [
