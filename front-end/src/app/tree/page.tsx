@@ -11,36 +11,68 @@ import Pagination from "@/components/ui/pagination";
 
 const treeItems = [
   {
-    name: "Cây 1",
-    type: "Giống A",
-    age: 2,
-    yield: 50,
+    name: "Cây Xoài",
+    type: "Giống Xoài Cát Chu",
+    age: 1,
+    yield: 0,
     status: "Đang phát triển",
-    img: "https://api.dicebear.com/7.x/icons/png?seed=tree1&backgroundColor=ffffff,000000&backgroundType=solid",
+    img: "https://api.dicebear.com/7.x/icons/png?seed=mango&backgroundColor=ffffff,000000&backgroundType=solid",
     schedule: [
-      { date: "2025-07-01", action: "Tưới nước" },
-      { date: "2025-07-05", action: "Bón phân" },
-      { date: "2025-07-10", action: "Kiểm tra sâu bệnh" },
+      {
+        date: "2025-07-01",
+        action: "Gieo hạt/Trồng cây con",
+        stage: "seedling",
+      },
+      { date: "2025-07-05", action: "Tưới nước hàng ngày", stage: "care" },
+      { date: "2025-07-10", action: "Bón phân hữu cơ lần 1", stage: "care" },
+      { date: "2025-07-15", action: "Kiểm tra sâu bệnh", stage: "protect" },
+      { date: "2025-07-20", action: "Cắt tỉa cành non", stage: "care" },
+      { date: "2025-08-01", action: "Bón phân hữu cơ lần 2", stage: "care" },
+      { date: "2025-08-10", action: "Phun thuốc phòng sâu", stage: "protect" },
+      { date: "2025-09-01", action: "Kiểm tra quả non", stage: "care" },
+      {
+        date: "2025-10-01",
+        action: "Thu hoạch quả đầu tiên",
+        stage: "harvest",
+      },
     ],
   },
   {
-    name: "Cây 2",
-    type: "Giống B",
-    age: 3,
-    yield: 100,
-    status: "Có thể thu hoạch", // <-- Sửa lại trạng thái này
-    img: "https://api.dicebear.com/7.x/icons/png?seed=tree2&backgroundColor=ffffff,000000&backgroundType=solid",
-  },
-  {
-    name: "Cây 3",
-    type: "Giống C",
-    age: 1,
+    name: "Cây Cam",
+    type: "Giống Cam Sành",
+    age: 2,
     yield: 30,
     status: "Đang phát triển",
-    img: "https://api.dicebear.com/7.x/icons/png?seed=tree3&backgroundColor=ffffff,000000&backgroundType=solid",
+    img: "https://api.dicebear.com/7.x/icons/png?seed=orange&backgroundColor=ffffff,000000&backgroundType=solid",
     schedule: [
-      { date: "2025-07-15", action: "Tưới nước" },
-      { date: "2025-07-20", action: "Cắt tỉa" },
+      { date: "2025-07-01", action: "Trồng cây giống", stage: "seedling" },
+      { date: "2025-07-03", action: "Tưới nước hàng ngày", stage: "care" },
+      { date: "2025-07-07", action: "Bón phân NPK lần 1", stage: "care" },
+      { date: "2025-07-14", action: "Kiểm tra lá và thân", stage: "protect" },
+      { date: "2025-07-21", action: "Cắt tỉa lá già", stage: "care" },
+      { date: "2025-08-01", action: "Bón phân NPK lần 2", stage: "care" },
+      { date: "2025-08-15", action: "Phun thuốc phòng bệnh", stage: "protect" },
+      { date: "2025-09-10", action: "Kiểm tra quả", stage: "care" },
+      { date: "2025-10-05", action: "Thu hoạch quả", stage: "harvest" },
+    ],
+  },
+  {
+    name: "Cây Bưởi",
+    type: "Giống Bưởi Da Xanh",
+    age: 3,
+    yield: 60,
+    status: "Có thể thu hoạch",
+    img: "https://api.dicebear.com/7.x/icons/png?seed=grapefruit&backgroundColor=ffffff,000000&backgroundType=solid",
+    schedule: [
+      { date: "2025-07-01", action: "Trồng cây giống", stage: "seedling" },
+      { date: "2025-07-04", action: "Tưới nước", stage: "care" },
+      { date: "2025-07-09", action: "Bón phân hữu cơ", stage: "care" },
+      { date: "2025-07-16", action: "Kiểm tra sâu bệnh", stage: "protect" },
+      { date: "2025-07-23", action: "Cắt tỉa cành", stage: "care" },
+      { date: "2025-08-02", action: "Bón phân vi sinh", stage: "care" },
+      { date: "2025-08-18", action: "Phun thuốc phòng sâu", stage: "protect" },
+      { date: "2025-09-15", action: "Kiểm tra quả", stage: "care" },
+      { date: "2025-10-10", action: "Thu hoạch quả", stage: "harvest" },
     ],
   },
 ];
@@ -161,7 +193,10 @@ export default function TreePage() {
                   "
                 >
                   {treeItems.map((item, i) => (
-                    <div key={i} className="relative flex flex-col items-center">
+                    <div
+                      key={i}
+                      className="relative flex flex-col items-center"
+                    >
                       {/* Badge trạng thái thu hoạch nằm ngoài border */}
                       {item.status === "Có thể thu hoạch" && (
                         <span

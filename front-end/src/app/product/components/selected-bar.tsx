@@ -1,34 +1,38 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import ModalCheckout from "./ModalCheckout"; // import thêm
+import ModalCheckout from "./ModalCheckout";
 
 interface Item {
   id: number;
   price: number;
   image: string;
   name: string;
+  type: "tree" | "fertilizer"; // Thêm thuộc tính này
 }
 
 interface SelectedBarProps {
   items: Item[];
   selectedItems: number[];
-  action: "buy" | "sell";
-  setAction: (a: "buy" | "sell") => void;
   setSelectedItems: (ids: number[]) => void;
   activeTab: number;
   onCheckout?: () => void;
 }
 
+function formatPrice(price: number): string {
+  return price.toLocaleString("en-US", {
+    minimumFractionDigits: 3,
+    maximumFractionDigits: 3,
+  });
+}
+
 export default function SelectedBar({
   items,
   selectedItems,
-  action,
-  setAction,
   setSelectedItems,
   activeTab,
 }: SelectedBarProps) {
   const [visible, setVisible] = useState(true);
-  const [showCheckout, setShowCheckout] = useState(false); // thêm state
+  const [showCheckout, setShowCheckout] = useState(false);
 
   useEffect(() => {
     setVisible(activeTab === 0 || activeTab === 1);
@@ -37,33 +41,29 @@ export default function SelectedBar({
   if (!visible) return null;
 
   const selectedItemObjects = items.filter((i) => selectedItems.includes(i.id));
-  const totalPrice = (selectedItems.length * (items[0]?.price || 0)).toFixed(3);
+  const totalPrice = formatPrice(selectedItems.length * (items[0]?.price || 0));
+
+  // Xác định loại sản phẩm đang thuê
+  let rentLabel = "Thuê";
+  if (selectedItems.length > 0) {
+    if (activeTab === 0) {
+      rentLabel = `Thuê ${selectedItems.length} cây trồng`;
+    } else if (activeTab === 1) {
+      rentLabel = `Mua ${selectedItems.length} bao phân bón`;
+    }
+  } else {
+    if (activeTab === 0) {
+      rentLabel = "Thuê cây trồng";
+    } else if (activeTab === 1) {
+      rentLabel = "Mua bao phân bón";
+    }
+  }
 
   return (
     <>
       <div className="fixed bottom-0 left-0 w-full bg-gradient-to-r from-black via-neutral-900 to-black text-white flex items-center px-3 md:px-8 py-3 md:py-4 z-50 shadow-2xl border-t border-white/10 transition-all duration-300">
-        {/* Desktop: Buy/Sell, avatar, clear */}
+        {/* Desktop: avatar, clear */}
         <div className="hidden md:flex items-center gap-3">
-          <button
-            className={`px-5 py-2 rounded-full font-bold transition-all duration-200 shadow-sm border ${
-              action === "buy"
-                ? "bg-white text-black border-white scale-105"
-                : "bg-black text-white border-white/30 hover:bg-white/10"
-            }`}
-            onClick={() => setAction("buy")}
-          >
-            Mua
-          </button>
-          <button
-            className={`px-5 py-2 rounded-full font-bold transition-all duration-200 shadow-sm border ${
-              action === "sell"
-                ? "bg-white text-black border-white scale-105"
-                : "bg-black text-white border-white/30 hover:bg-white/10"
-            }`}
-            onClick={() => setAction("sell")}
-          >
-            Bán
-          </button>
           <div className="flex items-center gap-2 mx-5 overflow-x-auto max-w-[220px] scrollbar-thin scrollbar-thumb-white/30">
             {items
               .filter((i) => selectedItems.includes(i.id))
@@ -89,16 +89,16 @@ export default function SelectedBar({
         <span className="font-semibold text-base md:hidden mr-3 bg-white/10 px-2 py-1 rounded-full">
           {selectedItems.length}
         </span>
-        {/* Nút mua/bán */}
+        {/* Nút thuê */}
         <button
-          className={`flex-1 md:flex-none cursor-pointer bg-white text-black font-bold px-4 md:px-7 py-2 rounded-full text-base transition-all duration-200 mr-2 md:mr-5 whitespace-nowrap shadow-md border border-white`}
+          className="flex-1 md:flex-none cursor-pointer bg-white text-black font-bold px-4 md:px-7 py-2 rounded-full text-base transition-all duration-200 mr-2 md:mr-5 whitespace-nowrap shadow-md border border-white"
           onClick={() => setShowCheckout(true)}
         >
-          {action === "buy" ? "Mua" : "Bán"} {selectedItems.length}
+          {rentLabel}
         </button>
-        {/* Tổng số ETH */}
+        {/* Tổng số FVT */}
         <span className="font-semibold text-base md:text-lg mr-2 md:mr-5 whitespace-nowrap bg-white/10 px-3 py-1 rounded-full border border-white/20">
-          {totalPrice} ETH
+          {Number(totalPrice).toLocaleString()} FVT
         </span>
         {/* Clear (desktop) */}
         <button
@@ -107,12 +107,10 @@ export default function SelectedBar({
         >
           Xoá
         </button>
-        
       </div>
       {showCheckout && (
         <ModalCheckout
           items={selectedItemObjects}
-          action={action}
           onClose={() => setShowCheckout(false)}
         />
       )}

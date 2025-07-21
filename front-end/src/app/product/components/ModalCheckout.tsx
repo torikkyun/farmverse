@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { Calendar } from "@/components/ui/calendar";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DateRange } from "react-day-picker";
 import Image from "next/image";
@@ -13,24 +12,25 @@ type Item = {
   image: string;
   price: number | string;
   quantity?: number;
+  type?: string; // Thêm type để phân biệt vật phẩm/cây trồng
 };
 
 type ModalCheckoutProps = {
   items: Item[];
   onClose: () => void;
-  action: "buy" | "sell" | string;
-  onHideSelectedBar?: () => void; // Thêm prop này
+  onHideSelectedBar?: () => void;
 };
 
 export default function ModalCheckout({
   items,
   onClose,
-  action,
-  onHideSelectedBar, // nhận prop này
+  onHideSelectedBar,
 }: ModalCheckoutProps) {
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null); // Thêm state success
+  const [success, setSuccess] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [agreeTerms, setAgreeTerms] = useState<boolean>(false);
+  const [showTermsModal, setShowTermsModal] = useState(false);
 
   React.useEffect(() => {
     if (error) {
@@ -43,22 +43,26 @@ export default function ModalCheckout({
     if (success) {
       const timer = setTimeout(() => {
         setSuccess(null);
-        if (onHideSelectedBar) onHideSelectedBar(); // Ẩn selectedBar
-        onClose(); // Đóng modal
+        if (onHideSelectedBar) onHideSelectedBar();
+        onClose();
       }, 2000);
       return () => clearTimeout(timer);
     }
   }, [success, onClose, onHideSelectedBar]);
 
-  const [range, setRange] = useState<DateRange>({
-    from: new Date(),
-    to: new Date(),
+  // Mặc định thuê 1 năm
+  const now = new Date();
+  const nextYear = new Date(now);
+  nextYear.setFullYear(now.getFullYear() + 1);
+
+  const [range] = useState<DateRange>({
+    from: now,
+    to: nextYear,
   });
   const [includesIot, setIncludesIot] = useState<boolean>(true);
 
-  // Hàm gọi API mua hàng
+  // Hàm gọi API thuê
   const handleCheckout = async () => {
-    if (action !== "buy") return;
     setIsLoading(true);
     try {
       const token =
@@ -83,7 +87,7 @@ export default function ModalCheckout({
           endDate: range.to?.toISOString(),
         })),
       };
-      const res = await fetch(`${API_URL}/transactions/purchase-items`, {
+      const res = await fetch(`${API_URL}/transactions/rent-items`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -93,16 +97,23 @@ export default function ModalCheckout({
       });
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
-        setError(errorData.message || "Lỗi khi mua hàng");
+        setError(errorData.message || "Lỗi khi thuê");
         setIsLoading(false);
         return;
       }
-      setSuccess("Mua hàng thành công!"); // Báo thành công
+      setSuccess("Thuê thành công!");
     } catch {
-      setError("Có lỗi xảy ra khi mua hàng!");
+      setError("Có lỗi xảy ra khi thuê!");
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Phân loại vật phẩm và cây trồng
+  const itemsByType = {
+    vatpham: items.filter((item) => item.type === "vatpham"),
+    caytrong: items.filter((item) => item.type === "caytrong"),
+    khac: items.filter((item) => !item.type),
   };
 
   return (
@@ -145,45 +156,103 @@ export default function ModalCheckout({
         </button>
         <div className="flex flex-col md:flex-row w-full h-full">
           {/* Left column: Product info & chọn ngày/IOT */}
-          <div className="flex-1 p-12 bg-white">
-            <h2 className="text-3xl font-bold text-black mb-8">Checkout</h2>
+          <div className="flex-1 p-12 bg-white overflow-y-auto">
+            <h2 className="text-3xl font-bold text-black mb-8">
+              Thuê vật phẩm & cây trồng
+            </h2>
+            {/* Hiển thị vật phẩm */}
+            {itemsByType.vatpham.length > 0 && (
+              <div className="mb-8">
+                <div className="font-bold text-lg mb-2">Vật phẩm</div>
+                {itemsByType.vatpham.map((item) => (
+                  <div key={item.id} className="flex items-center gap-6 mb-6">
+                    <Image
+                      src={item.image}
+                      alt={item.name}
+                      width={80}
+                      height={80}
+                      className="w-20 h-20 rounded-lg object-cover border border-black/10"
+                    />
+                    <div className="flex-1">
+                      <div className="font-bold text-black text-xl">
+                        {item.name}
+                      </div>
+                      <div className="text-gray-700 text-lg">
+                        {item.price} FVT
+                      </div>
+                    </div>
+                    <div className="text-black text-lg font-bold min-w-[70px] text-right">
+                      X {item.quantity ?? 1}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            {/* Hiển thị cây trồng */}
+            {itemsByType.caytrong.length > 0 && (
+              <div className="mb-8">
+                <div className="font-bold text-lg mb-2">Cây trồng</div>
+                {itemsByType.caytrong.map((item) => (
+                  <div key={item.id} className="flex items-center gap-6 mb-6">
+                    <Image
+                      src={item.image}
+                      alt={item.name}
+                      width={80}
+                      height={80}
+                      className="w-20 h-20 rounded-lg object-cover border border-black/10"
+                    />
+                    <div className="flex-1">
+                      <div className="font-bold text-black text-xl">
+                        {item.name}
+                      </div>
+                      <div className="text-gray-700 text-lg">
+                        {item.price} FVT
+                      </div>
+                    </div>
+                    <div className="text-black text-lg font-bold min-w-[70px] text-right">
+                      X {item.quantity ?? 1}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            {/* Hiển thị các loại khác nếu có */}
+            {itemsByType.khac.length > 0 && (
+              <div className="mb-8">
+                <div className="font-bold text-lg mb-2">Khác</div>
+                {itemsByType.khac.map((item) => (
+                  <div key={item.id} className="flex items-center gap-6 mb-6">
+                    <Image
+                      src={item.image}
+                      alt={item.name}
+                      width={80}
+                      height={80}
+                      className="w-20 h-20 rounded-lg object-cover border border-black/10"
+                    />
+                    <div className="flex-1">
+                      <div className="font-bold text-black text-xl">
+                        {item.name}
+                      </div>
+                      <div className="text-gray-700 text-lg">
+                        {item.price} FVT
+                      </div>
+                    </div>
+                    <div className="text-black text-lg font-bold min-w-[70px] text-right">
+                      X {item.quantity ?? 1}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
             <div className="mb-8">
-              {items.map((item) => (
-                <div key={item.id} className="flex items-center gap-6 mb-6">
-                  <Image
-                    src={item.image}
-                    alt={item.name}
-                    width={80}
-                    height={80}
-                    className="w-20 h-20 rounded-lg object-cover border border-black/10"
-                  />
-                  <div className="flex-1">
-                    <div className="font-bold text-black text-xl">
-                      {item.name}
-                    </div>
-                    <div className="text-gray-700 text-lg">
-                      {item.price} FVT
-                    </div>
-                  </div>
-                  <div className="text-black text-lg font-bold min-w-[70px] text-right">
-                    X {item.quantity ?? 1}
-                  </div>
+              <div className="flex flex-row items-center gap-4">
+                <div className="font-bold">
+                  Thời gian thuê:{" "}
+                  <p className="text-base text-gray-700 font-semibold bg-gray-100 rounded px-4 py-2 inline-block">
+                    Từ: {now.toLocaleDateString()} đến:{" "}
+                    {nextYear.toLocaleDateString()} (1 năm)
+                  </p>
                 </div>
-              ))}
-            </div>
-            <div className="mb-8">
-              <div className="font-bold mb-2">Chọn khoảng thời gian thuê</div>
-              <Calendar
-                mode="range"
-                selected={range}
-                onSelect={setRange}
-                required
-                className="rounded border"
-              />
-              <div className="mt-2 text-sm text-gray-700">
-                {range.from && range.to
-                  ? `Từ: ${range.from.toLocaleDateString()} đến: ${range.to.toLocaleDateString()}`
-                  : "Vui lòng chọn khoảng thời gian"}
               </div>
             </div>
             <div className="mb-8 flex items-center gap-2">
@@ -197,6 +266,90 @@ export default function ModalCheckout({
                 className="font-bold text-black cursor-pointer"
               >
                 Thuê thiết bị theo dõi cây IOT
+              </label>
+            </div>
+            <div className="mb-8 flex items-center gap-2">
+              <Checkbox
+                checked={agreeTerms}
+                onCheckedChange={(checked) => setAgreeTerms(!!checked)}
+                id="terms-checkbox"
+              />
+              <label
+                htmlFor="terms-checkbox"
+                className="text-black cursor-pointer"
+              >
+                Tôi đồng ý với{" "}
+                <div
+                  style={{ display: "inline-block", position: "relative" }}
+                  onMouseEnter={() => setShowTermsModal(true)}
+                  onMouseLeave={() => setShowTermsModal(false)}
+                >
+                  <span
+                    className="underline text-black hover:bg-gray-100 px-2 py-1 rounded transition-colors"
+                    style={{ cursor: "pointer" }}
+                  >
+                    điều khoản thuê
+                  </span>
+                  {showTermsModal && (
+                    <div className="absolute left-0 bottom-full mb-2 z-[200] bg-white text-black rounded-lg shadow-lg p-6 max-w-lg w-[350px] border border-black">
+                      <h3 className="font-bold text-lg mb-4">
+                        Bảng điều khoản thuê cây
+                      </h3>
+                      <table className="w-full text-left border-collapse">
+                        <thead>
+                          <tr>
+                            <th className="border-b border-black pb-2 font-semibold">
+                              Điều khoản
+                            </th>
+                            <th className="border-b border-black pb-2 font-semibold">
+                              Chi tiết
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td className="py-2 border-b border-black">
+                              Thời gian thuê
+                            </td>
+                            <td className="py-2 border-b border-black">
+                              Tối thiểu 1 năm
+                            </td>
+                          </tr>
+                          <tr>
+                            <td className="py-2 border-b border-black">
+                              Quyền chăm sóc
+                            </td>
+                            <td className="py-2 border-b border-black">
+                              Người thuê có quyền chăm sóc và theo dõi cây
+                            </td>
+                          </tr>
+                          <tr>
+                            <td className="py-2 border-b border-black">
+                              Thiết bị IOT
+                            </td>
+                            <td className="py-2 border-b border-black">
+                              Có thể thuê kèm thiết bị giám sát
+                            </td>
+                          </tr>
+                          <tr>
+                            <td className="py-2 border-b border-black">
+                              Thanh toán
+                            </td>
+                            <td className="py-2 border-b border-black">
+                              Bằng FVT, không hoàn lại
+                            </td>
+                          </tr>
+                          <tr>
+                            <td className="py-2">Cam kết</td>
+                            <td className="py-2">
+                              Tuân thủ quy định FarmVerse, không phá hoại cây
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
               </label>
             </div>
             <div className="font-bold text-black text-xl border-t border-black/10 pt-6">
@@ -220,11 +373,7 @@ export default function ModalCheckout({
               onClick={handleCheckout}
               disabled={isLoading}
             >
-              {action === "buy"
-                ? "Xác nhận mua"
-                : action === "sell"
-                ? "Xác nhận bán"
-                : "Xác nhận"}
+              Xác nhận thuê
             </button>
           </div>
         </div>

@@ -17,11 +17,12 @@ export type Farm = {
     role: string;
     avatar: string;
   };
+  cropType?: string; // Thêm loại cây trồng
 };
 
 export function FarmList({
   farms,
-  viewMode = "grid", // Thêm prop viewMode với giá trị mặc định
+  viewMode = "grid",
 }: {
   farms: Farm[];
   viewMode?: "grid" | "list";
@@ -39,7 +40,7 @@ export function FarmList({
           viewMode === "grid"
             ? "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"
             : "grid-cols-1 gap-4"
-        } p-4`} // Thêm p-4 để tạo khoảng cách với cạnh ngoài
+        } p-4`}
         style={{
           overflowX: "hidden",
           overflowY: "hidden",
@@ -65,7 +66,9 @@ export function FarmList({
                 />
                 <div className="p-4">
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-base">{farm.name}</span>
+                    <span className="font-semibold text-base">
+                      Nông trại: {farm.name}
+                    </span>
                   </div>
                   <div className="flex items-center gap-2 mt-2 text-sm">
                     <span className="text-muted-foreground">Địa điểm:</span>
@@ -73,7 +76,17 @@ export function FarmList({
                   </div>
                   <div className="flex items-center gap-2 mt-1 text-sm">
                     <span className="text-muted-foreground">Diện tích:</span>
-                    <span className="font-medium">{farm.size} m²</span>
+                    <span className="font-medium">
+                      {farm.size.toFixed(0)} ha
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 mt-1 text-sm">
+                    <span className="text-muted-foreground">
+                      Loại cây trồng:
+                    </span>
+                    <span className="font-medium">
+                      {farm.cropType || "Chưa cập nhật"}
+                    </span>
                   </div>
                 </div>
               </CardContent>

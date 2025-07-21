@@ -7,12 +7,17 @@ import {
   FlaskConical,
   Sprout,
   Zap,
+  Clock,
+  CheckCircle,
+  Shield,
+  PackageOpen,
 } from "lucide-react";
 import Image from "next/image";
 
 type ScheduleItem = {
   date: string;
   action: string;
+  stage: string;
 };
 
 export type TreeItem = {
@@ -126,23 +131,92 @@ export function TreeDetailModal({
               <div className="text-2xl font-bold text-green-700 dark:text-green-300 uppercase tracking-wide mb-6 text-center">
                 Lịch trình chăm sóc cây
               </div>
-              <ul className="relative border-l-2 border-green-400 pl-6 space-y-8 w-full max-w-xs mx-auto">
-                {selectedTree.schedule && selectedTree.schedule.length > 0 ? (
-                  selectedTree.schedule.map((item, idx) => (
-                    <li key={idx} className="relative flex flex-col">
-                      <span className="absolute left-[-32px] top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full bg-green-500 border-2 border-white dark:border-neutral-900"></span>
-                      <span className="text-sm font-semibold text-green-700 dark:text-green-300 mb-1">
-                        {item.date}
-                      </span>
-                      <span className="text-base text-black dark:text-white ml-1">
-                        {item.action}
-                      </span>
-                    </li>
-                  ))
-                ) : (
-                  <li className="text-sm text-gray-500">Chưa có lịch trình.</li>
-                )}
-              </ul>
+              <div className="mt-4 w-full">
+                <div
+                  className="overflow-y-auto relative"
+                  style={{
+                    maxHeight: "320px",
+                    paddingRight: "8px",
+                  }}
+                >
+                  <div className="relative pl-16">
+                    {/* Timeline vertical line */}
+                    <div className="absolute left-8 top-0 w-1 h-full bg-gray-200 dark:bg-gray-700 rounded-full z-0"></div>
+                    {selectedTree?.schedule &&
+                      selectedTree.schedule.map((item, idx) => {
+                        // Chọn icon và màu theo stage
+                        let icon = <Clock size={20} />;
+                        let color = "bg-green-200";
+                        if (item.stage === "seedling") {
+                          icon = (
+                            <Leaf
+                              size={20}
+                              className="text-green-600 animate-pulse"
+                            />
+                          );
+                          color = "bg-green-100";
+                        } else if (item.stage === "care") {
+                          icon = (
+                            <CheckCircle
+                              size={20}
+                              className="text-blue-500 animate-pulse"
+                            />
+                          );
+                          color = "bg-blue-100";
+                        } else if (item.stage === "protect") {
+                          icon = (
+                            <Shield
+                              size={20}
+                              className="text-yellow-500 animate-pulse"
+                            />
+                          );
+                          color = "bg-yellow-100";
+                        } else if (item.stage === "harvest") {
+                          icon = (
+                            <PackageOpen
+                              size={20}
+                              className="text-orange-500 animate-bounce"
+                            />
+                          );
+                          color = "bg-orange-100";
+                        }
+                        return (
+                          <div
+                            key={idx}
+                            className="relative flex items-center mb-6 min-h-[64px]"
+                          >
+                            {/* Timeline dot & icon */}
+                            <div
+                              className={`absolute left-8 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center rounded-full shadow ${color} z-10`}
+                            >
+                              {icon}
+                            </div>
+                            {/* Nội dung timeline */}
+                            <div
+                              className="ml-8 flex-1 p-3 rounded-lg shadow transition-all"
+                              style={{
+                                background:
+                                  item.stage === "seedling"
+                                    ? "#e6ffe6"
+                                    : item.stage === "care"
+                                    ? "#e6f0ff"
+                                    : item.stage === "protect"
+                                    ? "#fffbe6"
+                                    : "#ffe6cc",
+                                transition: "background 0.3s",
+                              }}
+                            >
+                              <span className="font-medium text-sm text-gray-700 dark:text-gray-200">
+                                {item.date}
+                              </span>
+                              <div className="text-base">{item.action}</div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                  </div>
+                </div>
+              </div>
             </div>
             {/* Cột 3: Thông số IOT */}
             <div className="flex-1 flex flex-col py-4 px-6 items-center">

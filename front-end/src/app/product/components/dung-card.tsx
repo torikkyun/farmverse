@@ -22,14 +22,15 @@ export default function DungCard({ dungs, selected, onSelect }: DungCardProps) {
       className={`group bg-white border rounded-2xl p-0 flex flex-col items-stretch text-black relative overflow-hidden shadow-sm hover:shadow-xl transition-all duration-200
         ${selected ? "border-black ring-2 ring-black" : "border-black/10"}
         h-full
-      `}
+        w-[150px] min-w-[150px] max-w-[150px]`}
+      style={{ minWidth: "0" }}
     >
       <div className="relative">
         <Image
           src={dungs.image}
           alt={dungs.name}
-          width={150}
-          height={150}
+          width={100}
+          height={100}
           className="w-full aspect-[1/1] object-cover rounded-t-2xl border-b border-black/10 transition-all duration-200 group-hover:scale-105 bg-black"
           priority
         />
@@ -48,7 +49,7 @@ export default function DungCard({ dungs, selected, onSelect }: DungCardProps) {
           +
         </button>
       </div>
-      <div className="flex-1 flex flex-col px-4 py-3 gap-1">
+      <div className="flex-1 flex flex-col px-2 py-2 gap-1">
         <div className="font-bold text-base truncate">{dungs.name}</div>
         <div className="text-black text-sm">
           Số lượng: {dungs.quantity ?? 1}
