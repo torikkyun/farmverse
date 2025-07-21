@@ -48,7 +48,7 @@ export default function NFTCard({ item, selected, onSelect }: NFTCardProps) {
         </button>
       </div>
       <div className="flex-1 flex flex-col px-6 py-4 gap-3">
-        <div className="font-bold text-base">Tên cây: {item.name}</div>
+        <div className="font-bold text-base">{item.name}</div>
         <div className="text-black text-base">
           Số lượng: {item.quantity ?? 1}
         </div>

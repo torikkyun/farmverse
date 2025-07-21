@@ -13,9 +13,13 @@ interface NFTGridProps {
   onSelect: (id: number) => void;
 }
 
-export default function NFTGrid({ items, selectedItems, onSelect }: NFTGridProps) {
+export default function NFTGrid({
+  items,
+  selectedItems,
+  onSelect,
+}: NFTGridProps) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-0">
       {items.map((item) => (
         <NFTCard
           key={item.id}

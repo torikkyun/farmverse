@@ -89,9 +89,18 @@ export default function FarmPage() {
     }
   };
 
-  // Hiển thị loading khi chưa load token xong
-  if (!isTokenLoaded) {
-    return <div>Loading...</div>;
+  // Hiển thị loading khi chưa load token hoặc chưa có thông tin nông trại
+  if (!isTokenLoaded || (userRole === "FARMER" && !userFarm)) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-white dark:bg-black">
+        <div className="flex flex-col items-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-black dark:border-white mb-6"></div>
+          <div className="text-black dark:text-white text-xl font-bold">
+            Đang tải thông tin nông trại...
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (

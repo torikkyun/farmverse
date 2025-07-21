@@ -84,13 +84,13 @@ export default function FarmTabs({
                       key={idx}
                       className="relative flex items-start mb-10 group"
                     >
-                      <div className="absolute left-2 top-8 flex flex-col items-center">
+                      <div className="absolute left-1 top-8 flex flex-col items-center">
                         <div className="w-4 h-4 rounded-full bg-black dark:bg-white border-2 border-white dark:border-black shadow transition-transform group-hover:scale-110"></div>
                         <span className="mt-2 text-xs text-gray-700 dark:text-gray-300 font-semibold">
                           Tháng {schedule.month}
                         </span>
                       </div>
-                      <div className="ml-12 flex-1 p-5 border border-gray-200 dark:border-gray-800 rounded-3xl bg-white dark:bg-black shadow-sm transition group-hover:shadow-lg group-hover:border-black dark:group-hover:border-white">
+                      <div className="ml-15 flex-1 p-5 border border-gray-200 dark:border-gray-800 rounded-3xl bg-white dark:bg-black shadow-sm transition group-hover:shadow-lg group-hover:border-black dark:group-hover:border-white">
                         <div className="font-bold text-lg mb-2 text-black dark:text-white">
                           Hoạt động
                         </div>
@@ -105,7 +105,7 @@ export default function FarmTabs({
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-0">
             {data.map((item) =>
               activeTab === 0 ? (
                 <NFTCard

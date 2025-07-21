@@ -27,7 +27,7 @@ export default function ProductDetailPage() {
       price: item.price,
       image: item.images[0],
       quantity: item.quantity,
-      type: "tree" as const, // Đúng kiểu cho SelectedBar
+      type: "Cây trồng" as const, // Đúng kiểu cho SelectedBar
     })
   );
 
@@ -38,7 +38,7 @@ export default function ProductDetailPage() {
     price: item.price,
     image: item.images[0],
     quantity: item.quantity,
-    type: "fertilizer" as const, // Đúng kiểu cho SelectedBar
+    type: "Phân bón" as const, // Đúng kiểu cho SelectedBar
   }));
 
   const [activeTab, setActiveTab] = useState(0);

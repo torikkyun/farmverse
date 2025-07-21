@@ -50,7 +50,7 @@ export default function DungCard({ dungs, selected, onSelect }: DungCardProps) {
         </button>
       </div>
       <div className="flex-1 flex flex-col px-6 py-4 gap-3">
-        <div className="font-bold text-base">Tên phân bón: {dungs.name}</div>
+        <div className="font-bold text-base">{dungs.name}</div>
         <div className="text-black text-base">
           Số lượng: {dungs.quantity ?? 1}
         </div>

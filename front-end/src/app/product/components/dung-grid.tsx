@@ -19,10 +19,7 @@ export default function DungGrid({
   onSelect,
 }: DungGridProps) {
   return (
-    <div
-      className="flex flex-wrap gap-0 justify-center items-start py-4"
-      style={{ maxWidth: "1200px", margin: "0 auto" }}
-    >
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-0">
       {dungs.map((dungs) => (
         <DungCard
           key={dungs.id}

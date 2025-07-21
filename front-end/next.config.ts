@@ -15,6 +15,7 @@ const nextConfig: NextConfig = {
       "images.pexels.com",
       "cdn.pixabay.com",
       "cayxanhgiapham.com",
+      "elead.com.vn",
     ],
   },
   dangerouslyAllowSVG: true,
