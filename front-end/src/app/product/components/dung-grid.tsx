@@ -20,19 +20,16 @@ export default function DungGrid({
 }: DungGridProps) {
   return (
     <div
-      className="flex flex-wrap gap-2 justify-center" // giảm gap từ 4 xuống 2
-      style={{ maxWidth: "1000px", margin: "0 auto" }} // tăng maxWidth nếu cần
+      className="flex flex-wrap gap-0 justify-center items-start py-4"
+      style={{ maxWidth: "1200px", margin: "0 auto" }}
     >
       {dungs.map((dungs) => (
-        <div key={dungs.id} style={{ flex: "0 0 190px" }}>
-          {" "}
-          {/* tăng chiều rộng card */}
-          <DungCard
-            dungs={dungs}
-            selected={selectedItems.includes(dungs.id)}
-            onSelect={(id) => onSelect(Number(id))}
-          />
-        </div>
+        <DungCard
+          key={dungs.id}
+          dungs={dungs}
+          selected={selectedItems.includes(dungs.id)}
+          onSelect={(id) => onSelect(Number(id))}
+        />
       ))}
     </div>
   );

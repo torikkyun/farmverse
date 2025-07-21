@@ -17,7 +17,6 @@ interface AddScheduleModalProps {
   };
   range: DateRange | undefined;
   onChange: (field: string, value: string | boolean) => void;
-  onRangeChange: (range: DateRange | undefined) => void;
   onClose: () => void;
   onSave: () => void;
 }
@@ -28,7 +27,6 @@ export default function AddScheduleModal({
   newSchedule,
   range,
   onChange,
-  onRangeChange,
   onClose,
   onSave,
 }: AddScheduleModalProps) {
@@ -75,7 +73,6 @@ export default function AddScheduleModal({
             <Calendar
               mode="range"
               selected={range}
-              onSelect={onRangeChange}
               disabled={loading}
               locale={vi}
               className="rounded-lg border border-gray-300 dark:border-gray-700 w-full"

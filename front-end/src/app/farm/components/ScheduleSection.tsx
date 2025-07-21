@@ -1,9 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import { vi } from "date-fns/locale";
 import AddScheduleModal from "../AddScheduleModal";
 import { Schedule } from "../useFarmSchedule";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { startOfMonth, endOfMonth } from "date-fns";
 
 interface Props {
   schedules: Schedule[];
@@ -25,12 +24,12 @@ interface Props {
       }
     | undefined;
   handleChange: (field: string, value: string | boolean) => void;
-  handleRangeChange: (
+  handleRangeChange?: (
     range: { from: Date | undefined; to?: Date | undefined } | undefined
   ) => void;
   handleSave: () => void;
-  selectedDate: Date | undefined;
-  setSelectedDate: (date?: Date) => void;
+  selectedDate?: Date; // thêm dòng này
+  setSelectedDate?: (date: Date | undefined) => void; // thêm dòng này
 }
 
 export default function ScheduleSection({
@@ -44,30 +43,19 @@ export default function ScheduleSection({
   newSchedule,
   range,
   handleChange,
-  handleRangeChange,
   handleSave,
-  selectedDate,
-  setSelectedDate,
 }: Props) {
-  function getDatesInRange(start: Date, end: Date) {
-    const dates = [];
-    const current = new Date(start); // Đổi từ let sang const
-    while (current <= end) {
-      dates.push(current.toDateString());
-      current.setDate(current.getDate() + 1);
-    }
-    return dates;
-  }
+  // Lấy ngày đầu và cuối tháng hiện tại
+  const now = new Date();
+  const monthStart = startOfMonth(now);
+  const monthEnd = endOfMonth(now);
 
-  const scheduleDates = schedules.flatMap((sch) =>
-    getDatesInRange(new Date(sch.startTime), new Date(sch.endTime))
-  );
-  const selectedSchedules = schedules.filter(
-    (sch) =>
-      selectedDate &&
-      new Date(sch.startTime) <= selectedDate &&
-      selectedDate <= new Date(sch.endTime)
-  );
+  // Lọc các lịch trình thuộc tháng hiện tại
+  const monthSchedules = schedules.filter((sch) => {
+    const schStart = new Date(sch.startTime);
+    const schEnd = new Date(sch.endTime);
+    return schEnd >= monthStart && schStart <= monthEnd;
+  });
 
   return (
     <div className="bg-white dark:bg-black text-black dark:text-white rounded p-4 sm:p-6 md:p-8">
@@ -112,89 +100,64 @@ export default function ScheduleSection({
         newSchedule={newSchedule}
         range={range}
         onChange={handleChange}
-        onRangeChange={handleRangeChange}
         onClose={() => setAddScheduleOpen(false)}
         onSave={handleSave}
       />
-      {loading ? (
-        <div>Đang tải...</div>
-      ) : error ? (
-        <div className="text-red-500">{error}</div>
-      ) : (
-        <div className="flex flex-col md:flex-row gap-5 items-stretch">
-          <div className="bg-white dark:bg-black rounded-xl shadow p-2 sm:p-4 md:w-[320px] flex-shrink-0 flex flex-col items-center min-h-[400px]">
-            <Calendar
-              mode="single"
-              selected={selectedDate}
-              onSelect={setSelectedDate}
-              locale={vi}
-              modifiers={{
-                hasSchedule: (date) =>
-                  scheduleDates.includes(date.toDateString()),
-              }}
-              modifiersClassNames={{
-                hasSchedule:
-                  "bg-black text-white dark:bg-white dark:text-black font-bold rounded-lg w-8 h-8 text-sm flex items-center justify-center mx-1",
-                selected:
-                  "text-white font-bold rounded-lg w-8 h-8 text-sm flex items-center justify-center mx-1",
-              }}
-              className="w-full"
-            />
+      <div className=" dark:bg-black rounded-xl flex-1 min-h-[400px] flex flex-col justify-start">
+        {loading && <div>Đang tải...</div>}
+        {error && <div className="text-red-500">{error}</div>}
+        {monthSchedules.length === 0 && !loading && (
+          <div className="text-gray-500 dark:text-gray-400 italic">
+            Không có lịch trình nào trong tháng này.
           </div>
-          <div className="bg-white dark:bg-black rounded-xl shadow p-2 sm:p-4 flex-1 min-h-[400px] flex flex-col justify-start">
-            <h3 className="font-bold text-base sm:text-lg mb-2 sm:mb-4">
-              {selectedDate
-                ? `Công việc ngày ${selectedDate.toLocaleDateString()}:`
-                : "Bạn hãy chọn ngày để xem công việc"}
-            </h3>
-            {selectedDate && selectedSchedules.length === 0 && (
-              <div className="text-gray-500 dark:text-gray-400 italic">
-                Không có lịch trình nào.
-              </div>
-            )}
-            {selectedDate && selectedSchedules.length > 0 && (
-              <div className="space-y-4 sm:space-y-6">
-                {selectedSchedules.map((schedule) => (
-                  <div
-                    key={schedule.id}
-                    className="p-3 sm:p-4 border border-gray-300 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-900"
-                  >
-                    <div className="font-semibold text-base mb-2">
-                      <span className="inline-block w-2 h-2 bg-green-500 rounded-full mr-2 align-middle"></span>
+        )}
+        {monthSchedules.length > 0 && !loading && (
+          <div className="relative pl-8">
+            {/* Timeline vertical line */}
+            <div className="absolute left-4 top-0 w-0.5 h-full bg-gray-300 dark:bg-gray-700"></div>
+            {monthSchedules
+              .sort(
+                (a, b) =>
+                  new Date(a.startTime).getTime() -
+                  new Date(b.startTime).getTime()
+              )
+              .map((schedule) => (
+                <div
+                  key={schedule.id}
+                  className="relative flex items-start mb-10 group"
+                >
+                  {/* Timeline dot with date */}
+                  <div className="absolute left-2 top-8 flex flex-col items-center">
+                    <div className="w-4 h-4 rounded-full bg-black dark:bg-white border-2 border-white dark:border-black shadow transition-transform group-hover:scale-110"></div>
+                    <span className="mt-2 text-xs text-gray-700 dark:text-gray-300 font-semibold">
+                      {new Date(schedule.startTime).getDate()}/
+                      {new Date(schedule.startTime).getMonth() + 1}
+                    </span>
+                  </div>
+                  {/* Timeline content */}
+                  <div className="ml-12 flex-1 p-5 border border-gray-200 dark:border-gray-800 rounded-3xl bg-white dark:bg-black shadow-sm transition group-hover:shadow-lg group-hover:border-black dark:group-hover:border-white">
+                    <div className="font-bold text-lg mb-2 text-black dark:text-white">
                       {schedule.name}
                     </div>
-                    <div className="mb-1">
+                    <div className="mb-2 text-sm text-gray-700 dark:text-gray-300">
                       <span className="font-medium">Mô tả:</span>{" "}
                       {schedule.description}
                     </div>
-                    <div className="mb-1">
+                    <div className="mb-2 text-sm text-gray-700 dark:text-gray-300">
                       <span className="font-medium">Thời gian:</span>{" "}
                       {new Date(schedule.startTime).toLocaleDateString()} -{" "}
                       {new Date(schedule.endTime).toLocaleDateString()}
                     </div>
-                    <div className="mb-1">
-                      <span className="font-medium">Trạng thái:</span>{" "}
-                      <span
-                        className={
-                          schedule.status
-                            ? "text-green-600 font-semibold"
-                            : "text-gray-600"
-                        }
-                      >
-                        {schedule.status ? "Đang hoạt động" : "Đã kết thúc"}
-                      </span>
-                    </div>
-                    <div>
+                    <div className="text-sm">
                       <span className="font-medium">Nông trại:</span>{" "}
-                      {schedule.farm?.name}
+                      {schedule.farm?.name || "Chưa xác định"}
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
+                </div>
+              ))}
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

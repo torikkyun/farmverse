@@ -156,7 +156,7 @@ export default function ModalCheckout({
         </button>
         <div className="flex flex-col md:flex-row w-full h-full">
           {/* Left column: Product info & chọn ngày/IOT */}
-          <div className="flex-1 p-12 bg-white overflow-y-auto">
+          <div className="flex-[2] p-12 bg-white overflow-y-auto">
             <h2 className="text-3xl font-bold text-black mb-8">
               Thuê vật phẩm & cây trồng
             </h2>
@@ -276,77 +276,85 @@ export default function ModalCheckout({
               />
               <label
                 htmlFor="terms-checkbox"
-                className="text-black cursor-pointer"
+                className="font-bold text-black cursor-pointer"
               >
-                Tôi đồng ý với{" "}
+                Tôi xác nhận đã đọc và đồng ý với
                 <div
                   style={{ display: "inline-block", position: "relative" }}
                   onMouseEnter={() => setShowTermsModal(true)}
                   onMouseLeave={() => setShowTermsModal(false)}
                 >
                   <span
-                    className="underline text-black hover:bg-gray-100 px-2 py-1 rounded transition-colors"
+                    className="underline text-black px-2 py-1 rounded transition-colors font-bold"
                     style={{ cursor: "pointer" }}
                   >
                     điều khoản thuê
                   </span>
                   {showTermsModal && (
-                    <div className="absolute left-0 bottom-full mb-2 z-[200] bg-white text-black rounded-lg shadow-lg p-6 max-w-lg w-[350px] border border-black">
-                      <h3 className="font-bold text-lg mb-4">
+                    <div
+                      className="absolute left-full top-0 md:top-1/2 md:-translate-y-1/2 ml-6 z-[999999] bg-white text-black rounded-2xl shadow-2xl p-8 w-[400px] border border-black flex flex-col"
+                      style={{ minHeight: 0 }}
+                    >
+                      <h3 className="font-bold text-2xl mb-6 text-center tracking-wide">
                         Bảng điều khoản thuê cây
                       </h3>
-                      <table className="w-full text-left border-collapse">
+                      <table className="w-full text-left border-separate border-spacing-y-2 text-[16px] mb-6">
                         <thead>
                           <tr>
-                            <th className="border-b border-black pb-2 font-semibold">
+                            <th className="pb-2 font-semibold w-1/3 text-black">
                               Điều khoản
                             </th>
-                            <th className="border-b border-black pb-2 font-semibold">
+                            <th className="pb-2 font-semibold w-2/3 text-black">
                               Chi tiết
                             </th>
                           </tr>
                         </thead>
                         <tbody>
                           <tr>
-                            <td className="py-2 border-b border-black">
+                            <td className="font-semibold align-top">
                               Thời gian thuê
                             </td>
-                            <td className="py-2 border-b border-black">
+                            <td className="font-bold text-black align-top">
                               Tối thiểu 1 năm
                             </td>
                           </tr>
                           <tr>
-                            <td className="py-2 border-b border-black">
+                            <td className="font-semibold align-top">
                               Quyền chăm sóc
                             </td>
-                            <td className="py-2 border-b border-black">
-                              Người thuê có quyền chăm sóc và theo dõi cây
+                            <td className="font-bold text-black align-top">
+                              Người thuê được chăm sóc và theo dõi cây trồng
                             </td>
                           </tr>
                           <tr>
-                            <td className="py-2 border-b border-black">
+                            <td className="font-semibold align-top">
                               Thiết bị IOT
                             </td>
-                            <td className="py-2 border-b border-black">
-                              Có thể thuê kèm thiết bị giám sát
+                            <td className="font-bold text-black align-top">
+                              Có thể thuê kèm thiết bị giám sát thông minh
                             </td>
                           </tr>
                           <tr>
-                            <td className="py-2 border-b border-black">
+                            <td className="font-semibold align-top">
                               Thanh toán
                             </td>
-                            <td className="py-2 border-b border-black">
-                              Bằng FVT, không hoàn lại
+                            <td className="font-bold text-black align-top">
+                              Thanh toán bằng FVT, không hoàn lại
                             </td>
                           </tr>
                           <tr>
-                            <td className="py-2">Cam kết</td>
-                            <td className="py-2">
-                              Tuân thủ quy định FarmVerse, không phá hoại cây
+                            <td className="font-semibold align-top">Cam kết</td>
+                            <td className="font-bold text-black align-top">
+                              Tuân thủ quy định FarmVerse, bảo vệ và không phá
+                              hoại cây
                             </td>
                           </tr>
                         </tbody>
                       </table>
+                      <div className="text-base text-black mt-2 text-center font-semibold">
+                        Vui lòng đọc kỹ bảng điều khoản trước khi xác nhận thuê
+                        cây trồng.
+                      </div>
                     </div>
                   )}
                 </div>
@@ -357,7 +365,7 @@ export default function ModalCheckout({
             </div>
           </div>
           {/* Right column: Payment method */}
-          <div className="flex-1 p-12 border-t md:border-t-0 md:border-l border-black/10 flex flex-col justify-between bg-white">
+          <div className="flex-[1] p-12 border-t md:border-t-0 md:border-l border-black/10 flex flex-col justify-between bg-white min-w-[440px] max-w-[540px]">
             <div>
               <div className="font-bold text-black mb-6 text-xl">
                 PHƯƠNG THỨC THANH TOÁN

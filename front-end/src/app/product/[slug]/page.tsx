@@ -67,6 +67,7 @@ export default function ProductDetailPage() {
             name: item.name,
             price: Number(item.price),
             image: Array.isArray(item.images) ? item.images[0] : "",
+            type: "caytrong", // hoặc "vatpham" tùy loại
           }))
         );
       });
@@ -79,6 +80,7 @@ export default function ProductDetailPage() {
             name: item.name,
             price: Number(item.price),
             image: Array.isArray(item.images) ? item.images[0] : "",
+            type: "vatpham", // hoặc "dung" tùy loại
           }))
         );
       });
@@ -87,14 +89,14 @@ export default function ProductDetailPage() {
   const [activeTab, setActiveTab] = useState(0);
   const [selectedPlants, setSelectedPlants] = useState<number[]>([]);
   const [selectedDungs, setSelectedDungs] = useState<number[]>([]);
-  const [action, setAction] = useState<"buy" | "sell">("buy");
+  const [action, setAction] = useState<"rent">("rent");
   const [showCheckout, setShowCheckout] = useState(false);
 
   // Reset selectedItems khi đổi farmId
   React.useEffect(() => {
     setSelectedPlants([]);
     setSelectedDungs([]);
-    setAction("buy");
+    // Không cần setAction("buy") nữa
   }, [farmId]);
 
   // Reload vật phẩm khi đổi farmId
@@ -161,8 +163,8 @@ export default function ProductDetailPage() {
             <SelectedBar
               items={tabItems}
               selectedItems={activeTab === 0 ? selectedPlants : selectedDungs}
-              action={action}
-              setAction={setAction}
+              action="rent"
+              setAction={() => {}}
               setSelectedItems={
                 activeTab === 0 ? setSelectedPlants : setSelectedDungs
               }
@@ -178,20 +180,21 @@ export default function ProductDetailPage() {
                 )
               )}
               onClose={() => setShowCheckout(false)}
-              action={action}
             />
           )}
-          {/* {activeTab === 1 &&
-            dungs.map((item) => (
-              // <DungCard
-              //   key={item.id}
-              //   dungs={item}
-              //   selected={selectedDungs.includes(item.id)}
-              //   onSelect={(id) => handleSelect(Number(id), "dung")}
-              // />
-            ))} */}
         </div>
       </SidebarInset>
     </SidebarProvider>
   );
+}
+
+// Trong selected-bar.tsx
+export interface SelectedBarProps {
+  items: Item[];
+  selectedItems: number[];
+  setSelectedItems: (ids: number[]) => void;
+  activeTab: number;
+  onCheckout: () => void;
+  action: "rent";
+  setAction: (action: "rent") => void;
 }

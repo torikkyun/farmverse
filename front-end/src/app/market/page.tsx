@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
@@ -17,29 +17,33 @@ import {
 import { Button } from "@/components/ui/button";
 import { Search, MapPin, Grid3X3, List } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { FARMS_MARKET, ITEMS_MARKET } from "@/data/market";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL?.replace(/["']/g, "") || "";
+// Chuyển đổi dữ liệu từ data sang kiểu Farm và Item
+const farms: Farm[] = FARMS_MARKET.map((f) => ({
+  ...f,
+  description: "",
+  cropType: f.crops?.[0] ?? "",
+  owner: {
+    id: "",
+    name: "",
+    email: "",
+    phone: "",
+    role: "",
+    avatar: "",
+  },
+}));
+const items: Item[] = ITEMS_MARKET.map((i) => ({
+  ...i,
+  farm: farms.find((f) => f.id === i.farm),
+}));
 
 export default function MarketPage() {
-  const [items, setItems] = useState<Item[]>([]);
-  const [farms, setFarms] = useState<Farm[]>([]);
   const [search, setSearch] = useState("");
   const [location, setLocation] = useState("");
   const [showResults, setShowResults] = useState(false);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const router = useRouter();
-
-  useEffect(() => {
-    fetch(`${API_URL}/items`)
-      .then((res) => res.json())
-      .then((data) => setItems(data?.data?.items || []))
-      .catch(() => setItems([]));
-
-    fetch(`${API_URL}/farms`)
-      .then((res) => res.json())
-      .then((data) => setFarms(data?.data?.items || []))
-      .catch(() => setFarms([]));
-  }, []);
 
   // Lấy danh sách vị trí duy nhất từ farms
   const locations = Array.from(
@@ -61,10 +65,6 @@ export default function MarketPage() {
       item.farm &&
       filteredFarmIds.includes(item.farm.id)
   );
-
-  const handleSearch = () => {
-    setShowResults(true);
-  };
 
   const handleClearSearch = () => {
     setSearch("");
@@ -225,7 +225,11 @@ export default function MarketPage() {
                       value={search}
                       onChange={(e) => setSearch(e.target.value)}
                       className="pl-12 pr-4 py-3 text-lg border-0 bg-gray-50 dark:bg-gray-700 rounded-xl focus:ring-2 focus:ring-green-500 transition-all"
-                      onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          setShowResults(true);
+                        }
+                      }}
                     />
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
                   </div>
@@ -251,7 +255,7 @@ export default function MarketPage() {
                     </div>
 
                     <Button
-                      onClick={handleSearch}
+                      onClick={() => setShowResults(true)}
                       disabled={!hasActiveFilters}
                       className="h-12 px-8 bg-green-600 hover:bg-green-700 text-white rounded-xl font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     >
