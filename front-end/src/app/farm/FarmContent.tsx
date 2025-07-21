@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Farm } from "./useFarmerFarm";
 import { useFarmItems, FarmItem } from "./useFarmItems";
 import FarmItemModal from "./FarmItemModal";
 import FarmAlert from "./FarmAlert";
-import { useAddSchedule } from "./useAddSchedule";
-import { useFarmSchedule } from "./useFarmSchedule";
+// import { useAddSchedule } from "./useAddSchedule";
+// import { useFarmSchedule } from "./useFarmSchedule";
 import FarmInfoSection from "./components/FarmInfoSection";
 import FarmItemSection from "./components/FarmItemSection";
 import ScheduleSection from "./components/ScheduleSection";
@@ -19,9 +19,9 @@ export default function FarmContent({ selected, farm }: Props) {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"edit" | "add">("add");
   const [selectedItem, setSelectedItem] = useState<FarmItem | null>(null);
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
+  // const [selectedDate, setSelectedDate] = useState<Date | undefined>();
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL?.replace(/"/g, "") || "";
+  // const API_URL = process.env.NEXT_PUBLIC_API_URL?.replace(/"/g, "") || "";
   const cardClass = "bg-white dark:bg-black text-black dark:text-white rounded";
 
   // Items
@@ -31,7 +31,7 @@ export default function FarmContent({ selected, farm }: Props) {
     error: errorPlants,
   } = useFarmItems({
     farmId: farm?.id ?? "",
-    type: "TREEROOT",
+    type: "Cây trồng",
     page: 1,
     pageSize: 10,
   });
@@ -41,28 +41,28 @@ export default function FarmContent({ selected, farm }: Props) {
     error: errorFertilizers,
   } = useFarmItems({
     farmId: farm?.id ?? "",
-    type: "FERTILIZER",
+    type: "Phân bón",
     page: 1,
     pageSize: 10,
   });
 
   // Schedule
-  const { schedules, loading, error, reloadSchedules } = useFarmSchedule(
-    farm?.id ? String(farm.id) : undefined,
-  );
+  // const { schedules, loading, error, reloadSchedules } = useFarmSchedule(
+  //   farm?.id ? String(farm.id) : undefined
+  // );
 
   // Add schedule logic
-  const {
-    addScheduleOpen,
-    setAddScheduleOpen,
-    addLoading,
-    alert,
-    newSchedule,
-    range,
-    handleChange,
-    handleRangeChange,
-    handleSave,
-  } = useAddSchedule(API_URL, farm?.id ? String(farm.id) : "", reloadSchedules);
+  // const {
+  //   addScheduleOpen,
+  //   setAddScheduleOpen,
+  //   addLoading,
+  //   alert,
+  //   newSchedule,
+  //   range,
+  //   handleChange,
+  //   handleRangeChange,
+  //   handleSave,
+  // } = useAddSchedule(API_URL, farm?.id ? String(farm.id) : "", reloadSchedules);
 
   // Modal handlers
   const handleEdit = (item: FarmItem) => {
@@ -76,9 +76,9 @@ export default function FarmContent({ selected, farm }: Props) {
     setModalOpen(true);
   };
 
-  useEffect(() => {
-    if (selected === "schedule" && farm?.id) reloadSchedules();
-  }, [selected, farm?.id, reloadSchedules]);
+  // useEffect(() => {
+  //   if (selected === "schedule" && farm?.id) reloadSchedules();
+  // }, [selected, farm?.id, reloadSchedules]);
 
   return (
     <>
@@ -120,20 +120,21 @@ export default function FarmContent({ selected, farm }: Props) {
       )}
       {selected === "schedule" && (
         <ScheduleSection
-          schedules={schedules}
-          loading={loading}
-          error={error}
-          alert={alert}
-          addScheduleOpen={addScheduleOpen}
-          setAddScheduleOpen={setAddScheduleOpen}
-          addLoading={addLoading}
-          newSchedule={newSchedule}
-          range={range}
-          handleChange={handleChange}
-          handleRangeChange={handleRangeChange}
-          handleSave={handleSave}
-          selectedDate={selectedDate}
-          setSelectedDate={setSelectedDate}
+          farmId="farm1"
+          // schedules={schedules}
+          // loading={loading}
+          // error={error}
+          // alert={alert}
+          // addScheduleOpen={addScheduleOpen}
+          // setAddScheduleOpen={setAddScheduleOpen}
+          // addLoading={addLoading}
+          // newSchedule={newSchedule}
+          // range={range}
+          // handleChange={handleChange}
+          // handleRangeChange={handleRangeChange}
+          // handleSave={handleSave}
+          // selectedDate={selectedDate}
+          // setSelectedDate={setSelectedDate}
         />
       )}
     </>

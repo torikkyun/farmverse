@@ -12,7 +12,7 @@ export default function FarmInfoSection({
     return <div className={cardClass}>Không có thông tin nông trại.</div>;
   return (
     <div className={cardClass}>
-      <FarmerFarmCard farm={farm} />
+      <FarmerFarmCard farmId="farm1" />
     </div>
   );
 }

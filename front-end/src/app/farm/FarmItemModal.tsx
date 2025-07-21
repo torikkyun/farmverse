@@ -1,4 +1,3 @@
-import { createFarmItem, updateFarmItem } from "../api/farmItemApi";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -8,19 +7,19 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { FarmItem } from "./useFarmItems";
+import { TreeItemProduct, ItemProduct } from "@/data/product";
 
 interface Props {
   open: boolean;
   mode: "edit" | "add";
-  item: FarmItem | null;
+  item?: TreeItemProduct | ItemProduct;
   onClose: () => void;
   onSave: () => void;
 }
 
 const TYPE_OPTIONS = [
-  { value: "TREEROOT", label: "Cây trồng" },
-  { value: "FERTILIZER", label: "Phân bón" },
+  { value: "Cây trồng", label: "Cây trồng" },
+  { value: "Phân bón", label: "Phân bón" },
 ];
 
 export default function FarmItemModal({
@@ -32,14 +31,14 @@ export default function FarmItemModal({
 }: Props) {
   const [form, setForm] = useState<{
     name: string;
-    type: "TREEROOT" | "FERTILIZER";
+    type: "Cây trồng" | "Phân bón";
     description: string;
     images: string[];
     price: number;
     quantity: number;
   }>({
     name: "",
-    type: "TREEROOT",
+    type: "Cây trồng",
     description: "",
     images: [],
     price: 0,
@@ -52,7 +51,7 @@ export default function FarmItemModal({
     if (mode === "edit" && item) {
       setForm({
         name: item.name || "",
-        type: item.type || "TREEROOT",
+        type: item.type as "Cây trồng" | "Phân bón",
         description: item.description || "",
         images: item.images || [],
         price: item.price || 0,
@@ -61,7 +60,7 @@ export default function FarmItemModal({
     } else if (mode === "add") {
       setForm({
         name: "",
-        type: "TREEROOT",
+        type: "Cây trồng",
         description: "",
         images: [],
         price: 0,
@@ -79,22 +78,18 @@ export default function FarmItemModal({
   };
 
   const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setForm({ ...form, type: e.target.value as "TREEROOT" | "FERTILIZER" });
+    setForm({ ...form, type: e.target.value as "Cây trồng" | "Phân bón" });
   };
 
-  const handleSubmit = async () => {
+  // Lưu dữ liệu vào file tạm thời (state hoặc callback)
+  const handleSubmit = () => {
     setLoading(true);
-    try {
-      if (mode === "add") {
-        await createFarmItem(form);
-      } else if (item?.id) {
-        await updateFarmItem(item.id, form);
-      }
+    setTimeout(() => {
+      // Giả lập lưu vào data file (thực tế sẽ cập nhật state cha hoặc context)
       onSave();
       onClose();
-    } finally {
       setLoading(false);
-    }
+    }, 500);
   };
 
   return (
@@ -153,17 +148,6 @@ export default function FarmItemModal({
             className="border rounded px-2 py-1"
             placeholder="Số lượng"
           />
-          {/* Xử lý upload ảnh nếu cần */}
-          {item?.createdAt && (
-            <div className="text-xs text-gray-500">
-              Ngày tạo: {new Date(item.createdAt).toLocaleDateString()}
-            </div>
-          )}
-          {item?.updatedAt && (
-            <div className="text-xs text-gray-500">
-              Cập nhật: {new Date(item.updatedAt).toLocaleDateString()}
-            </div>
-          )}
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose} disabled={loading}>
