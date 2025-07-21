@@ -5,6 +5,10 @@ export type FarmMarket = {
   size: number;
   images: string[];
   crops: string[];
+  user?: {
+    id: string;
+    name: string;
+  };
 };
 
 export type ItemMarket = {
@@ -28,6 +32,10 @@ export const FARMS_MARKET: FarmMarket[] = [
       "https://th.bing.com/th/id/R.e3c4a4d0eb3fc77c5a94b68cd4f531b4?rik=6rPPfVIjz3tpOg&pid=ImgRaw&r=0",
     ],
     crops: ["Xoài"],
+    user: {
+      id: "user1",
+      name: "Phạm Anh Đức",
+    },
   },
   {
     id: "farm2",
@@ -38,6 +46,10 @@ export const FARMS_MARKET: FarmMarket[] = [
       "https://bbt.1cdn.vn/2022/12/29/z3996741334134_702065666ba43e93d876065e03dcb123.jpg",
     ],
     crops: ["Sầu riêng", "Chôm chôm"],
+    user: {
+      id: "user2",
+      name: "Lê Anh Khôi",
+    },
   },
 ];
 
