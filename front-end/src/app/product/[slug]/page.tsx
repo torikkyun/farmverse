@@ -19,37 +19,60 @@ export default function ProductDetailPage() {
   // Lấy dữ liệu farm từ FARMS_MARKET
   const farm = FARMS_MARKET.find((f) => f.id === farmId);
 
+  console.log("=== DEBUG DATA ===");
+  console.log("farmId:", farmId);
+  console.log("TREE_ITEMS raw:", TREE_ITEMS);
+  console.log("ITEMS raw:", ITEMS);
+  console.log("Filtered TREE_ITEMS:", TREE_ITEMS.filter((item) => item.farm === farmId));
+  console.log("Filtered ITEMS:", ITEMS.filter((item) => item.farm === farmId));
+
   // Lấy cây trồng từ TREE_ITEMS
   const items = TREE_ITEMS.filter((item) => item.farm === farmId).map(
-    (item) => ({
-      id: Number(item.id),
-      name: item.name,
-      price: item.price,
-      image: item.images[0],
-      quantity: item.quantity,
-      type: "Cây trồng" as const, // Đúng kiểu cho SelectedBar
-    })
+    (item, index) => {
+      console.log("Processing tree item:", item); // Debug log
+      return {
+        id: index + 1, // Sử dụng index thay vì convert string id
+        name: item.name,
+        price: item.price,
+        image: item.images[0],
+        quantity: item.quantity || 1,
+        type: "Cây trồng" as const, // Đúng kiểu cho SelectedBar
+        originalId: item.id, // Giữ lại id gốc nếu cần
+      };
+    }
   );
 
   // Lấy phân bón/dụng cụ từ ITEMS
-  const dungs = ITEMS.filter((item) => item.farm === farmId).map((item) => ({
-    id: Number(item.id),
-    name: item.name,
-    price: item.price,
-    image: item.images[0],
-    quantity: item.quantity,
-    type: "Phân bón" as const, // Đúng kiểu cho SelectedBar
-  }));
+  const dungs = ITEMS.filter((item) => item.farm === farmId).map(
+    (item, index) => {
+      console.log("Processing dung item:", item); // Debug log
+      return {
+        id: index + 100, // Bắt đầu từ 100 để tránh trùng với items
+        name: item.name,
+        price: item.price,
+        image: item.images[0],
+        quantity: item.quantity || 1,
+        type: "Phân bón" as const, // Đúng kiểu cho SelectedBar
+        originalId: item.id, // Giữ lại id gốc nếu cần
+      };
+    }
+  );
 
   const [activeTab, setActiveTab] = useState(0);
-  const [selectedPlants, setSelectedPlants] = useState<string[]>([]);
-  const [selectedDungs, setSelectedDungs] = useState<string[]>([]);
+  const [selectedPlants, setSelectedPlants] = useState<number[]>([]);
+  const [selectedDungs, setSelectedDungs] = useState<number[]>([]);
   const [showCheckout, setShowCheckout] = useState(false);
 
   React.useEffect(() => {
     setSelectedPlants([]);
     setSelectedDungs([]);
   }, [farmId]);
+
+  // Debug log để kiểm tra items tạo ra
+  console.log("Created items:", items.map(item => ({ id: item.id, name: item.name })));
+  console.log("Created dungs:", dungs.map(item => ({ id: item.id, name: item.name })));
+  console.log("selectedPlants:", selectedPlants);
+  console.log("selectedDungs:", selectedDungs);
 
   // Lấy userId từ localStorage nếu cần
   let userId: string | undefined = undefined;
@@ -65,21 +88,29 @@ export default function ProductDetailPage() {
     }
   }
 
-  const handleSelect = (id: number, type: "plant" | "dung") => {
-    const idStr = String(id);
-    if (type === "plant") {
-      setSelectedPlants((prev) =>
-        prev.includes(idStr)
-          ? prev.filter((itemId) => itemId !== idStr)
-          : [...prev, idStr]
-      );
-    } else {
-      setSelectedDungs((prev) =>
-        prev.includes(idStr)
-          ? prev.filter((itemId) => itemId !== idStr)
-          : [...prev, idStr]
-      );
-    }
+  // Tạo 2 hàm riêng biệt thay vì 1 hàm với type
+  const handleSelectPlant = (id: number) => {
+    console.log("handleSelectPlant called with id:", id);
+    console.log("current selectedPlants:", selectedPlants);
+    setSelectedPlants((prev) => {
+      const newSelection = prev.includes(id)
+        ? prev.filter((itemId) => itemId !== id)
+        : [...prev, id];
+      console.log("new selectedPlants:", newSelection);
+      return newSelection;
+    });
+  };
+
+  const handleSelectDung = (id: number) => {
+    console.log("handleSelectDung called with id:", id);
+    console.log("current selectedDungs:", selectedDungs);
+    setSelectedDungs((prev) => {
+      const newSelection = prev.includes(id)
+        ? prev.filter((itemId) => itemId !== id)
+        : [...prev, id];
+      console.log("new selectedDungs:", newSelection);
+      return newSelection;
+    });
   };
 
   const tabItems = activeTab === 1 ? dungs : items;
@@ -101,27 +132,21 @@ export default function ProductDetailPage() {
             setActiveTab={setActiveTab}
             items={items}
             dungs={dungs}
-            selectedItems={
-              activeTab === 0
-                ? selectedPlants.map(Number)
-                : selectedDungs.map(Number)
-            }
-            handleSelect={handleSelect}
+            selectedItems={activeTab === 0 ? selectedPlants : selectedDungs}
+            handleSelect={
+              activeTab === 0 ? handleSelectPlant : handleSelectDung
+            } // Truyền đúng hàm
             farmId={farmId}
           />
           {(activeTab === 0 ? selectedPlants.length : selectedDungs.length) >
             0 && (
             <SelectedBar
               items={tabItems}
-              selectedItems={
-                activeTab === 0
-                  ? selectedPlants.map(Number)
-                  : selectedDungs.map(Number)
-              }
+              selectedItems={activeTab === 0 ? selectedPlants : selectedDungs}
               setSelectedItems={
                 activeTab === 0
-                  ? (ids: number[]) => setSelectedPlants(ids.map(String))
-                  : (ids: number[]) => setSelectedDungs(ids.map(String))
+                  ? (ids: number[]) => setSelectedPlants(ids)
+                  : (ids: number[]) => setSelectedDungs(ids)
               }
               activeTab={activeTab}
               onCheckout={() => setShowCheckout(true)}
@@ -131,7 +156,7 @@ export default function ProductDetailPage() {
             <ModalCheckout
               items={tabItems.filter((item) =>
                 (activeTab === 0 ? selectedPlants : selectedDungs).includes(
-                  String(item.id)
+                  item.id
                 )
               )}
               onClose={() => setShowCheckout(false)}

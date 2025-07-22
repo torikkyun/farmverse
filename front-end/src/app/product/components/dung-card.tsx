@@ -13,10 +13,15 @@ interface DungItem {
 interface DungCardProps {
   dungs: DungItem;
   selected: boolean;
-  onSelect: (id: string) => void;
+  onSelect: (id: number) => void;
 }
 
 export default function DungCard({ dungs, selected, onSelect }: DungCardProps) {
+  console.log(`DungCard - Item ${dungs.id} (${dungs.name}):`, {
+    selected,
+    itemId: dungs.id,
+  });
+
   return (
     <div
       className={`group bg-white border rounded-2xl p-0 flex flex-col items-stretch text-black relative overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-200
@@ -35,7 +40,7 @@ export default function DungCard({ dungs, selected, onSelect }: DungCardProps) {
           priority
         />
         <button
-          onClick={() => onSelect(String(dungs.id))}
+          onClick={() => onSelect(dungs.id)}
           className={`absolute top-5 right-5 rounded-full w-12 h-12 flex items-center justify-center transition-all duration-200 shadow-lg
             ${
               selected

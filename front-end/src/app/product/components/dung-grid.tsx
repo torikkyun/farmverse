@@ -25,7 +25,7 @@ export default function DungGrid({
           key={dungs.id}
           dungs={dungs}
           selected={selectedItems.includes(dungs.id)}
-          onSelect={(id) => onSelect(Number(id))}
+          onSelect={onSelect}
         />
       ))}
     </div>

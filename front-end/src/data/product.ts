@@ -42,7 +42,7 @@ export const TREE_ITEMS: TreeItemProduct[] = [
       "https://cayxanhgiapham.com/wp-content/uploads/2020/06/cay-xoa-3-600x450.jpg",
     ],
     price: 80,
-    quantity: 10,
+    quantity: 1,
     output: "150kg/năm",
     harvestTime: {
       start: 5,
@@ -74,7 +74,7 @@ export const TREE_ITEMS: TreeItemProduct[] = [
       "https://th.bing.com/th/id/R.f8ea8c40cdead4e44f25a0c866b3f021?rik=GohkeybcLR4k6Q&pid=ImgRaw&r=0",
     ],
     price: 150,
-    quantity: 5,
+    quantity: 1,
     output: "80kg/năm",
     harvestTime: {
       start: 4,
@@ -106,7 +106,7 @@ export const TREE_ITEMS: TreeItemProduct[] = [
       "https://elead.com.vn/wp-content/uploads/2022/09/cay-chom-chom-22.jpg",
     ],
     price: 40,
-    quantity: 8,
+    quantity: 1,
     output: "40kg/năm",
     harvestTime: {
       start: 5,

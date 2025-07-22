@@ -43,7 +43,7 @@ export default function ModalCheckout({
       const timer = setTimeout(() => {
         setSuccess(null);
         onClose(); // Đóng modal sau 1 giây
-      }, 1000);
+      }, 2000);
       return () => clearTimeout(timer);
     }
   }, [success, onClose, onHideSelectedBar]);
@@ -103,10 +103,7 @@ export default function ModalCheckout({
       return sum + price * quantity;
     }, 0);
 
-    // Thêm phí IOT nếu được chọn (500 FVT cho mỗi cây trồng)
-    const iotFee = includesIot ? itemsByType.caytrong.length * 500 : 0;
-
-    return baseTotal + iotFee;
+    return baseTotal;
   };
 
   return (

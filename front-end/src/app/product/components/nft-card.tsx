@@ -11,10 +11,15 @@ interface NFTItem {
 interface NFTCardProps {
   item: NFTItem;
   selected: boolean;
-  onSelect: (id: string) => void;
+  onSelect: (id: number) => void;
 }
 
 export default function NFTCard({ item, selected, onSelect }: NFTCardProps) {
+  console.log(`NFTCard - Item ${item.id} (${item.name}):`, {
+    selected,
+    itemId: item.id,
+  });
+
   return (
     <div
       className={`group bg-white border rounded-2xl p-0 flex flex-col items-stretch text-black relative overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-200
@@ -33,7 +38,7 @@ export default function NFTCard({ item, selected, onSelect }: NFTCardProps) {
           priority
         />
         <button
-          onClick={() => onSelect(String(item.id))}
+          onClick={() => onSelect(item.id)}
           className={`absolute top-5 right-5 rounded-full w-12 h-12 flex items-center justify-center transition-all duration-200 shadow-lg
             ${
               selected

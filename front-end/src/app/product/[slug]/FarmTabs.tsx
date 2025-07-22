@@ -23,7 +23,7 @@ interface Props {
   items: NFTItem[];
   dungs: NFTItem[];
   selectedItems: number[];
-  handleSelect: (id: number, type: "plant" | "dung") => void;
+  handleSelect: (id: number) => void; // Đổi từ 2 tham số thành 1
   farmId?: string;
 }
 
@@ -38,6 +38,15 @@ export default function FarmTabs({
 }: Props) {
   const data = activeTab === 0 ? items : dungs;
 
+  // Debug logs
+  console.log("FarmTabs - activeTab:", activeTab);
+  console.log("FarmTabs - selectedItems:", selectedItems);
+  console.log("FarmTabs - data length:", data.length);
+  console.log(
+    "FarmTabs - data items:",
+    data.map((item) => ({ id: item.id, name: item.name }))
+  );
+
   // Lấy danh sách lịch chăm sóc từ cây trồng của farm hiện tại
   const schedules: CareSchedule[] = useMemo(() => {
     if (!farmId) return [];
@@ -45,11 +54,6 @@ export default function FarmTabs({
       (tree) => tree.careSchedule || []
     );
   }, [farmId]);
-
-  // Thêm log để debug
-  console.log("FarmTabs - farmId:", farmId);
-  console.log("FarmTabs - TREE_ITEMS:", TREE_ITEMS);
-  console.log("FarmTabs - schedules:", schedules);
 
   return (
     <>
@@ -112,14 +116,14 @@ export default function FarmTabs({
                   key={item.id}
                   item={item}
                   selected={selectedItems.includes(item.id)}
-                  onSelect={() => handleSelect(item.id, "plant")}
+                  onSelect={handleSelect} // Đổi từ callback thành truyền trực tiếp
                 />
               ) : (
                 <DungCard
                   key={item.id}
                   dungs={item}
                   selected={selectedItems.includes(item.id)}
-                  onSelect={() => handleSelect(item.id, "dung")}
+                  onSelect={handleSelect} // Đổi từ callback thành truyền trực tiếp
                 />
               )
             )}

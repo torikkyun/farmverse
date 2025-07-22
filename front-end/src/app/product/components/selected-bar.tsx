@@ -7,7 +7,8 @@ interface Item {
   price: number;
   image: string;
   name: string;
-  type: "tree" | "fertilizer"; // Thêm thuộc tính này
+  type: "Cây trồng" | "Phân bón"; // Thêm thuộc tính này
+  quantity?: number;
 }
 
 interface SelectedBarProps {
@@ -41,6 +42,10 @@ export default function SelectedBar({
   if (!visible) return null;
 
   const selectedItemObjects = items.filter((i) => selectedItems.includes(i.id));
+  const totalQuantity = selectedItemObjects.reduce(
+    (sum, item) => sum + (item.quantity ?? 1),
+    0
+  );
   const totalPrice = formatPrice(selectedItems.length * (items[0]?.price || 0));
 
   // Xác định loại sản phẩm đang thuê
@@ -87,7 +92,7 @@ export default function SelectedBar({
         </div>
         {/* Số lượng (mobile) */}
         <span className="font-semibold text-base md:hidden mr-3 bg-white/10 px-2 py-1 rounded-full">
-          {selectedItems.length}
+          {totalQuantity}
         </span>
         {/* Nút thuê */}
         <button

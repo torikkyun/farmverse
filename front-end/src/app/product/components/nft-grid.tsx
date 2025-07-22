@@ -25,7 +25,7 @@ export default function NFTGrid({
           key={item.id}
           item={item}
           selected={selectedItems.includes(item.id)}
-          onSelect={(id) => onSelect(Number(id))}
+          onSelect={onSelect}
         />
       ))}
     </div>
