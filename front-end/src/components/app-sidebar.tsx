@@ -7,7 +7,7 @@ import {
   ShoppingBasket,
   TreePine,
   Warehouse,
-  CircleUser
+  CircleUser,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -36,11 +36,11 @@ const data = {
       url: "/market",
       icon: ShoppingBasket,
     },
-    {
-      title: "Nông trại",
-      url: "/farm",
-      icon: Tractor,
-    },
+    // {
+    //   title: "Nông trại",
+    //   url: "/farm",
+    //   icon: Tractor,
+    // },
     {
       title: "Cây thuê",
       url: "/tree",
@@ -55,7 +55,7 @@ const data = {
       title: "Trang cá nhân",
       url: "/settings",
       icon: CircleUser,
-    }
+    },
   ],
 };
 
