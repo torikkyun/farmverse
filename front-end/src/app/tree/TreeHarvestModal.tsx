@@ -218,7 +218,10 @@ export function TreeHarvestModal({
                       <div className="flex justify-between border-t pt-1">
                         <span className="font-semibold">Tổng tiền:</span>
                         <span className="font-bold text-green-600 dark:text-green-400">
-                          {(quantity * (sellPrice / quantity || 0)).toLocaleString()} FVT
+                          {(
+                            quantity * (sellPrice / quantity || 0)
+                          ).toLocaleString()}{" "}
+                          FVT
                         </span>
                       </div>
                     </>

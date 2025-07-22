@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-// Import dữ liệu từ file product
 import { TREE_ITEMS, ITEMS } from "@/data/product";
 
 export interface FarmItem {
@@ -7,23 +6,20 @@ export interface FarmItem {
   name: string;
   description?: string;
   type: "Phân bón" | "Cây trồng";
-  createdAt?: string;
-  updatedAt?: string;
   images: string[];
   price: number;
   quantity: number;
 }
 
 interface UseFarmItemsProps {
-  farmId: string | number;
+  farmId: string;
   type: "Phân bón" | "Cây trồng";
   page?: number;
   pageSize?: number;
-  reload?: number;
 }
 
 export function useFarmItems({
-  farmId,
+  farmId = "farm1",
   type,
   page = 1,
   pageSize = 10,
@@ -37,11 +33,15 @@ export function useFarmItems({
     setLoading(true);
     setError(null);
 
-    // Lấy dữ liệu từ file product thay vì gọi API
+    console.log("farmId:", farmId); // kiểm tra farmId
+    console.log("TREE_ITEMS:", TREE_ITEMS); // kiểm tra dữ liệu cây trồng
+    console.log("ITEMS:", ITEMS); // kiểm tra dữ liệu vật phẩm
+
     let data: FarmItem[] = [];
     if (type === "Cây trồng") {
-      // Lấy cây trồng từ TREE_ITEMS
-      data = TREE_ITEMS.filter((item) => item.farm === farmId).map((item) => ({
+      data = TREE_ITEMS.filter(
+        (item) => String(item.farm) === String(farmId)
+      ).map((item) => ({
         id: item.id,
         name: item.name,
         description: item.description ?? "",
@@ -51,9 +51,9 @@ export function useFarmItems({
         quantity: item.quantity,
       }));
     } else if (type === "Phân bón") {
-      // Lấy phân bón từ ITEMS
       data = ITEMS.filter(
-        (item) => item.farm === farmId && item.type === "Phân bón"
+        (item) =>
+          String(item.farm) === String(farmId) && item.type === "Phân bón"
       ).map((item) => ({
         id: item.id,
         name: item.name,
@@ -65,7 +65,6 @@ export function useFarmItems({
       }));
     }
 
-    // Phân trang nếu cần
     const pagedData = data.slice((page - 1) * pageSize, page * pageSize);
 
     setItems(pagedData);

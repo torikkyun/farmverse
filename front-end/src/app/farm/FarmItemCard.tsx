@@ -40,14 +40,6 @@ export default function FarmItemCard({ item, onEdit }: Props) {
       <div className="text-gray-500 dark:text-gray-400 mb-2">
         {item.description}
       </div>
-      <div className="text-sm text-gray-700 dark:text-gray-300">
-        {item.createdAt && (
-          <div>Ngày tạo: {new Date(item.createdAt).toLocaleDateString()}</div>
-        )}
-        {item.updatedAt && (
-          <div>Cập nhật: {new Date(item.updatedAt).toLocaleDateString()}</div>
-        )}
-      </div>
     </div>
   );
 }

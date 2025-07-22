@@ -65,7 +65,7 @@ export default function ModalCheckout({
     setIsLoading(true);
 
     // Simulate processing time: 20 - 30s (random)
-    const randomDelay = Math.floor(Math.random() * 11000) + 20000; // 20000 -> 31000 ms
+    const randomDelay = 10000; // 10000 ms = 10s
     setTimeout(() => {
       setSuccess("Đơn hàng đã được xác nhận thành công!");
       setIsLoading(false);

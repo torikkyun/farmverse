@@ -8,15 +8,16 @@ import { TreeCard } from "./TreeCard";
 import { TreeDetailModal } from "./TreeDetailModal";
 import { TreeHarvestModal } from "./TreeHarvestModal";
 import Pagination from "@/components/ui/pagination";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 
 const treeItems = [
   {
     name: "Cây Xoài",
-    type: "Giống Xoài Cát Chu",
-    age: 1,
-    yield: 0,
+    type: "Cây trồng",
+    age: 3,
+    yield: 150,
     status: "Đang phát triển",
-    img: "https://api.dicebear.com/7.x/icons/png?seed=mango&backgroundColor=ffffff,000000&backgroundType=solid",
+    img: "https://cayxanhgiapham.com/wp-content/uploads/2020/06/cay-xoa-3-600x450.jpg",
     schedule: [
       {
         date: "2025-07-01",
@@ -38,12 +39,12 @@ const treeItems = [
     ],
   },
   {
-    name: "Cây Cam",
-    type: "Giống Cam Sành",
+    name: "Cây Sầu Riêng",
+    type: "Cây trồng",
     age: 2,
-    yield: 30,
+    yield: 80,
     status: "Đang phát triển",
-    img: "https://api.dicebear.com/7.x/icons/png?seed=orange&backgroundColor=ffffff,000000&backgroundType=solid",
+    img: "https://th.bing.com/th/id/R.f8ea8c40cdead4e44f25a0c866b3f021?rik=GohkeybcLR4k6Q&pid=ImgRaw&r=0",
     schedule: [
       { date: "2025-07-01", action: "Trồng cây giống", stage: "seedling" },
       { date: "2025-07-03", action: "Tưới nước hàng ngày", stage: "care" },
@@ -57,12 +58,12 @@ const treeItems = [
     ],
   },
   {
-    name: "Cây Bưởi",
-    type: "Giống Bưởi Da Xanh",
+    name: "Cây Chôm Chôm",
+    type: "Cây trồng",
     age: 3,
-    yield: 60,
+    yield: 40,
     status: "Có thể thu hoạch",
-    img: "https://api.dicebear.com/7.x/icons/png?seed=grapefruit&backgroundColor=ffffff,000000&backgroundType=solid",
+    img: "https://elead.com.vn/wp-content/uploads/2022/09/cay-chom-chom-22.jpg",
     schedule: [
       { date: "2025-07-01", action: "Trồng cây giống", stage: "seedling" },
       { date: "2025-07-04", action: "Tưới nước", stage: "care" },
@@ -88,6 +89,12 @@ export default function TreePage() {
     totalPages: 5,
     totalItems: 50,
   });
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertContent, setAlertContent] = useState({
+    title: "",
+    description: "",
+  });
+  const [isLoading, setIsLoading] = useState(false);
   const userRole = "FARMER"; // hoặc lấy từ context, redux, v.v.
 
   const handleOpenModal = (item: (typeof treeItems)[0]) => {
@@ -107,23 +114,23 @@ export default function TreePage() {
   ) => {
     if (!selectedTree) return;
 
-    console.log("Thu hoạch:", {
-      tree: selectedTree.name,
-      mode,
-      quantity,
-      price,
-    });
+    setIsLoading(true);
+    setShowAlert(false);
 
-    // Thực hiện logic thu hoạch ở đây
-    // Ví dụ: gọi API, cập nhật state, hiển thị thông báo thành công
-
-    alert(
-      `Đã thu hoạch ${quantity}kg ${selectedTree.name} - ${
-        mode === "sell"
-          ? `Bán với giá ${price?.toLocaleString()} VNĐ`
-          : "Lưu vào kho"
-      }`
-    );
+    // Hiển thị overload 5s
+    setTimeout(() => {
+      setIsLoading(false);
+      setAlertContent({
+        title: "Thu hoạch thành công!",
+        description: `Đã thu hoạch ${quantity}kg ${selectedTree.name} - ${
+          mode === "sell"
+            ? `Bán với giá ${price?.toLocaleString()} VNĐ`
+            : "Lấy vật phẩm và lưu vào kho"
+        }`,
+      });
+      setShowAlert(true);
+      setTimeout(() => setShowAlert(false), 5000);
+    }, 5000);
   };
 
   const handlePageChange = (page: number) => {
@@ -255,6 +262,41 @@ export default function TreePage() {
             {/* Phân trang */}
             <Pagination meta={meta} onPageChange={handlePageChange} />
           </div>
+          {/* Overlay loading */}
+          {isLoading && (
+            <div className="fixed inset-0 bg-black/70 z-[100] flex flex-col items-center justify-center">
+              <div className="animate-spin rounded-full h-14 w-14 border-t-4 border-green-400 mb-6"></div>
+              <div className="text-white text-lg font-semibold mb-2">
+                {selectedTree && selectedTree.name
+                  ? harvestOpen && (
+                      <>
+                        {selectedTree &&
+                        selectedTree.status === "Có thể thu hoạch" &&
+                        selectedTree.yield > 0
+                          ? "Đang xử lý giao dịch bán hàng..."
+                          : "Đang xử lý lấy vật phẩm..."}
+                      </>
+                    )
+                  : "Đang xử lý..."}
+              </div>
+              <div className="text-white text-sm">
+                {selectedTree &&
+                selectedTree.status === "Có thể thu hoạch" &&
+                selectedTree.yield > 0
+                  ? "Vui lòng chờ trong giây lát, hệ thống đang xác nhận thu hoạch và cập nhật dữ liệu cho bạn."
+                  : "Vui lòng chờ trong giây lát, hệ thống đang xác nhận lấy vật phẩm và cập nhật dữ liệu cho bạn."}
+              </div>
+            </div>
+          )}
+          {/* Alert thành công */}
+          {showAlert && (
+            <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-md">
+              <Alert variant="success">
+                <AlertTitle>{alertContent.title}</AlertTitle>
+                <AlertDescription>{alertContent.description}</AlertDescription>
+              </Alert>
+            </div>
+          )}
         </div>
       </SidebarInset>
     </SidebarProvider>

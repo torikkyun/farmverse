@@ -72,7 +72,7 @@ export function TreeDetailModal({
           kaliumLevel: 25,
           semiconductorLevel: getRandomFloat(100, 1000, 0),
         });
-      }, 1000);
+      }, 5000);
     }
     return () => {
       if (interval) clearInterval(interval);
