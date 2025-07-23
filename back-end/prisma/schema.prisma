@@ -16,93 +16,86 @@ enum UserRole {
 
 enum ItemType {
   FERTILIZER
-  TREEROOT
-}
-
-enum TreeRootInstanceStatus {
-  GROWING
-  HARVESTED
-  CANCELED
+  TREE
+  PESTICIDE
 }
 
 enum TransactionType {
-  DEPOSIT
+  CONTRACT
   PURCHASE
-  SELL_HARVEST
+  DEPOSIT
 }
 
-enum HarvestedAction {
-  SELL_TO_FARMER
-  RECEIVE_PRODUCT
-}
-
-enum HarvestProcessStatus {
-  PENDING
+enum statusRentedTree {
+  GROWING
+  READY_TO_HARVEST
   HARVESTING
-  SUCCESS
-  COMPLETED
-  FAILED
+  HARVESTED
+}
+
+enum optionHarvest {
+  RECEIVE_FRUIT
+  SELL_BACK
+}
+
+model Otp {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  email     String   @unique
+  otp       String
+  expiresAt DateTime
+  used      Boolean  @default(false)
 }
 
 model User {
-  id                      String    @id @default(auto()) @map("_id") @db.ObjectId
-  name                    String
-  email                   String    @unique
-  password                String
-  phone                   String?   @unique
-  role                    UserRole  @default(TENANT)
-  avatar                  String?
-  isEmailVerified         Boolean   @default(false)
-  otp                     String?
-  otpExpires              DateTime?
-  resetPasswordOtp        String?
-  resetPasswordOtpExpires DateTime?
-  fvtBalance              Int       @default(0)
+  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  email         String        @unique
+  password      String
+  name          String
+  avatar        String
+  address       Json
+  fvtBalance    Float         @default(0.0)
+  role          UserRole
+  emailVerified Boolean       @default(false)
+  Farm          Farm[]
+  Transaction   Transaction[]
+  RentedTree    RentedTree[]
+  Inventory     Inventory[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  Farm         Farm?
-  Transaction  Transaction[]
-  ItemInstance ItemInstance[]
+  @@index([role])
 }
 
 model Farm {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   name        String
-  location    String
+  address     Json
   size        Float
-  description String?
+  description String
   images      String[]
+  schedule    Json[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  user        User          @relation(fields: [userId], references: [id])
+  userId      String        @db.ObjectId
+  Item        Item[]
+  Transaction Transaction[]
+  RentedTree  RentedTree[]
 
-  owner   User   @relation(fields: [ownerId], references: [id])
-  ownerId String @unique @db.ObjectId
-
-  Schedules       Schedule[]
-  Item            Item[]
-  Transaction     Transaction[]
-  ItemInstance    ItemInstance[]
-  TransactionItem TransactionItem[]
+  @@index([userId])
 }
 
-model Schedule {
+model Inventory {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   name        String
+  type        ItemType
   description String?
-  startTime   DateTime
-  endTime     DateTime
-  status      Boolean  @default(false)
+  images      String[]
+  stock       Int      @default(0)
+  details     Json
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  user   User   @relation(fields: [userId], references: [id])
+  userId String @db.ObjectId
 
-  farm   Farm   @relation(fields: [farmId], references: [id])
-  farmId String @db.ObjectId
-
-  @@index([farmId])
+  @@index([userId])
+  @@index([type])
 }
 
 model Item {
@@ -111,138 +104,59 @@ model Item {
   type        ItemType
   description String?
   images      String[]
-  price       Int
-  quantity    Int
-  TreeAge     Int?
-  TreeHeight  Int?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  price       Float
+  stock       Int      @default(1)
+  details     Json
 
   farm   Farm   @relation(fields: [farmId], references: [id])
   farmId String @db.ObjectId
 
-  Transaction     Transaction[]
-  ItemInstance    ItemInstance[]
-  TransactionItem TransactionItem[]
-
   @@index([farmId])
+  @@index([type])
 }
 
 model Transaction {
-  id         String          @id @default(auto()) @map("_id") @db.ObjectId
-  totalPrice Float
-  type       TransactionType
-
-  transactionHash String?
-  blockNumber     Int?
-  fromAddress     String?
-  toAddress       String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  buyer   User    @relation(fields: [buyerId], references: [id])
-  buyerId String  @db.ObjectId
-  item    Item?   @relation(fields: [itemId], references: [id])
-  itemId  String? @db.ObjectId
-  Farm    Farm?   @relation(fields: [farmId], references: [id])
-  farmId  String? @db.ObjectId
-
-  TransactionItem TransactionItem[]
-
-  @@index([buyerId])
-  @@index([itemId])
-  @@index([farmId])
-}
-
-model TransactionItem {
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
-  name        String
-  description String?
-  images      String[]
-  includesIot Boolean?
-  quantity    Int
-  price       Float
-  type        ItemType
-  treeAge     Int?
-  treeHeight  Int?
-  startDate   DateTime?
-  endDate     DateTime?
-
-  transaction   Transaction @relation(fields: [transactionId], references: [id])
-  transactionId String      @db.ObjectId
-  item          Item        @relation(fields: [itemId], references: [id])
-  itemId        String      @db.ObjectId
-  farm          Farm        @relation(fields: [farmId], references: [id])
-  farmId        String      @db.ObjectId
-
-  @@index([transactionId])
-  @@index([itemId])
-  @@index([farmId])
-}
-
-model ItemInstance {
-  id                   String                  @id @default(auto()) @map("_id") @db.ObjectId
-  type                 ItemType
-  quantity             Int?
-  status               TreeRootInstanceStatus?
-  cameraUrl            String?
-  startDate            DateTime?
-  endDate              DateTime?
-  harvestedAction      HarvestedAction?
-  images               String[]
-  harvestProcessStatus HarvestProcessStatus?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id              String          @id @default(auto()) @map("_id") @db.ObjectId
+  totalPrice      Float
+  transactionHash String
+  blockNumber     Int
+  fromAddress     String
+  toAddress       String
+  details         Json?
+  createdAt       DateTime        @default(now())
+  type            TransactionType
 
   user   User   @relation(fields: [userId], references: [id])
   userId String @db.ObjectId
   farm   Farm   @relation(fields: [farmId], references: [id])
   farmId String @db.ObjectId
-  item   Item   @relation(fields: [itemId], references: [id])
-  itemId String @db.ObjectId
-
-  IotData          IotData[]
-  TreeRootSchedule TreeRootSchedule[]
 
   @@index([userId])
   @@index([farmId])
-  @@index([itemId])
+  @@index([type])
+  @@index([createdAt])
 }
 
-model IotData {
-  id                 String @id @default(auto()) @map("_id") @db.ObjectId
-  temperature        Float?
-  humidity           Float?
-  nitogenLevel       Float?
-  phosphorusLevel    Float?
-  kaliumLevel        Float?
-  semiconductorLevel Float?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  itemInstance   ItemInstance @relation(fields: [itemInstanceId], references: [id])
-  itemInstanceId String       @db.ObjectId
-
-  @@index([itemInstanceId])
-}
-
-model TreeRootSchedule {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+model RentedTree {
+  id          String           @id @default(auto()) @map("_id") @db.ObjectId
   name        String
   description String?
-  startTime   DateTime
-  endTime     DateTime
-  status      Boolean  @default(false)
+  images      String[]
+  details     Json
+  cameraUrl   String?
+  status      statusRentedTree
+  totalProfit Float            @default(0.0)
+  harvest     Json[]
+  startDate   DateTime
+  endDate     DateTime
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  farm   Farm   @relation(fields: [farmId], references: [id])
+  farmId String @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id])
+  userId String @db.ObjectId
 
-  itemInstance   ItemInstance @relation(fields: [itemInstanceId], references: [id])
-  itemInstanceId String       @db.ObjectId
-
-  @@index([itemInstanceId])
+  @@index([userId])
+  @@index([farmId])
+  @@index([status])
+  @@index([endDate])
 }

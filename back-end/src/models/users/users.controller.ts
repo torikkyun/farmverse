@@ -4,7 +4,6 @@ import {
   Body,
   Patch,
   Param,
-  Delete,
   Query,
   UseGuards,
   UseInterceptors,
@@ -66,10 +65,4 @@ export class UsersController {
   ): Promise<{ message: string; user: UserResponseDto }> {
     return this.usersService.changePassword(user, changePasswordDto);
   }
-
-  // @Delete()
-  // @ApiBearerAuth()
-  // remove(@CurrentUser() { id }: User) {
-  //   console.log(id);
-  // }
 }
