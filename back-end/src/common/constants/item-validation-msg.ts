@@ -21,7 +21,7 @@ export const ItemValidationMessages = {
     MUST_BE_NUMBER: 'Giá vật phẩm phải là số',
     MIN_VALUE: 'Giá vật phẩm phải lớn hơn 0',
   },
-  QUANTITY: {
+  STOCK: {
     NOT_EMPTY: 'Số lượng vật phẩm không được để trống',
     MUST_BE_NUMBER: 'Số lượng vật phẩm phải là số',
     MIN_VALUE: 'Số lượng vật phẩm phải lớn hơn hoặc bằng 0',

@@ -49,8 +49,8 @@ export class ItemsService {
     images?: Array<Express.Multer.File>,
   ): Promise<{ message: string; item: ItemResponseDto }> {
     const farm = await this.prisma.farm.findUnique({
-      where: { ownerId: id },
-      include: { owner: true },
+      where: { id },
+      include: { user: true },
     });
 
     if (!farm) {
@@ -69,7 +69,7 @@ export class ItemsService {
         farmId: farm.id,
       },
       include: {
-        farm: { include: { owner: true } },
+        farm: { include: { user: true } },
       },
     });
 
@@ -99,7 +99,7 @@ export class ItemsService {
     const [items, totalItems] = await Promise.all([
       this.prisma.item.findMany({
         where,
-        include: { farm: { include: { owner: true } } },
+        include: { farm: { include: { user: true } } },
         skip,
         take: pageSize,
       }),
@@ -120,7 +120,7 @@ export class ItemsService {
   ): Promise<{ message: string; item: ItemResponseDto }> {
     const item = await this.prisma.item.findUnique({
       where: { id },
-      include: { farm: { include: { owner: true } } },
+      include: { farm: { include: { user: true } } },
     });
 
     if (!item) {
@@ -150,7 +150,7 @@ export class ItemsService {
 
     const items = await this.prisma.item.findMany({
       where: { farmId, ...where },
-      include: { farm: { include: { owner: true } } },
+      include: { farm: { include: { user: true } } },
       skip,
       take: pageSize,
     });
@@ -169,7 +169,7 @@ export class ItemsService {
   ): Promise<{ message: string; item: ItemResponseDto }> {
     const item = await this.prisma.item.findUnique({
       where: { id: itemId },
-      include: { farm: { include: { owner: true } } },
+      include: { farm: { include: { user: true } } },
     });
 
     if (!item) {
@@ -177,8 +177,8 @@ export class ItemsService {
     }
 
     const farm = await this.prisma.farm.findUnique({
-      where: { ownerId: id },
-      include: { owner: true },
+      where: { id },
+      include: { user: true },
     });
 
     if (!farm) {
@@ -200,7 +200,7 @@ export class ItemsService {
     const updatedItem = await this.prisma.item.update({
       where: { id: itemId },
       data: updateItemDto,
-      include: { farm: { include: { owner: true } } },
+      include: { farm: { include: { user: true } } },
     });
 
     return {
