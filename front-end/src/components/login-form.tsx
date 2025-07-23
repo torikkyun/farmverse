@@ -21,14 +21,11 @@ export function LoginForm({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  // Sử dụng ref để clear timeout
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Clear timeout khi component unmount
   const clearExistingTimeout = useCallback(() => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
@@ -36,22 +33,18 @@ export function LoginForm({
     }
   }, []);
 
-  // Tối ưu handleSubmit với useCallback
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
-
-      // Prevent double submission
       if (isLoading) return;
 
       setIsLoading(true);
       setError(null);
-      setSuccess(null);
       clearExistingTimeout();
 
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
 
         const res = await fetch(`${apiURL}/auth/login`, {
           method: "POST",
@@ -67,24 +60,19 @@ export function LoginForm({
             message: "Đăng nhập thất bại",
           }));
           setError(data.message || "Đăng nhập thất bại");
-
           timeoutRef.current = setTimeout(() => {
             setError(null);
           }, 3000);
+          setIsLoading(false);
           return;
         }
 
         const data = await res.json();
-        setSuccess(data.message || "Đăng nhập thành công!");
-
-        // Lưu token, refreshToken, user và thời gian hết hạn
         if (data.data) {
           saveAuth(data.data);
         }
-
-        timeoutRef.current = setTimeout(() => {
-          router.push("/dashboard");
-        }, 1000);
+        // Chuyển sang trang market ngay lập tức, không setSuccess, không delay
+        router.push("/market");
       } catch (error: unknown) {
         if (
           typeof error === "object" &&
@@ -96,7 +84,6 @@ export function LoginForm({
         } else {
           setError("Đăng nhập thất bại, vui lòng kiểm tra kết nối");
         }
-
         timeoutRef.current = setTimeout(() => {
           setError(null);
         }, 3000);
@@ -107,7 +94,6 @@ export function LoginForm({
     [email, password, isLoading, router, clearExistingTimeout]
   );
 
-  // Tối ưu onChange handlers
   const handleEmailChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       setEmail(e.target.value);
@@ -124,21 +110,12 @@ export function LoginForm({
 
   return (
     <>
-      {/* Alert tối ưu */}
-      {(error || success) && (
+      {error && (
         <div className="fixed left-1/2 top-8 z-50 -translate-x-1/2 w-full max-w-xs">
-          {error && (
-            <Alert variant="destructive">
-              <AlertTitle>Lỗi</AlertTitle>
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-          {success && (
-            <Alert>
-              <AlertTitle>Thành công</AlertTitle>
-              <AlertDescription>{success}</AlertDescription>
-            </Alert>
-          )}
+          <Alert variant="destructive">
+            <AlertTitle>Lỗi</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
         </div>
       )}
 
@@ -148,11 +125,13 @@ export function LoginForm({
         {...props}
       >
         <div className="flex flex-col items-center gap-2 text-center">
-          <h1 className="text-2xl font-bold">Đăng nhập tài khoản</h1>
+          <h1 className="text-3xl font-bold">Đăng nhập tài khoản</h1>
         </div>
         <div className="grid gap-6">
           <div className="grid gap-3">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email" className="text-lg">
+              Email
+            </Label>
             <Input
               id="email"
               type="email"
@@ -162,12 +141,15 @@ export function LoginForm({
               onChange={handleEmailChange}
               disabled={isLoading}
               autoComplete="email"
+              className="text-base"
             />
           </div>
           <div className="grid gap-3">
             <div className="flex items-center">
-              <Label htmlFor="password">Mật khẩu</Label>
-              <a href="forgot" className="ml-auto text-sm underline-offset-4">
+              <Label htmlFor="password" className="text-lg">
+                Mật khẩu
+              </Label>
+              <a href="forgot" className="ml-auto text-base underline-offset-4">
                 Bạn quên mật khẩu?
               </a>
             </div>
@@ -180,18 +162,19 @@ export function LoginForm({
               onChange={handlePasswordChange}
               disabled={isLoading}
               autoComplete="current-password"
+              className="text-base"
             />
           </div>
           <Button
             type="submit"
-            className="w-full text-sm px-4 py-6 cursor-pointer"
+            className="w-full text-base px-4 py-6 cursor-pointer"
             disabled={isLoading}
           >
             {isLoading ? "Đang đăng nhập..." : "Đăng nhập"}{" "}
             {!isLoading && <LogIn />}
           </Button>
         </div>
-        <div className="text-center text-sm">
+        <div className="text-center text-base">
           Bạn không có tài khoản?{" "}
           <a
             href="signup"

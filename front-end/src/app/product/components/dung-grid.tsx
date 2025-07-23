@@ -19,14 +19,18 @@ export default function DungGrid({
   onSelect,
 }: DungGridProps) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-0">
-      {dungs.map((dungs) => (
-        <DungCard
-          key={dungs.id}
-          dungs={dungs}
-          selected={selectedItems.includes(dungs.id)}
-          onSelect={onSelect}
-        />
+    <div className="flex flex-wrap w-full justify-start gap-4">
+      {dungs.map((dung) => (
+        <div
+          key={dung.id}
+          className="w-[calc(20%-0.8rem)] min-w-[200px] flex-shrink-0"
+        >
+          <DungCard
+            dungs={dung}
+            selected={selectedItems.includes(dung.id)}
+            onSelect={onSelect}
+          />
+        </div>
       ))}
     </div>
   );

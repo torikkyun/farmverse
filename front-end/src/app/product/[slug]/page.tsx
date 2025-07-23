@@ -19,44 +19,27 @@ export default function ProductDetailPage() {
   // Lấy dữ liệu farm từ FARMS_MARKET
   const farm = FARMS_MARKET.find((f) => f.id === farmId);
 
-  console.log("=== DEBUG DATA ===");
-  console.log("farmId:", farmId);
-  console.log("TREE_ITEMS raw:", TREE_ITEMS);
-  console.log("ITEMS raw:", ITEMS);
-  console.log("Filtered TREE_ITEMS:", TREE_ITEMS.filter((item) => item.farm === farmId));
-  console.log("Filtered ITEMS:", ITEMS.filter((item) => item.farm === farmId));
-
   // Lấy cây trồng từ TREE_ITEMS
   const items = TREE_ITEMS.filter((item) => item.farm === farmId).map(
-    (item, index) => {
-      console.log("Processing tree item:", item); // Debug log
-      return {
-        id: index + 1, // Sử dụng index thay vì convert string id
-        name: item.name,
-        price: item.price,
-        image: item.images[0],
-        quantity: item.quantity || 1,
-        type: "Cây trồng" as const, // Đúng kiểu cho SelectedBar
-        originalId: item.id, // Giữ lại id gốc nếu cần
-      };
-    }
+    (item) => ({
+      id: Number(item.id),
+      name: item.name,
+      price: item.price,
+      image: item.images[0],
+      quantity: item.quantity,
+      type: "Cây trồng" as const, // Đúng kiểu cho SelectedBar
+    })
   );
 
   // Lấy phân bón/dụng cụ từ ITEMS
-  const dungs = ITEMS.filter((item) => item.farm === farmId).map(
-    (item, index) => {
-      console.log("Processing dung item:", item); // Debug log
-      return {
-        id: index + 100, // Bắt đầu từ 100 để tránh trùng với items
-        name: item.name,
-        price: item.price,
-        image: item.images[0],
-        quantity: item.quantity || 1,
-        type: "Phân bón" as const, // Đúng kiểu cho SelectedBar
-        originalId: item.id, // Giữ lại id gốc nếu cần
-      };
-    }
-  );
+  const dungs = ITEMS.filter((item) => item.farm === farmId).map((item) => ({
+    id: Number(item.id),
+    name: item.name,
+    price: item.price,
+    image: item.images[0],
+    quantity: item.quantity,
+    type: "Phân bón" as const, // Đúng kiểu cho SelectedBar
+  }));
 
   const [activeTab, setActiveTab] = useState(0);
   const [selectedPlants, setSelectedPlants] = useState<number[]>([]);
@@ -67,12 +50,6 @@ export default function ProductDetailPage() {
     setSelectedPlants([]);
     setSelectedDungs([]);
   }, [farmId]);
-
-  // Debug log để kiểm tra items tạo ra
-  console.log("Created items:", items.map(item => ({ id: item.id, name: item.name })));
-  console.log("Created dungs:", dungs.map(item => ({ id: item.id, name: item.name })));
-  console.log("selectedPlants:", selectedPlants);
-  console.log("selectedDungs:", selectedDungs);
 
   // Lấy userId từ localStorage nếu cần
   let userId: string | undefined = undefined;

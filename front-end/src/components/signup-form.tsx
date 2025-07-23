@@ -61,55 +61,75 @@ export function SignUpForm({
       {...props}
     >
       <div className="flex flex-col items-center gap-2 text-center">
-        <h1 className="text-2xl font-bold">Đăng ký tài khoản</h1>
+        <h1 className="text-3xl font-bold">Đăng ký tài khoản</h1>
       </div>
       <div className="grid gap-6">
-        <div className="grid gap-3">
-          <Label htmlFor="name">Họ và tên</Label>
-          <Input
-            id="name"
-            type="text"
-            placeholder="Nhập họ tên của bạn"
-            required
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
+        <div className="flex gap-6">
+          {/* Cột trái: Họ và tên, Số điện thoại */}
+          <div className="flex flex-col gap-6 flex-1">
+            <div className="grid gap-3">
+              <Label htmlFor="name" className="text-lg">
+                Họ và tên
+              </Label>
+              <Input
+                id="name"
+                type="text"
+                placeholder="Nhập họ tên của bạn"
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="text-base"
+              />
+            </div>
+            <div className="grid gap-3">
+              <Label htmlFor="phone" className="text-lg">
+                Số điện thoại
+              </Label>
+              <Input
+                id="phone"
+                type="text"
+                placeholder="Nhập số điện thoại của bạn"
+                required
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className="text-base"
+              />
+            </div>
+          </div>
+          {/* Cột phải: Email, Mật khẩu */}
+          <div className="flex flex-col gap-6 flex-1">
+            <div className="grid gap-3">
+              <Label htmlFor="email" className="text-lg">
+                Email
+              </Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="Nhập gmail của bạn"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="text-base"
+              />
+            </div>
+            <div className="grid gap-3">
+              <Label htmlFor="password" className="text-lg">
+                Mật khẩu
+              </Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="Nhập mật khẩu của bạn"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="text-base"
+              />
+            </div>
+          </div>
         </div>
         <div className="grid gap-3">
-          <Label htmlFor="phone">Số điện thoại</Label>
-          <Input
-            id="phone"
-            type="text"
-            placeholder="Nhập số điện thoại của bạn"
-            required
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-          />
-        </div>
-        <div className="grid gap-3">
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            type="email"
-            placeholder="Nhập gmail của bạn"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
-        <div className="grid gap-3">
-          <Label htmlFor="password">Mật khẩu</Label>
-          <Input
-            id="password"
-            type="password"
-            placeholder="Nhập mật khẩu của bạn"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-        <div className="grid gap-3">
-          <Label>Bạn là?</Label>
+          <Label className="text-lg">Bạn là?</Label>
           <RadioGroup
             value={role}
             onValueChange={(value) =>
@@ -118,14 +138,14 @@ export function SignUpForm({
           >
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="TENANT" id="option-user" />
-              <Label htmlFor="option-user">
+              <Label htmlFor="option-user" className="text-base">
                 <div className="text-[#000000] flex size-6 items-center justify-center rounded-md">
                   <User className="size-4" />
                 </div>
                 Người dùng
               </Label>
               <RadioGroupItem value="FARMER" id="option-farmer" />
-              <Label htmlFor="option-farmer">
+              <Label htmlFor="option-farmer" className="text-base">
                 <div className="text-[#000000] flex size-6 items-center justify-center rounded-md">
                   <Warehouse className="size-4" />
                 </div>
@@ -136,12 +156,12 @@ export function SignUpForm({
         </div>
         <Button
           type="submit"
-          className="w-full text-sm px-4 py-6 cursor-pointer"
+          className="w-full text-base px-4 py-6 cursor-pointer"
         >
           Đăng ký <KeyRound />
         </Button>
       </div>
-      <div className="text-center text-sm">
+      <div className="text-center text-base">
         Bạn đã có tài khoản?{" "}
         <a
           href="login"

@@ -19,14 +19,18 @@ export default function NFTGrid({
   onSelect,
 }: NFTGridProps) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-0">
+    <div className="flex flex-wrap w-full justify-start gap-4">
       {items.map((item) => (
-        <NFTCard
+        <div
           key={item.id}
-          item={item}
-          selected={selectedItems.includes(item.id)}
-          onSelect={onSelect}
-        />
+          className="w-[calc(20%-0.8rem)] min-w-[200px] flex-shrink-0"
+        >
+          <NFTCard
+            item={item}
+            selected={selectedItems.includes(item.id)}
+            onSelect={onSelect}
+          />
+        </div>
       ))}
     </div>
   );

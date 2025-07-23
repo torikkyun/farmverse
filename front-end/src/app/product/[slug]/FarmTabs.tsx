@@ -38,15 +38,6 @@ export default function FarmTabs({
 }: Props) {
   const data = activeTab === 0 ? items : dungs;
 
-  // Debug logs
-  console.log("FarmTabs - activeTab:", activeTab);
-  console.log("FarmTabs - selectedItems:", selectedItems);
-  console.log("FarmTabs - data length:", data.length);
-  console.log(
-    "FarmTabs - data items:",
-    data.map((item) => ({ id: item.id, name: item.name }))
-  );
-
   // Lấy danh sách lịch chăm sóc từ cây trồng của farm hiện tại
   const schedules: CareSchedule[] = useMemo(() => {
     if (!farmId) return [];
@@ -109,22 +100,30 @@ export default function FarmTabs({
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-0">
+          <div className="flex flex-wrap w-full justify-start gap-4">
             {data.map((item) =>
               activeTab === 0 ? (
-                <NFTCard
+                <div
                   key={item.id}
-                  item={item}
-                  selected={selectedItems.includes(item.id)}
-                  onSelect={handleSelect} // Đổi từ callback thành truyền trực tiếp
-                />
+                  className="w-[calc(20%-0.8rem)] min-w-[200px] flex-shrink-0"
+                >
+                  <NFTCard
+                    item={item}
+                    selected={selectedItems.includes(item.id)}
+                    onSelect={handleSelect}
+                  />
+                </div>
               ) : (
-                <DungCard
+                <div
                   key={item.id}
-                  dungs={item}
-                  selected={selectedItems.includes(item.id)}
-                  onSelect={handleSelect} // Đổi từ callback thành truyền trực tiếp
-                />
+                  className="w-[calc(20%-0.8rem)] min-w-[200px] flex-shrink-0"
+                >
+                  <DungCard
+                    dungs={item}
+                    selected={selectedItems.includes(item.id)}
+                    onSelect={handleSelect}
+                  />
+                </div>
               )
             )}
           </div>
