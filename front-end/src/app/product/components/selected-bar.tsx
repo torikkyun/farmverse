@@ -46,7 +46,12 @@ export default function SelectedBar({
     (sum, item) => sum + (item.quantity ?? 1),
     0
   );
-  const totalPrice = formatPrice(selectedItems.length * (items[0]?.price || 0));
+  const totalPrice = formatPrice(
+    selectedItemObjects.reduce(
+      (sum, item) => sum + item.price * (item.quantity ?? 1),
+      0
+    )
+  );
 
   // Xác định loại sản phẩm đang thuê
   let rentLabel = "Thuê";
@@ -73,9 +78,9 @@ export default function SelectedBar({
             {items
               .filter((i) => selectedItems.includes(i.id))
               .slice(0, 4)
-              .map((i) => (
+              .map((i, index) => (
                 <Image
-                  key={i.id}
+                  key={`selected-item-${i.id}-${index}`}
                   src={i.image}
                   alt={i.name}
                   width={36}
@@ -115,8 +120,12 @@ export default function SelectedBar({
       </div>
       {showCheckout && (
         <ModalCheckout
-          items={selectedItemObjects}
+          items={selectedItemObjects.map((item, index) => ({
+            ...item,
+            id: item.id || `temp-${index}`, // Đảm bảo mỗi item có id hợp lệ
+          }))}
           onClose={() => setShowCheckout(false)}
+          onHideSelectedBar={() => setVisible(false)}
         />
       )}
     </>
