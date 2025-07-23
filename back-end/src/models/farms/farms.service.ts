@@ -40,7 +40,7 @@ export class FarmsService {
     images?: Array<Express.Multer.File>,
   ): Promise<{ message: string; farm: FarmResponseDto }> {
     const existingFarm = await this.prisma.farm.findFirst({
-      where: { ownerId: id },
+      where: { id },
     });
 
     if (existingFarm) {
@@ -56,7 +56,7 @@ export class FarmsService {
     const farm = await this.prisma.farm.create({
       data: {
         ...createFarmDto,
-        ownerId: id,
+        userId: id,
       },
     });
 
@@ -81,7 +81,7 @@ export class FarmsService {
     const [farms, totalItems] = await Promise.all([
       this.prisma.farm.findMany({
         where,
-        include: { owner: true },
+        include: { user: true },
         skip,
         take: pageSize,
       }),
@@ -100,7 +100,7 @@ export class FarmsService {
   async findOne(id: string): Promise<FarmResponseDto> {
     const farm = await this.prisma.farm.findUnique({
       where: { id },
-      include: { owner: true },
+      include: { user: true },
     });
 
     if (!farm) {
@@ -114,9 +114,9 @@ export class FarmsService {
     ownerId: string,
   ): Promise<{ message: string; farm: FarmResponseDto }> {
     const farm = await this.prisma.farm.findFirst({
-      where: { ownerId },
+      where: { userId: ownerId },
       include: {
-        owner: true,
+        user: true,
       },
     });
 
@@ -137,7 +137,7 @@ export class FarmsService {
     updateFarmDto: UpdateFarmDto,
     images?: Array<Express.Multer.File>,
   ): Promise<{ message: string; farm: FarmResponseDto }> {
-    const farm = await this.prisma.farm.findUnique({ where: { ownerId: id } });
+    const farm = await this.prisma.farm.findUnique({ where: { id } });
 
     if (!farm) {
       throw new NotFoundException(`Không tìm thấy trang trại với ID: ${id}`);
@@ -150,7 +150,7 @@ export class FarmsService {
     }
 
     const updatedFarm = await this.prisma.farm.update({
-      where: { ownerId: id },
+      where: { id },
       data: updateFarmDto,
     });
 

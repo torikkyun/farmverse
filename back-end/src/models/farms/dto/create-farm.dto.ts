@@ -30,15 +30,12 @@ export class CreateFarmDto {
   })
   description?: string;
 
-  @IsString({ message: FarmValidationMessages.LOCATION.MUST_BE_STRING })
-  @IsNotEmpty({ message: FarmValidationMessages.LOCATION.NOT_EMPTY })
-  @MaxLength(100, { message: FarmValidationMessages.LOCATION.MAX_LENGTH })
-  @MinLength(5, { message: FarmValidationMessages.LOCATION.MIN_LENGTH })
+  @IsNotEmpty({ message: FarmValidationMessages.ADDRESS.NOT_EMPTY })
   @ApiProperty({
     example: 'Hà Nội, Việt Nam',
     required: true,
   })
-  location: string;
+  address: any;
 
   @IsNumber({}, { message: FarmValidationMessages.SIZE.MUST_BE_NUMBER })
   @IsNotEmpty({ message: FarmValidationMessages.SIZE.NOT_EMPTY })

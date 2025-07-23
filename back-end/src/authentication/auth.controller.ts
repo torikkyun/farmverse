@@ -38,55 +38,55 @@ export class AuthController {
     return this.authService.register(registerDto);
   }
 
-  @Post('verify-email')
-  verifyEmail(@Body() accountVerificationDto: AccountVerificationDto): Promise<{
-    message: string;
-    email: string;
-  }> {
-    return this.authService.verifyEmail(accountVerificationDto);
-  }
+  // @Post('verify-email')
+  // verifyEmail(@Body() accountVerificationDto: AccountVerificationDto): Promise<{
+  //   message: string;
+  //   email: string;
+  // }> {
+  //   return this.authService.verifyEmail(accountVerificationDto);
+  // }
 
-  @Post('resend-verification-email')
-  resendVerificationEmail(
-    @Body() emailVerificationDto: EmailVerificationDto,
-  ): Promise<{
-    message: string;
-    email: string;
-  }> {
-    return this.authService.resendVerificationEmail(emailVerificationDto);
-  }
+  // @Post('resend-verification-email')
+  // resendVerificationEmail(
+  //   @Body() emailVerificationDto: EmailVerificationDto,
+  // ): Promise<{
+  //   message: string;
+  //   email: string;
+  // }> {
+  //   return this.authService.resendVerificationEmail(emailVerificationDto);
+  // }
 
-  @Post('forgot-password')
-  forgotPassword(@Body() emailVerificationDto: EmailVerificationDto): Promise<{
-    message: string;
-    email: string;
-  }> {
-    return this.authService.forgotPassword(emailVerificationDto);
-  }
+  // @Post('forgot-password')
+  // forgotPassword(@Body() emailVerificationDto: EmailVerificationDto): Promise<{
+  //   message: string;
+  //   email: string;
+  // }> {
+  //   return this.authService.forgotPassword(emailVerificationDto);
+  // }
 
-  @Post('reset-password')
-  resetPassword(@Body() resetPasswordDto: ResetPasswordDto): Promise<{
-    message: string;
-    email: string;
-  }> {
-    return this.authService.resetPassword(resetPasswordDto);
-  }
+  // @Post('reset-password')
+  // resetPassword(@Body() resetPasswordDto: ResetPasswordDto): Promise<{
+  //   message: string;
+  //   email: string;
+  // }> {
+  //   return this.authService.resetPassword(resetPasswordDto);
+  // }
 
-  @Post('resend-forgot-password')
-  resendForgotPassword(
-    @Body() emailVerificationDto: EmailVerificationDto,
-  ): Promise<{
-    message: string;
-    email: string;
-  }> {
-    return this.authService.resendForgotPassword(emailVerificationDto);
-  }
+  // @Post('resend-forgot-password')
+  // resendForgotPassword(
+  //   @Body() emailVerificationDto: EmailVerificationDto,
+  // ): Promise<{
+  //   message: string;
+  //   email: string;
+  // }> {
+  //   return this.authService.resendForgotPassword(emailVerificationDto);
+  // }
 
-  @Post('refresh-token')
-  refreshToken(@Body() refreshTokenDto: RefreshTokenDto): Promise<{
-    accessToken: string;
-    expiresIn: string;
-  }> {
-    return this.authService.refreshToken(refreshTokenDto);
-  }
+  // @Post('refresh-token')
+  // refreshToken(@Body() refreshTokenDto: RefreshTokenDto): Promise<{
+  //   accessToken: string;
+  //   expiresIn: string;
+  // }> {
+  //   return this.authService.refreshToken(refreshTokenDto);
+  // }
 }

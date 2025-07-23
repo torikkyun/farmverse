@@ -14,16 +14,6 @@ export class UpdateUserDto {
   name?: string;
 
   @IsOptional()
-  @IsString({ message: UserValidationMessages.PHONE.MUST_BE_STRING })
-  @MaxLength(15, { message: UserValidationMessages.PHONE.MAX_LENGTH })
-  @MinLength(10, { message: UserValidationMessages.PHONE.MIN_LENGTH })
-  @ApiProperty({
-    example: '0123456789',
-    required: false,
-  })
-  phone?: string;
-
-  @IsOptional()
   @ApiProperty({
     type: 'string',
     format: 'binary',

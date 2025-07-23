@@ -46,6 +46,15 @@ model Otp {
   used      Boolean  @default(false)
 }
 
+model Session {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  refreshToken String   @unique
+  ipAddress    String?
+  userAgent    String?
+  createdAt    DateTime @default(now())
+  expiresAt    DateTime
+}
+
 model User {
   id            String        @id @default(auto()) @map("_id") @db.ObjectId
   email         String        @unique
@@ -69,7 +78,7 @@ model Farm {
   name        String
   address     Json
   size        Float
-  description String
+  description String?
   images      String[]
   schedule    Json[]
 
@@ -143,6 +152,7 @@ model RentedTree {
   description String?
   images      String[]
   details     Json
+  schedule    Json[]
   cameraUrl   String?
   status      statusRentedTree
   totalProfit Float            @default(0.0)

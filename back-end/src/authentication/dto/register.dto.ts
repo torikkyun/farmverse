@@ -21,14 +21,9 @@ export class RegisterDto extends LoginDto {
   })
   name: string;
 
-  @IsOptional()
-  @IsString({ message: UserValidationMessages.PHONE.MUST_BE_STRING })
-  @MaxLength(15, { message: UserValidationMessages.PHONE.MAX_LENGTH })
-  @MinLength(10, { message: UserValidationMessages.PHONE.MIN_LENGTH })
-  @ApiProperty({
-    example: '0123456789',
-  })
-  phone?: string;
+  @IsNotEmpty()
+  @ApiProperty({ example: '{"city": "Hà Nội"}' })
+  address: any;
 
   @IsNotEmpty({ message: UserValidationMessages.ROLE.NOT_EMPTY })
   @IsString({ message: UserValidationMessages.ROLE.MUST_BE_STRING })

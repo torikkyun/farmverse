@@ -5,7 +5,6 @@ import {
   Body,
   Patch,
   Param,
-  Delete,
   Query,
   UseInterceptors,
   UploadedFiles,
@@ -77,9 +76,4 @@ export class FarmsController {
   ): Promise<{ message: string; farm: FarmResponseDto }> {
     return this.farmsService.update(user, updateFarmDto, images);
   }
-
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.farmsService.remove(+id);
-  // }
 }
