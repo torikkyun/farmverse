@@ -4,19 +4,26 @@ import { useState } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { TreeCard } from "./TreeCard";
+// import { TreeCard } from "./TreeCard";
 import { TreeDetailModal } from "./TreeDetailModal";
 import { TreeHarvestModal } from "./TreeHarvestModal";
 import Pagination from "@/components/ui/pagination";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { Wallet, TreePine, Clock, Search, Clipboard } from "lucide-react";
 
-const treeItems = [
+const rentedTrees = [
   {
     name: "Cây Xoài",
     type: "Cây trồng",
     age: 3,
     yield: 150,
-    status: "Đang phát triển",
+    status: "Đang thuê",
+    ownerName: "Nông trại ABC",
+    rentStartDate: "2024-01-15",
+    rentEndDate: "2025-01-15",
+    monthlyRent: 80,
+    totalPaid: 560, // Số tiền đã trả
+    remainingMonths: 5, // Số tháng còn lại
     img: "https://cayxanhgiapham.com/wp-content/uploads/2020/06/cay-xoa-3-600x450.jpg",
     schedule: [
       {
@@ -43,7 +50,13 @@ const treeItems = [
     type: "Cây trồng",
     age: 2,
     yield: 80,
-    status: "Đang phát triển",
+    status: "Đang thuê",
+    ownerName: "Vườn Nhiệt Đới XYZ",
+    rentStartDate: "2024-03-01",
+    rentEndDate: "2025-03-01",
+    monthlyRent: 150,
+    totalPaid: 750,
+    remainingMonths: 7,
     img: "https://th.bing.com/th/id/R.f8ea8c40cdead4e44f25a0c866b3f021?rik=GohkeybcLR4k6Q&pid=ImgRaw&r=0",
     schedule: [
       { date: "2025-07-01", action: "Trồng cây giống", stage: "seedling" },
@@ -62,7 +75,13 @@ const treeItems = [
     type: "Cây trồng",
     age: 3,
     yield: 40,
-    status: "Có thể thu hoạch",
+    status: "Sắp hết hạn",
+    ownerName: "Trang trại DEF",
+    rentStartDate: "2024-06-01",
+    rentEndDate: "2025-06-01",
+    monthlyRent: 40,
+    totalPaid: 320,
+    remainingMonths: 1,
     img: "https://elead.com.vn/wp-content/uploads/2022/09/cay-chom-chom-22.jpg",
     schedule: [
       { date: "2025-07-01", action: "Trồng cây giống", stage: "seedling" },
@@ -82,7 +101,7 @@ export default function TreePage() {
   const [open, setOpen] = useState(false);
   const [harvestOpen, setHarvestOpen] = useState(false);
   const [selectedTree, setSelectedTree] = useState<
-    (typeof treeItems)[0] | null
+    (typeof rentedTrees)[0] | null
   >(null);
   const [meta, setMeta] = useState({
     currentPage: 1,
@@ -95,14 +114,14 @@ export default function TreePage() {
     description: "",
   });
   const [isLoading, setIsLoading] = useState(false);
-  const userRole = "FARMER"; // hoặc lấy từ context, redux, v.v.
+  const userRole = "CUSTOMER";
 
-  const handleOpenModal = (item: (typeof treeItems)[0]) => {
+  const handleOpenModal = (item: (typeof rentedTrees)[0]) => {
     setSelectedTree(item);
     setOpen(true);
   };
 
-  const handleOpenHarvestModal = (item: (typeof treeItems)[0]) => {
+  const handleOpenHarvestModal = (item: (typeof rentedTrees)[0]) => {
     setSelectedTree(item);
     setHarvestOpen(true);
   };
@@ -117,7 +136,6 @@ export default function TreePage() {
     setIsLoading(true);
     setShowAlert(false);
 
-    // Hiển thị overload 5s
     setTimeout(() => {
       setIsLoading(false);
       setAlertContent({
@@ -140,6 +158,15 @@ export default function TreePage() {
     }));
   };
 
+  // Tính tổng chi phí đã trả
+  const totalPaid = rentedTrees.reduce((sum, item) => sum + item.totalPaid, 0);
+  const activeTreesCount = rentedTrees.filter(
+    (item) => item.status === "Đang thuê"
+  ).length;
+  const expiringSoonCount = rentedTrees.filter(
+    (item) => item.status === "Sắp hết hạn"
+  ).length;
+
   return (
     <SidebarProvider
       style={
@@ -152,91 +179,192 @@ export default function TreePage() {
       <AppSidebar variant="inset" />
       <SidebarInset>
         <SiteHeader />
-        <div className="flex flex-1 flex-col dark:from-neutral-900 dark:via-black dark:to-neutral-900 min-h-screen transition-colors">
-          <div className="w-full px-2 sm:px-4 py-8 flex-1 flex flex-col gap-10">
-            {/* Thanh tìm kiếm và lọc */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="flex flex-col sm:flex-row items-center gap-3 mb-4 w-full">
-                <div className="relative flex-1 w-full sm:min-w-[320px]">
-                  <input
-                    type="text"
-                    placeholder="Tìm kiếm cây, giống cây..."
-                    className="w-full pl-10 pr-4 py-2 rounded-full border bg-white/90 dark:bg-neutral-900/90 text-black dark:text-white focus:outline-none focus:ring-2 transition"
-                  />
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2">
-                    <svg
-                      width="18"
-                      height="18"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle cx="11" cy="11" r="8" />
-                      <path d="m21 21-4.3-4.3" />
-                    </svg>
-                  </span>
+        <div className="flex flex-1 flex-col bg-gray-50 min-h-screen">
+          <div className="w-full px-2 sm:px-4 py-8 flex-1 flex flex-col gap-6">
+            {/* Header và thống kê tổng quan */}
+            <div className="bg-white rounded-xl p-6 shadow-lg">
+              <h1 className="text-3xl font-bold text-black mb-6 flex items-center gap-3">
+                <TreePine className="w-8 h-8 text-green-600" />
+                Cây Đã Thuê Của Tôi
+              </h1>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Tổng chi phí đã trả */}
+                <div className="bg-black text-white p-4 rounded-lg border-1 border-black">
+                  <div className="text-center">
+                    <Wallet className="w-8 h-8 mx-auto mb-2" />
+                    <div className="text-sm opacity-80">
+                      Tổng chi phí đã trả
+                    </div>
+                    <div className="text-xl font-bold">
+                      {totalPaid.toLocaleString()} FVT
+                    </div>
+                  </div>
                 </div>
-                <select className="w-auto px-4 py-2 rounded-full bg-white/90 dark:bg-neutral-900/90 text-black dark:text-white border focus:outline-none">
-                  <option>Lọc theo trạng thái</option>
-                  <option>Đang phát triển</option>
-                  <option>Đã thu hoạch</option>
-                  <option>Đã bán</option>
-                </select>
+
+                {/* Cây đang thuê */}
+                <div className="bg-white border-1 border-black p-4 rounded-lg">
+                  <div className="text-center">
+                    <TreePine className="w-8 h-8 mx-auto mb-2 text-green-600" />
+                    <div className="text-sm text-gray-600">Đang thuê</div>
+                    <div className="text-xl font-bold text-black">
+                      {activeTreesCount} cây
+                    </div>
+                  </div>
+                </div>
+
+                {/* Cây sắp hết hạn */}
+                <div className="bg-white border-1 border-black p-4 rounded-lg">
+                  <div className="text-center">
+                    <Clock className="w-8 h-8 mx-auto mb-2 text-orange-600" />
+                    <div className="text-sm text-gray-600">Sắp hết hạn</div>
+                    <div className="text-xl font-bold text-black">
+                      {expiringSoonCount} cây
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-            {/* Card danh sách cây */}
-            <div className="rounded-2xl bg-white/95 dark:bg-neutral-900/95">
+
+            {/* Thanh tìm kiếm và lọc */}
+            <div className="bg-white rounded-xl p-4 shadow-lg">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex flex-col sm:flex-row items-center gap-3 w-full">
+                  <div className="relative flex-1 w-full sm:min-w-[320px]">
+                    <input
+                      type="text"
+                      placeholder="Tìm kiếm cây, chủ vườn..."
+                      className="w-full pl-10 pr-4 py-3 rounded-lg bg-white text-black focus:outline-none focus:ring-2 focus:ring-gray-400 transition"
+                    />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-black w-4 h-4" />
+                  </div>
+                  <select className="w-auto px-4 py-3 rounded-lg bg-white text-black focus:outline-none">
+                    <option>Tất cả trạng thái</option>
+                    <option>Đang thuê</option>
+                    <option>Sắp hết hạn</option>
+                    <option>Đã hết hạn</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Danh sách cây đã thuê */}
+            <div className="bg-white rounded-xl shadow-lg">
               <div className="p-6">
-                <div
-                  className="
-                    grid
-                    grid-cols-1
-                    sm:grid-cols-2
-                    md:grid-cols-3
-                    lg:grid-cols-4
-                    xl:grid-cols-5
-                    gap-8
-                  "
-                >
-                  {treeItems.map((item, i) => (
+                <h2 className="text-xl font-bold text-black mb-4 pb-2 border-b-2 border-black flex items-center gap-2">
+                  <Clipboard className="w-5 h-5" />
+                  Danh sách Cây Đã Thuê
+                </h2>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {rentedTrees.map((item, i) => (
                     <div
                       key={i}
-                      className="relative flex flex-col items-center"
+                      className="bg-white rounded-lg overflow-hidden shadow-2xl hover:border border-black transition-all duration-200"
                     >
-                      {/* Badge trạng thái thu hoạch nằm ngoài border */}
-                      {item.status === "Có thể thu hoạch" && (
-                        <span
-                          className="mb-[-16px] z-10 bg-green-600 text-white text-xs font-semibold px-4 py-1 rounded-full shadow"
-                          style={{ marginBottom: "-16px" }}
-                        >
-                          Có thể thu hoạch
-                        </span>
-                      )}
-                      <div
-                        className={`relative rounded-xl transition-all w-full ${
-                          item.status === "Có thể thu hoạch"
-                            ? "border-2 border-green-600 shadow-lg"
-                            : "border border-transparent"
-                        }`}
-                      >
-                        <TreeCard
-                          item={item}
-                          onClick={() => handleOpenModal(item)}
+                      {/* Hình ảnh cây */}
+                      <div className="relative h-48 overflow-hidden">
+                        <img
+                          src={item.img}
+                          alt={item.name}
+                          className="w-full h-full object-cover"
                         />
+                        {/* Badge trạng thái */}
+                        <div className="absolute top-2 right-2">
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs font-bold ${
+                              item.status === "Đang thuê"
+                                ? "bg-green-600 text-white"
+                                : "bg-orange-600 text-white"
+                            }`}
+                          >
+                            {item.status}
+                          </span>
+                        </div>
                       </div>
-                      {/* Nút thu hoạch nằm dưới card, căn giữa */}
-                      {item.status === "Có thể thu hoạch" && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleOpenHarvestModal(item);
-                          }}
-                          className="mt-3 bg-black text-white rounded-lg px-2 py-2 text-sm font-medium transition shadow"
+
+                      {/* Thông tin cây */}
+                      <div className="p-4">
+                        <h3 className="text-lg font-bold text-black mb-2">
+                          {item.name}
+                        </h3>
+
+                        {/* Thông tin cơ bản */}
+                        <div className="space-y-2 text-sm text-gray-700 mb-4">
+                          <div className="flex justify-between">
+                            <span>Chủ vườn:</span>
+                            <span className="font-semibold text-black">
+                              {item.ownerName}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Năng suất:</span>
+                            <span className="font-semibold text-black">
+                              {item.yield}kg/năm
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Phí thuê:</span>
+                            <span className="font-semibold text-black">
+                              {item.monthlyRent} FVT/tháng
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Còn lại:</span>
+                            <span className="font-semibold text-black">
+                              {item.remainingMonths} tháng
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Thông tin hợp đồng */}
+                        <div
+                          className={`p-3 rounded-lg border mb-4 ${
+                            item.status === "Đang thuê"
+                              ? "bg-green-50 border-green-200"
+                              : "bg-orange-50 border-orange-200"
+                          }`}
                         >
-                          Thu hoạch
-                        </button>
-                      )}
+                          <div
+                            className={`text-sm text-center font-semibold ${
+                              item.status === "Đang thuê"
+                                ? "text-green-700"
+                                : "text-orange-700"
+                            }`}
+                          >
+                            <div>
+                              Đã trả: {item.totalPaid.toLocaleString()} FVT
+                            </div>
+                            <div className="text-xs mt-1">
+                              {new Date(item.rentStartDate).toLocaleDateString(
+                                "vi-VN"
+                              )}{" "}
+                              -{" "}
+                              {new Date(item.rentEndDate).toLocaleDateString(
+                                "vi-VN"
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Nút hành động */}
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleOpenModal(item)}
+                            className="flex-1 bg-black text-white py-2 px-3 rounded-lg text-sm font-semibold hover:bg-gray-800 transition"
+                          >
+                            Chi tiết
+                          </button>
+                          {item.yield > 0 && (
+                            <button
+                              onClick={() => handleOpenHarvestModal(item)}
+                              className="flex-1 bg-green-600 text-white py-2 px-3 rounded-lg text-sm font-semibold hover:bg-green-700 transition"
+                            >
+                              Thu hoạch
+                            </button>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -262,38 +390,31 @@ export default function TreePage() {
             {/* Phân trang */}
             <Pagination meta={meta} onPageChange={handlePageChange} />
           </div>
+
           {/* Overlay loading */}
           {isLoading && (
             <div className="fixed inset-0 bg-black/70 z-[100] flex flex-col items-center justify-center">
-              <div className="animate-spin rounded-full h-14 w-14 border-t-4 border-green-400 mb-6"></div>
+              <div className="animate-spin rounded-full h-14 w-14 border-t-4 border-white mb-6"></div>
               <div className="text-white text-lg font-semibold mb-2">
-                {selectedTree && selectedTree.name
-                  ? harvestOpen && (
-                      <>
-                        {selectedTree &&
-                        selectedTree.status === "Có thể thu hoạch" &&
-                        selectedTree.yield > 0
-                          ? "Đang xử lý giao dịch bán hàng..."
-                          : "Đang xử lý lấy vật phẩm..."}
-                      </>
-                    )
-                  : "Đang xử lý..."}
+                Đang xử lý thu hoạch...
               </div>
-              <div className="text-white text-sm">
-                {selectedTree &&
-                selectedTree.status === "Có thể thu hoạch" &&
-                selectedTree.yield > 0
-                  ? "Vui lòng chờ trong giây lát, hệ thống đang xác nhận thu hoạch và cập nhật dữ liệu cho bạn."
-                  : "Vui lòng chờ trong giây lát, hệ thống đang xác nhận lấy vật phẩm và cập nhật dữ liệu cho bạn."}
+              <div className="text-white text-sm text-center max-w-md">
+                Vui lòng chờ trong giây lát, hệ thống đang xác nhận thu hoạch và
+                cập nhật dữ liệu.
               </div>
             </div>
           )}
+
           {/* Alert thành công */}
           {showAlert && (
             <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-md">
-              <Alert variant="success">
-                <AlertTitle>{alertContent.title}</AlertTitle>
-                <AlertDescription>{alertContent.description}</AlertDescription>
+              <Alert className="bg-white border-2 border-black">
+                <AlertTitle className="text-black font-bold">
+                  {alertContent.title}
+                </AlertTitle>
+                <AlertDescription className="text-gray-700">
+                  {alertContent.description}
+                </AlertDescription>
               </Alert>
             </div>
           )}
