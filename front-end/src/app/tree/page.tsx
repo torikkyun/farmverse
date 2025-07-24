@@ -120,8 +120,6 @@ export default function TreePage() {
   const [isLoading, setIsLoading] = useState(false);
   const [search, setSearch] = useState("");
 
-  const userRole = "CUSTOMER";
-
   const handleOpenModal = (item: (typeof rentedTrees)[0]) => {
     setSelectedTree(item);
     setOpen(true);
@@ -265,7 +263,6 @@ export default function TreePage() {
               setOpen={setHarvestOpen}
               selectedTree={selectedTree}
               onHarvest={handleHarvest}
-              userRole={userRole}
             />
 
             {/* Phân trang */}
