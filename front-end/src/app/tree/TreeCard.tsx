@@ -1,61 +1,105 @@
 import React from "react";
 import Image from "next/image";
+import { TreeItem } from "./types";
 
-export interface TreeItem {
-  name: string;
-  type: string;
-  age: number;
-  yield: number;
-  status: string;
-  img: string;
-}
-
-export function TreeCard({
-  item,
-  onClick,
-}: {
+type Props = {
   item: TreeItem;
-  onClick: () => void;
-}) {
+  onDetail: (item: TreeItem) => void;
+  onHarvest: (item: TreeItem) => void;
+};
+
+export function TreeCard({ item, onDetail, onHarvest }: Props) {
   return (
-    <div
-      className="flex flex-col items-center w-full dark:from-neutral-800 dark:via-neutral-900 dark:to-neutral-800 rounded-2xl border shadow-lg hover:shadow-2xl hover:scale-[1.03] transition-all duration-200 p-4 cursor-pointer group"
-      onClick={onClick}
-    >
-      <Image
-        src={item.img}
-        alt={item.name}
-        width={96}
-        height={96}
-        className="w-24 h-24 rounded-2xl border-2 border-green-300 dark:border-green-700 object-cover bg-white dark:bg-black mb-4 shadow group-hover:scale-110 transition"
-        priority
-      />
-      <div className="font-bold text-black dark:text-white text-center text-base mb-1 truncate w-full">
-        {item.name}
-      </div>
-      <div className="text-base text-green-700 dark:text-green-300 mb-1 text-center w-full font-medium">
-        {item.type}
-      </div>
-      <div className="font-semibold text-base text-black dark:text-gray-300 mb-1 text-center w-full">
-        Tuổi: {item.age} năm
-      </div>
-      <div className="font-semibold text-base text-black dark:text-gray-300 mb-1 text-center w-full">
-        Sản lượng: {item.yield} kg/năm
-      </div>
-      <div className="mt-2">
-        <span
-          className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold shadow bg-opacity-90 whitespace-nowrap
-            ${
-              item.status === "Đang phát triển"
+    <div className="bg-white rounded-lg overflow-hidden shadow-2xl hover:border border-black transition-all duration-200">
+      {/* Hình ảnh cây */}
+      <div className="relative h-48 overflow-hidden">
+        <Image
+          src={item.img}
+          alt={item.name}
+          width={192}
+          height={192}
+          className="w-full h-full object-cover"
+        />
+        {/* Badge trạng thái */}
+        <div className="absolute top-2 right-2">
+          <span
+            className={`px-2 py-1 rounded-full text-xs font-bold ${
+              item.status === "Đang thuê"
                 ? "bg-green-600 text-white"
-                : item.status === "Đã thu hoạch"
-                ? "bg-yellow-400 text-black"
-                : "bg-gray-300 text-black dark:bg-neutral-700 dark:text-white"
-            }
-          `}
+                : "bg-orange-600 text-white"
+            }`}
+          >
+            {item.status}
+          </span>
+        </div>
+      </div>
+
+      {/* Thông tin cây */}
+      <div className="p-4">
+        <h3 className="text-lg font-bold text-black mb-2">{item.name}</h3>
+
+        {/* Thông tin cơ bản */}
+        <div className="space-y-2 text-sm text-gray-700 mb-4">
+          <div className="flex justify-between">
+            <span>Chủ vườn:</span>
+            <span className="font-semibold text-black">{item.ownerName}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Năng suất:</span>
+            <span className="font-semibold text-black">{item.yield}kg/năm</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Phí thuê:</span>
+            <span className="font-semibold text-black">
+              {item.monthlyRent} FVT/tháng
+            </span>
+          </div>
+          <div className="flex justify-between">
+            <span>Còn lại:</span>
+            <span className="font-semibold text-black">
+              {item.remainingMonths} tháng
+            </span>
+          </div>
+        </div>
+
+        {/* Thông tin hợp đồng */}
+        <div
+          className={`p-3 rounded-lg border mb-4 ${
+            item.status === "Đang thuê"
+              ? "bg-green-50 border-green-200"
+              : "bg-orange-50 border-orange-200"
+          }`}
         >
-          {item.status}
-        </span>
+          <div
+            className={`text-sm text-center font-semibold ${
+              item.status === "Đang thuê" ? "text-green-700" : "text-orange-700"
+            }`}
+          >
+            <div>Đã trả: {item.totalPaid.toLocaleString()} FVT</div>
+            <div className="text-xs mt-1">
+              {new Date(item.rentStartDate).toLocaleDateString("vi-VN")} -{" "}
+              {new Date(item.rentEndDate).toLocaleDateString("vi-VN")}
+            </div>
+          </div>
+        </div>
+
+        {/* Nút hành động */}
+        <div className="flex gap-2">
+          <button
+            onClick={() => onDetail(item)}
+            className="flex-1 bg-black text-white py-2 px-3 rounded-lg text-sm font-semibold hover:bg-gray-800 transition"
+          >
+            Chi tiết
+          </button>
+          {item.yield > 0 && (
+            <button
+              onClick={() => onHarvest(item)}
+              className="flex-1 bg-green-600 text-white py-2 px-3 rounded-lg text-sm font-semibold hover:bg-green-700 transition"
+            >
+              Thu hoạch
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
