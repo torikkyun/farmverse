@@ -4,15 +4,17 @@ import { useState } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-// import { TreeCard } from "./TreeCard";
-import { TreeDetailModal } from "./TreeDetailModal";
+import TreeDetailModal from "./TreeDetailModal";
 import { TreeHarvestModal } from "./TreeHarvestModal";
 import Pagination from "@/components/ui/pagination";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { Wallet, TreePine, Clock, Search, Clipboard } from "lucide-react";
+import { Search, Clipboard } from "lucide-react";
+import { TreeOverviewStats } from "./TreeOverviewStats";
+import { TreeCard } from "./TreeCard";
 
 const rentedTrees = [
   {
+    id: "1",
     name: "Cây Xoài",
     type: "Cây trồng",
     age: 3,
@@ -46,6 +48,7 @@ const rentedTrees = [
     ],
   },
   {
+    id: "2",
     name: "Cây Sầu Riêng",
     type: "Cây trồng",
     age: 2,
@@ -71,6 +74,7 @@ const rentedTrees = [
     ],
   },
   {
+    id: "3",
     name: "Cây Chôm Chôm",
     type: "Cây trồng",
     age: 3,
@@ -182,49 +186,11 @@ export default function TreePage() {
         <div className="flex flex-1 flex-col bg-gray-50 min-h-screen">
           <div className="w-full px-2 sm:px-4 py-8 flex-1 flex flex-col gap-6">
             {/* Header và thống kê tổng quan */}
-            <div className="bg-white rounded-xl p-6 shadow-lg">
-              <h1 className="text-3xl font-bold text-black mb-6 flex items-center gap-3">
-                <TreePine className="w-8 h-8 text-green-600" />
-                Cây Đã Thuê Của Tôi
-              </h1>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Tổng chi phí đã trả */}
-                <div className="bg-black text-white p-4 rounded-lg border-1 border-black">
-                  <div className="text-center">
-                    <Wallet className="w-8 h-8 mx-auto mb-2" />
-                    <div className="text-sm opacity-80">
-                      Tổng chi phí đã trả
-                    </div>
-                    <div className="text-xl font-bold">
-                      {totalPaid.toLocaleString()} FVT
-                    </div>
-                  </div>
-                </div>
-
-                {/* Cây đang thuê */}
-                <div className="bg-white border-1 border-black p-4 rounded-lg">
-                  <div className="text-center">
-                    <TreePine className="w-8 h-8 mx-auto mb-2 text-green-600" />
-                    <div className="text-sm text-gray-600">Đang thuê</div>
-                    <div className="text-xl font-bold text-black">
-                      {activeTreesCount} cây
-                    </div>
-                  </div>
-                </div>
-
-                {/* Cây sắp hết hạn */}
-                <div className="bg-white border-1 border-black p-4 rounded-lg">
-                  <div className="text-center">
-                    <Clock className="w-8 h-8 mx-auto mb-2 text-orange-600" />
-                    <div className="text-sm text-gray-600">Sắp hết hạn</div>
-                    <div className="text-xl font-bold text-black">
-                      {expiringSoonCount} cây
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <TreeOverviewStats
+              totalPaid={totalPaid}
+              activeTreesCount={activeTreesCount}
+              expiringSoonCount={expiringSoonCount}
+            />
 
             {/* Thanh tìm kiếm và lọc */}
             <div className="bg-white rounded-xl p-4 shadow-lg">
@@ -257,115 +223,13 @@ export default function TreePage() {
                 </h2>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {rentedTrees.map((item, i) => (
-                    <div
-                      key={i}
-                      className="bg-white rounded-lg overflow-hidden shadow-2xl hover:border border-black transition-all duration-200"
-                    >
-                      {/* Hình ảnh cây */}
-                      <div className="relative h-48 overflow-hidden">
-                        <img
-                          src={item.img}
-                          alt={item.name}
-                          className="w-full h-full object-cover"
-                        />
-                        {/* Badge trạng thái */}
-                        <div className="absolute top-2 right-2">
-                          <span
-                            className={`px-2 py-1 rounded-full text-xs font-bold ${
-                              item.status === "Đang thuê"
-                                ? "bg-green-600 text-white"
-                                : "bg-orange-600 text-white"
-                            }`}
-                          >
-                            {item.status}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Thông tin cây */}
-                      <div className="p-4">
-                        <h3 className="text-lg font-bold text-black mb-2">
-                          {item.name}
-                        </h3>
-
-                        {/* Thông tin cơ bản */}
-                        <div className="space-y-2 text-sm text-gray-700 mb-4">
-                          <div className="flex justify-between">
-                            <span>Chủ vườn:</span>
-                            <span className="font-semibold text-black">
-                              {item.ownerName}
-                            </span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span>Năng suất:</span>
-                            <span className="font-semibold text-black">
-                              {item.yield}kg/năm
-                            </span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span>Phí thuê:</span>
-                            <span className="font-semibold text-black">
-                              {item.monthlyRent} FVT/tháng
-                            </span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span>Còn lại:</span>
-                            <span className="font-semibold text-black">
-                              {item.remainingMonths} tháng
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Thông tin hợp đồng */}
-                        <div
-                          className={`p-3 rounded-lg border mb-4 ${
-                            item.status === "Đang thuê"
-                              ? "bg-green-50 border-green-200"
-                              : "bg-orange-50 border-orange-200"
-                          }`}
-                        >
-                          <div
-                            className={`text-sm text-center font-semibold ${
-                              item.status === "Đang thuê"
-                                ? "text-green-700"
-                                : "text-orange-700"
-                            }`}
-                          >
-                            <div>
-                              Đã trả: {item.totalPaid.toLocaleString()} FVT
-                            </div>
-                            <div className="text-xs mt-1">
-                              {new Date(item.rentStartDate).toLocaleDateString(
-                                "vi-VN"
-                              )}{" "}
-                              -{" "}
-                              {new Date(item.rentEndDate).toLocaleDateString(
-                                "vi-VN"
-                              )}
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Nút hành động */}
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => handleOpenModal(item)}
-                            className="flex-1 bg-black text-white py-2 px-3 rounded-lg text-sm font-semibold hover:bg-gray-800 transition"
-                          >
-                            Chi tiết
-                          </button>
-                          {item.yield > 0 && (
-                            <button
-                              onClick={() => handleOpenHarvestModal(item)}
-                              className="flex-1 bg-green-600 text-white py-2 px-3 rounded-lg text-sm font-semibold hover:bg-green-700 transition"
-                            >
-                              Thu hoạch
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    </div>
+                  {rentedTrees.map((item) => (
+                    <TreeCard
+                      key={item.id}
+                      item={item}
+                      onDetail={handleOpenModal}
+                      onHarvest={handleOpenHarvestModal}
+                    />
                   ))}
                 </div>
               </div>
