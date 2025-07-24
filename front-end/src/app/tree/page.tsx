@@ -118,6 +118,8 @@ export default function TreePage() {
     description: "",
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [search, setSearch] = useState("");
+
   const userRole = "CUSTOMER";
 
   const handleOpenModal = (item: (typeof rentedTrees)[0]) => {
@@ -162,6 +164,13 @@ export default function TreePage() {
     }));
   };
 
+  // Lọc cây theo từ khóa tìm kiếm
+  const filteredTrees = rentedTrees.filter(
+    (item) =>
+      item.name.toLowerCase().includes(search.toLowerCase()) ||
+      item.ownerName.toLowerCase().includes(search.toLowerCase())
+  );
+
   // Tính tổng chi phí đã trả
   const totalPaid = rentedTrees.reduce((sum, item) => sum + item.totalPaid, 0);
   const activeTreesCount = rentedTrees.filter(
@@ -200,6 +209,8 @@ export default function TreePage() {
                     <input
                       type="text"
                       placeholder="Tìm kiếm cây, chủ vườn..."
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
                       className="w-full pl-10 pr-4 py-3 rounded-lg bg-white text-black focus:outline-none focus:ring-2 focus:ring-gray-400 transition"
                     />
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-black w-4 h-4" />
@@ -223,14 +234,20 @@ export default function TreePage() {
                 </h2>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {rentedTrees.map((item) => (
-                    <TreeCard
-                      key={item.id}
-                      item={item}
-                      onDetail={handleOpenModal}
-                      onHarvest={handleOpenHarvestModal}
-                    />
-                  ))}
+                  {filteredTrees.length === 0 ? (
+                    <div className="col-span-full text-center text-gray-500 py-8">
+                      Không tìm thấy cây phù hợp.
+                    </div>
+                  ) : (
+                    filteredTrees.map((item) => (
+                      <TreeCard
+                        key={item.id}
+                        item={item}
+                        onDetail={handleOpenModal}
+                        onHarvest={handleOpenHarvestModal}
+                      />
+                    ))
+                  )}
                 </div>
               </div>
             </div>
