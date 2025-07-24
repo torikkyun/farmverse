@@ -7,11 +7,9 @@ import { FarmsModule } from './models/farms/farms.module';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtGuard } from './common/guards/jwt.guard';
 import { ItemsModule } from './models/items/items.module';
-import { SchedulesModule } from './models/schedules/schedules.module';
 import { RolesGuard } from './common/guards/roles.guard';
+import { SeedModule } from './seed/seed.module';
 // import { TransactionsModule } from './models/transactions/transactions.module';
-import { ItemInstancesModule } from './models/item-instances/item-instances.module';
-import { IotDataModule } from './models/iot-data/iot-data.module';
 
 @Module({
   imports: [
@@ -22,13 +20,11 @@ import { IotDataModule } from './models/iot-data/iot-data.module';
     }),
     AuthModule,
     MailProviderModule,
+    SeedModule,
     UsersModule,
     FarmsModule,
     ItemsModule,
-    SchedulesModule,
-    ItemInstancesModule,
     // TransactionsModule,
-    IotDataModule,
   ],
   providers: [
     {

@@ -8,15 +8,15 @@ import { CreateItemDto } from './dto/create-item.dto';
 import { UpdateItemDto } from './dto/update-item.dto';
 import { PrismaService } from 'src/providers/prisma.service';
 import { plainToInstance } from 'class-transformer';
-import { ItemResponseDto } from 'src/common/dto/item-response.dto';
+import { ItemResponseDto } from 'src/common/dto/response/item.dto';
 import { Prisma } from 'generated/prisma';
 import { SearchItemsQueryDto } from './dto/search-item.dto';
 import {
   PaginationMetaDto,
   PaginationResponseDto,
 } from 'src/common/dto/pagination.dto';
-import { UserResponseDto } from 'src/common/dto/user-response.dto';
-import { FarmResponseDto } from 'src/common/dto/farm-response.dto';
+import { UserResponseDto } from 'src/common/dto/response/user.dto';
+import { FarmResponseDto } from 'src/common/dto/response/farm.dto';
 
 @Injectable()
 export class ItemsService {
@@ -24,7 +24,7 @@ export class ItemsService {
 
   private toItemResponse(item: any): ItemResponseDto {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    const ownerResponse = plainToInstance(UserResponseDto, item.farm.owner, {
+    const ownerResponse = plainToInstance(UserResponseDto, item.farm.user, {
       excludeExtraneousValues: true,
     });
 
@@ -37,7 +37,7 @@ export class ItemsService {
       excludeExtraneousValues: true,
     });
 
-    farmResponse.owner = ownerResponse;
+    farmResponse.user = ownerResponse;
     itemResponse.farm = farmResponse;
 
     return itemResponse;

@@ -13,7 +13,7 @@ import { RegisterDto } from './dto/register.dto';
 import { EmailVerificationDto } from './dto/email-verification.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { plainToInstance } from 'class-transformer';
-import { UserResponseDto } from 'src/common/dto/user-response.dto';
+import { UserResponseDto } from 'src/common/dto/response/user.dto';
 import { Otp, User, UserRole } from 'generated/prisma';
 import { PrismaService } from 'src/providers/prisma.service';
 import { randomBytes } from 'crypto';

@@ -1,20 +1,13 @@
-import { Expose } from 'class-transformer';
+import { Expose } from 'class-transformer/types/decorators/expose.decorator';
 import { TransactionType } from 'generated/prisma';
-import { UserResponseDto } from './user-response.dto';
-import { TransactionItemResponseDto } from './transaction-item-response.dto';
+import { FarmResponseDto } from './farm.dto';
 
 export class TransactionResponseDto {
   @Expose()
   id: string;
 
   @Expose()
-  buyer: UserResponseDto;
-
-  @Expose()
   totalPrice: number;
-
-  @Expose()
-  type: TransactionType;
 
   @Expose()
   transactionHash: string;
@@ -29,5 +22,14 @@ export class TransactionResponseDto {
   toAddress: string;
 
   @Expose()
-  items?: TransactionItemResponseDto[];
+  details?: any;
+
+  @Expose()
+  createdAt: Date;
+
+  @Expose()
+  type: TransactionType;
+
+  @Expose()
+  farm: FarmResponseDto;
 }

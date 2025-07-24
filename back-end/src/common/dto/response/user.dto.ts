@@ -1,33 +1,25 @@
 import { Expose } from 'class-transformer';
 import { UserRole } from 'generated/prisma';
-import { ApiProperty } from '@nestjs/swagger';
 
 export class UserResponseDto {
   @Expose()
-  @ApiProperty()
   id: string;
 
   @Expose()
-  @ApiProperty()
-  name: string;
-
-  @Expose()
-  @ApiProperty()
   email: string;
 
   @Expose()
-  @ApiProperty()
-  phone?: string;
+  name: string;
 
   @Expose()
-  @ApiProperty()
-  role: UserRole;
+  avatar: string;
 
   @Expose()
-  @ApiProperty()
-  avatar?: string;
+  address: string;
 
   @Expose()
-  @ApiProperty()
   fvtBalance: number;
+
+  @Expose()
+  role: UserRole;
 }

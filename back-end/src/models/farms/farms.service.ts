@@ -5,7 +5,6 @@ import {
 } from '@nestjs/common';
 import { CreateFarmDto } from './dto/create-farm.dto';
 import { UpdateFarmDto } from './dto/update-farm.dto';
-import { FarmResponseDto } from 'src/common/dto/farm-response.dto';
 import { plainToInstance } from 'class-transformer';
 import { PrismaService } from 'src/providers/prisma.service';
 import { SearchFarmsQueryDto } from './dto/search-farm.dto';
@@ -14,7 +13,8 @@ import {
   PaginationMetaDto,
 } from 'src/common/dto/pagination.dto';
 import { Prisma } from 'generated/prisma';
-import { UserResponseDto } from 'src/common/dto/user-response.dto';
+import { UserResponseDto } from 'src/common/dto/response/user.dto';
+import { FarmResponseDto } from 'src/common/dto/response/farm.dto';
 
 @Injectable()
 export class FarmsService {
@@ -22,7 +22,7 @@ export class FarmsService {
 
   private toFarmResponse(farm: any): FarmResponseDto {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    const ownerResponse = plainToInstance(UserResponseDto, farm.owner, {
+    const ownerResponse = plainToInstance(UserResponseDto, farm.user, {
       excludeExtraneousValues: true,
     });
 
@@ -30,7 +30,7 @@ export class FarmsService {
       excludeExtraneousValues: true,
     });
 
-    farmResponse.owner = ownerResponse;
+    farmResponse.user = ownerResponse;
     return farmResponse;
   }
 

@@ -1,12 +1,16 @@
 import { Expose } from 'class-transformer';
 import { ItemType } from 'generated/prisma';
+import { FarmResponseDto } from './farm.dto';
 
-export class TransactionItemResponseDto {
+export class ItemResponseDto {
   @Expose()
-  itemId: string;
+  id: string;
 
   @Expose()
   name: string;
+
+  @Expose()
+  type: ItemType;
 
   @Expose()
   description?: string;
@@ -15,20 +19,14 @@ export class TransactionItemResponseDto {
   images: string[];
 
   @Expose()
-  quantity: number;
-
-  @Expose()
   price: number;
 
   @Expose()
-  type: ItemType;
+  stock: number;
 
   @Expose()
-  includesIot?: boolean;
+  details: any;
 
   @Expose()
-  startDate?: Date;
-
-  @Expose()
-  endDate?: Date;
+  farm: FarmResponseDto;
 }

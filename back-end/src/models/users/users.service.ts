@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Prisma } from 'generated/prisma';
 import { PrismaService } from 'src/providers/prisma.service';
-import { UserResponseDto } from 'src/common/dto/user-response.dto';
+import { UserResponseDto } from 'src/common/dto/response/user.dto';
 import { plainToInstance } from 'class-transformer';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { SearchUsersQueryDto } from './dto/search-user.dto';

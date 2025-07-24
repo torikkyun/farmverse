@@ -13,7 +13,7 @@ import {
 import { ItemsService } from './items.service';
 import { CreateItemDto } from './dto/create-item.dto';
 import { UpdateItemDto } from './dto/update-item.dto';
-import { ItemResponseDto } from 'src/common/dto/item-response.dto';
+import { ItemResponseDto } from 'src/common/dto/response/item.dto';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { Public } from 'src/common/decorators/public.decorator';

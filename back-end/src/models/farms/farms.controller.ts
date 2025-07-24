@@ -14,7 +14,6 @@ import { CreateFarmDto } from './dto/create-farm.dto';
 import { UpdateFarmDto } from './dto/update-farm.dto';
 import { Public } from 'src/common/decorators/public.decorator';
 import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
-import { FarmResponseDto } from 'src/common/dto/farm-response.dto';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { PaginationResponseDto } from 'src/common/dto/pagination.dto';
 import { SearchFarmsQueryDto } from './dto/search-farm.dto';
@@ -22,6 +21,7 @@ import { UserRole } from 'generated/prisma';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { FileValidationPipe } from 'src/common/pipes/file-validation.pipe';
+import { FarmResponseDto } from 'src/common/dto/response/farm.dto';
 
 @Controller('api/farms')
 @ApiTags('farms')

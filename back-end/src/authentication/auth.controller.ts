@@ -8,7 +8,7 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 import { LocalGuard } from 'src/common/guards/local.guard';
 import { Public } from 'src/common/decorators/public.decorator';
 import { AccountVerificationDto } from './dto/account-verification.dto';
-import { UserResponseDto } from 'src/common/dto/user-response.dto';
+import { UserResponseDto } from 'src/common/dto/response/user.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 @Controller('api/auth')
