@@ -41,7 +41,6 @@ export class QueueService implements OnModuleInit {
       includesIot?: boolean;
       startDate: Date;
       endDate: Date;
-      totalPrice: number;
     }[];
   }) {
     await lastValueFrom(this.client.emit('contract', data));

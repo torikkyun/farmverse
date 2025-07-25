@@ -12,16 +12,16 @@ import {
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
-import { PaginationResponseDto } from '@common/dto/pagination.dto';
-import { UserResponseDto } from '@common/dto/response/user.dto';
+import { PaginationResponseDto } from '@app/common/dto/pagination.dto';
+import { UserResponseDto } from '@app/common/dto/response/user.dto';
 import { SearchUsersQueryDto } from './dto/search-user.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
-import { CurrentUser } from '@common/decorators/current-user.decorator';
+import { CurrentUser } from '@app/common/decorators/current-user.decorator';
 import { ValidationPipe } from '@nestjs/common';
-import { Public } from '@common/decorators/public.decorator';
-import { LocalGuard } from '@common/guards/local.guard';
+import { Public } from '@app/common/decorators/public.decorator';
+import { LocalGuard } from '@app/common/guards/local.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { FileValidationPipe } from '@common/pipes/file-validation.pipe';
+import { FileValidationPipe } from '@app/common/pipes/file-validation.pipe';
 
 @Controller('api/users')
 @ApiTags('users')

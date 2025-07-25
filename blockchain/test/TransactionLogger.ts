@@ -15,8 +15,11 @@ describe('TransactionLogger', function () {
     // Ghi một PURCHASE transaction
     await logger.connect(user).recordTransaction(1, 500);
 
+    // Ghi một CONTRACT transaction
+    await logger.connect(user).recordTransaction(2, 300);
+
     // Kiểm tra số lượng giao dịch đã ghi
-    expect(await logger.getTransactionCount()).to.equal(2n);
+    expect(await logger.getTransactionCount()).to.equal(3n);
 
     // Lấy giao dịch đầu tiên
     const tx1 = await logger.getTransaction(0);
@@ -28,5 +31,10 @@ describe('TransactionLogger', function () {
     const tx2 = await logger.getTransaction(1);
     expect(tx2.txType).to.equal(1n);
     expect(tx2.amount).to.equal(500n);
+
+    // Lấy giao dịch thứ ba
+    const tx3 = await logger.getTransaction(2);
+    expect(tx3.txType).to.equal(2n);
+    expect(tx3.amount).to.equal(300n);
   });
 });

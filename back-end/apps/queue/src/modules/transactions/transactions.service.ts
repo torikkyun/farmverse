@@ -1,7 +1,7 @@
 import { PrismaService } from '@app/providers/prisma.service';
 import { BadGatewayException, Injectable } from '@nestjs/common';
 import { BlockchainService } from '@queue/blockchain/blockchain.service';
-import { TransactionStatus } from 'generated/prisma';
+import { statusRentedTree, TransactionStatus } from 'generated/prisma';
 
 @Injectable()
 export class TransactionsService {
@@ -71,9 +71,10 @@ export class TransactionsService {
     }[];
   }) {
     try {
-      const { tx, receipt } = await this.blockchainService.recordContract(
-        items.reduce((acc, item) => acc + item.totalPrice, 0),
-      );
+      const totalPrice = items.reduce((acc, item) => acc + item.totalPrice, 0);
+
+      const { tx, receipt } =
+        await this.blockchainService.recordContract(totalPrice);
 
       if (!receipt || !tx.to) {
         throw new BadGatewayException(
@@ -93,10 +94,59 @@ export class TransactionsService {
         },
       });
 
+      await this.prisma.user.update({
+        where: { id: userId },
+        data: { fvtBalance: { decrement: totalPrice } },
+      });
+
       for (const item of items) {
+        const itemRecord = await this.prisma.item.findUnique({
+          where: { id: item.itemId },
+        });
+
+        if (!itemRecord) {
+          throw new BadGatewayException(
+            'Mặt hàng không tồn tại, vui lòng thử lại sau',
+          );
+        }
+
+        const farmRecord = await this.prisma.farm.findUnique({
+          where: { id: itemRecord.farmId },
+        });
+
+        if (!farmRecord) {
+          throw new BadGatewayException(
+            'Trang trại không tồn tại, vui lòng thử lại sau',
+          );
+        }
+
         await this.prisma.item.update({
           where: { id: item.itemId },
           data: { stock: { decrement: item.quantity } },
+        });
+
+        const rentedTreesData = Array.from({ length: item.quantity }).map(
+          () => ({
+            name: itemRecord.name,
+            description: itemRecord.description,
+            images: itemRecord.images,
+            details: itemRecord.details ?? {},
+            schedule: Array.isArray(farmRecord.schedule)
+              ? (farmRecord.schedule as any[]).filter((v) => v !== null)
+              : [],
+            cameraUrl: null,
+            status: statusRentedTree.GROWING,
+            totalProfit: 0,
+            harvest: [],
+            startDate: item.startDate,
+            endDate: item.endDate,
+            farmId: itemRecord.farmId,
+            userId,
+          }),
+        );
+
+        await this.prisma.rentedTree.createMany({
+          data: rentedTreesData,
         });
       }
     } catch {

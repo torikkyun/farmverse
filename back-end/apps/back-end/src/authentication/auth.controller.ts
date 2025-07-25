@@ -7,9 +7,9 @@ import { EmailVerificationDto } from './dto/email-verification.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { AccountVerificationDto } from './dto/account-verification.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
-import { Public } from '../common/decorators/public.decorator';
-import { LocalGuard } from '../common/guards/local.guard';
-import { UserResponseDto } from '../common/dto/response/user.dto';
+import { Public } from '@app/common/decorators/public.decorator';
+import { LocalGuard } from '@app/common/guards/local.guard';
+import { UserResponseDto } from '@app/common/dto/response/user.dto';
 
 @Controller('api/auth')
 @Public()

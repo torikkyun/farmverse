@@ -10,7 +10,7 @@ import {
   IsNumber,
   Min,
 } from 'class-validator';
-import { ItemValidationMessages } from 'apps/back-end/src/common/constants/item-validation-msg';
+import { ItemValidationMessages } from '@app/common/constants/item-validation-msg';
 
 export class CreateItemDto {
   @IsString({ message: ItemValidationMessages.NAME.MUST_BE_STRING })

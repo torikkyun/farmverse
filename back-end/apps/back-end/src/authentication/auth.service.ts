@@ -17,9 +17,9 @@ import { randomBytes } from 'crypto';
 import { AccountVerificationDto } from './dto/account-verification.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { ConfigService } from '@nestjs/config';
-import { MailService } from '../providers/mail/mail.service';
-import { PrismaService } from '../providers/prisma.service';
-import { UserResponseDto } from '../common/dto/response/user.dto';
+import { MailService } from '@app/providers/mail/mail.service';
+import { PrismaService } from '@app/providers/prisma.service';
+import { UserResponseDto } from '@app/common/dto/response/user.dto';
 
 @Injectable()
 export class AuthService {

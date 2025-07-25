@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString, MaxLength, MinLength } from 'class-validator';
 import { EmailVerificationDto } from './email-verification.dto';
-import { UserValidationMessages } from '../../common/constants/user-validation-msg';
+import { UserValidationMessages } from '@app/common/constants/user-validation-msg';
 
 export class LoginDto extends EmailVerificationDto {
   @IsNotEmpty({ message: UserValidationMessages.PASSWORD.NOT_EMPTY })

@@ -75,7 +75,7 @@ export class TransactionsService {
 
   async contract(
     { id }: { id: string },
-    { items }: ContractDto,
+    { items, totalPrice }: ContractDto,
   ): Promise<{
     message: string;
     transaction: TransactionResponseDto;
@@ -84,7 +84,7 @@ export class TransactionsService {
       data: {
         type: TransactionType.CONTRACT,
         status: TransactionStatus.PENDING,
-        totalPrice: items.reduce((acc, item) => acc + item.totalPrice, 0),
+        totalPrice: totalPrice,
         userId: id,
         transactionHash: '',
         blockNumber: 0,

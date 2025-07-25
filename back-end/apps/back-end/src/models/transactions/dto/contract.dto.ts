@@ -36,11 +36,6 @@ class TreeDto {
   @Type(() => Date)
   @ApiProperty({ type: Date, required: true })
   endDate: Date;
-
-  @IsNotEmpty()
-  @IsNumber()
-  @ApiProperty({ required: true })
-  totalPrice: number;
 }
 
 export class ContractDto {
@@ -49,4 +44,9 @@ export class ContractDto {
   @Type(() => TreeDto)
   @ApiProperty({ type: [TreeDto], required: true })
   items: TreeDto[];
+
+  @IsNotEmpty()
+  @IsNumber()
+  @ApiProperty({ required: true })
+  totalPrice: number;
 }

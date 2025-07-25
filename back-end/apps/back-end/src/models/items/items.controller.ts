@@ -16,14 +16,14 @@ import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { SearchItemsQueryDto } from './dto/search-item.dto';
 import { UserRole } from 'generated/prisma';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
-import { Roles } from '../../common/decorators/roles.decorator';
-import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import { FileValidationPipe } from '../../common/pipes/file-validation.pipe';
+import { Roles } from '@app/common/decorators/roles.decorator';
+import { CurrentUser } from '@app/common/decorators/current-user.decorator';
+import { FileValidationPipe } from '@app/common/pipes/file-validation.pipe';
 import {
   ItemBaseResponseDto,
   ItemResponseDto,
-} from '../../common/dto/response/item.dto';
-import { Public } from '../../common/decorators/public.decorator';
+} from '@app/common/dto/response/item.dto';
+import { Public } from '@app/common/decorators/public.decorator';
 
 @Controller('api/items')
 @ApiTags('items')

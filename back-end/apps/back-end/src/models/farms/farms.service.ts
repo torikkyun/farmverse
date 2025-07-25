@@ -7,17 +7,17 @@ import { CreateFarmDto } from './dto/create-farm.dto';
 import { UpdateFarmDto } from './dto/update-farm.dto';
 import { plainToInstance } from 'class-transformer';
 import { SearchFarmsQueryDto } from './dto/search-farm.dto';
-import {
-  PaginationResponseDto,
-  PaginationMetaDto,
-} from '../../common/dto/pagination.dto';
-import { Prisma } from 'generated/prisma';
-import { PrismaService } from '../../providers/prisma.service';
+import { PrismaService } from '@app/providers/prisma.service';
 import {
   FarmBaseResponseDto,
   FarmResponseDto,
-} from '../../common/dto/response/farm.dto';
-import { UserResponseDto } from '../../common/dto/response/user.dto';
+} from '@app/common/dto/response/farm.dto';
+import { UserResponseDto } from '@app/common/dto/response/user.dto';
+import { Prisma } from '@prisma/client';
+import {
+  PaginationMetaDto,
+  PaginationResponseDto,
+} from '@app/common/dto/pagination.dto';
 
 @Injectable()
 export class FarmsService {

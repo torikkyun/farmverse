@@ -8,7 +8,7 @@ import {
 } from 'class-validator';
 import { LoginDto } from './login.dto';
 import { UserRole } from 'generated/prisma';
-import { UserValidationMessages } from '../../common/constants/user-validation-msg';
+import { UserValidationMessages } from '@app/common/constants/user-validation-msg';
 
 export class RegisterDto extends LoginDto {
   @IsNotEmpty({ message: UserValidationMessages.NAME.NOT_EMPTY })
