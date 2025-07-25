@@ -1,24 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import Image from "next/image";
-
-export type Farm = {
-  id: string;
-  name: string;
-  description: string;
-  location: string;
-  size: number;
-  images: string[];
-  owner: {
-    id: string;
-    name: string;
-    email: string;
-    phone: string;
-    role: string;
-    avatar: string;
-  };
-  cropType?: string; // Thêm loại cây trồng
-};
+import { Farm } from "./types/market";
 
 export function FarmList({
   farms,
@@ -61,7 +44,7 @@ export function FarmList({
                   alt={farm.name}
                   width={600}
                   height={176}
-                  className="rounded-t-xl h-44 w-full object-cover"
+                  className="rounded-t-xl h-80 w-full object-cover"
                   priority
                 />
                 <div className="p-4">
@@ -77,7 +60,7 @@ export function FarmList({
                   <div className="flex items-center gap-2 mt-1 text-sm">
                     <span className="text-muted-foreground">Diện tích:</span>
                     <span className="font-medium">
-                      {farm.size.toFixed(0)} ha
+                      {farm.size ? `${farm.size} ha` : "Chưa cập nhật"}
                     </span>
                   </div>
                   <div className="flex items-center gap-2 mt-1 text-sm">

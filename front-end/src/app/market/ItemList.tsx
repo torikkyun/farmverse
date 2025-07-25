@@ -1,21 +1,10 @@
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import type { Farm } from "./FarmList";
-import { ItemModal } from "./ItemModal";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-
-export type Item = {
-  id: string;
-  name: string;
-  type: string;
-  description?: string | null;
-  images: string[];
-  price: number;
-  quantity: number | null;
-  farm?: Farm;
-};
+import { Item } from "./types/market";
+import { ItemModal } from "./ItemModal";
 
 function compareMongoIdDesc(a: Item, b: Item) {
   return b.id.localeCompare(a.id);
@@ -64,46 +53,53 @@ export function ItemList({
             onClick={() => setSelectedItem(item)}
             type="button"
           >
-            <Card className="w-full h-full flex flex-col bg-card border border-muted-foreground/10 hover:scale-[1.03] transition-transform duration-200 overflow-x-hidden">
+            <Card className="w-full h-full flex flex-col bg-card border border-muted-foreground/10 hover:scale-[1.03] transition-transform duration-200 overflow-hidden">
               <CardContent className="flex flex-col flex-1 p-0">
-                <Image
-                  src={item.images?.[0] || "/images/default.png"}
-                  alt={item.name}
-                  width={600}
-                  height={176}
-                  className="rounded-t-xl h-44 w-full object-cover"
-                  priority
-                />
-                <div className="p-4 flex flex-col flex-1 justify-between">
+                <div className="relative w-full h-80">
+                  <Image
+                    src={item.images?.[0] || "/images/default.png"}
+                    alt={item.name}
+                    fill
+                    className="rounded-t-xl object-cover"
+                    priority
+                  />
+                </div>
+                <div className="p-4 flex flex-col justify-between h-auto">
                   <div>
-                    <div className="flex items-left gap-2">
-                      <span className="font-semibold text-base">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="font-semibold text-base line-clamp-1">
                         {item.name}
                       </span>
                       <Badge
                         variant="outline"
-                        className="ml-1 text-xs border-green-500 text-green-600"
+                        className="text-xs border-green-500 text-green-600 flex-shrink-0"
                       >
                         {item.type === "FERTILIZER"
                           ? "Phân bón"
                           : item.type === "TREEROOT"
                           ? "Cây trồng"
-                          : item.type}
+                          : "Khác"}
                       </Badge>
                     </div>
-                    <div className="flex items-center gap-2 mt-2 text-sm">
-                      <span className="text-muted-foreground">Nông trại:</span>
-                      <span className="font-medium">{item.farm?.name}</span>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+                      <span>Nông trại:</span>
+                      <span className="font-medium text-foreground">
+                        {item.farm?.name || "Không xác định"}
+                      </span>
                     </div>
-                    <div className="flex items-center gap-2 mt-1 text-sm">
-                      <span className="text-muted-foreground">Giá:</span>
-                      <span className="font-medium">{item.price} ETH</span>
-                      <span className="text-muted-foreground ml-2">
-                        Số lượng:
-                      </span>
-                      <span className="font-medium">
-                        {item.quantity ?? "-"}
-                      </span>
+                    <div className="flex items-center justify-between text-sm">
+                      <div className="flex items-center gap-1">
+                        <span className="text-muted-foreground">Giá:</span>
+                        <span className="font-bold text-green-600">
+                          {item.price} ETH
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="text-muted-foreground">SL:</span>
+                        <span className="font-medium">
+                          {item.quantity ?? "∞"}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
