@@ -16,6 +16,32 @@
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": false,
     "strictBindCallApply": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+    "paths": {
+      "@app/*": [
+        "apps/back-end/src/*"
+      ],
+      "@queue/*": [
+        "apps/queue/src/*"
+      ],
+      "@prisma/*": [
+        "generated/prisma/*"
+      ],
+      "@common/*": [
+        "apps/back-end/src/common/*"
+      ],
+      "@models/*": [
+        "apps/back-end/src/models/*"
+      ],
+      "@dto/*": [
+        "apps/back-end/src/common/dto/*"
+      ],
+      "@providers/*": [
+        "apps/back-end/src/providers/*"
+      ],
+      "@static/*": [
+        "static/*"
+      ]
+    }
   }
 }
