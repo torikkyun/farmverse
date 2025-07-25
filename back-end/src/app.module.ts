@@ -9,7 +9,8 @@ import { JwtGuard } from './common/guards/jwt.guard';
 import { ItemsModule } from './models/items/items.module';
 import { RolesGuard } from './common/guards/roles.guard';
 import { SeedModule } from './seed/seed.module';
-// import { TransactionsModule } from './models/transactions/transactions.module';
+import { QueueModule } from './providers/queue/queue.module';
+import { TransactionsModule } from './models/transactions/transactions.module';
 
 @Module({
   imports: [
@@ -21,10 +22,11 @@ import { SeedModule } from './seed/seed.module';
     AuthModule,
     MailProviderModule,
     SeedModule,
+    QueueModule,
     UsersModule,
     FarmsModule,
     ItemsModule,
-    // TransactionsModule,
+    TransactionsModule,
   ],
   providers: [
     {

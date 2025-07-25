@@ -2,7 +2,6 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEnum,
   IsNotEmpty,
-  IsOptional,
   IsString,
   MaxLength,
   MinLength,
@@ -22,7 +21,15 @@ export class RegisterDto extends LoginDto {
   name: string;
 
   @IsNotEmpty()
-  @ApiProperty({ example: '{"city": "Hà Nội"}' })
+  @ApiProperty({
+    example: {
+      houseNumber: '10',
+      street: 'Huỳnh Văn Nghệ',
+      commune: 'Phường Trấn Biên',
+      province: 'Đồng Nai',
+      country: 'Việt Nam',
+    },
+  })
   address: any;
 
   @IsNotEmpty({ message: UserValidationMessages.ROLE.NOT_EMPTY })

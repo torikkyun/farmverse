@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config/dist/config.service';
 import { ethers } from 'ethers';
 
 @Injectable()
@@ -7,18 +8,23 @@ export class BlockchainService {
   private wallet: ethers.Wallet;
   private loggerContract: ethers.Contract;
 
-  constructor() {
-    this.provider = new ethers.JsonRpcProvider(
-      `https://sepolia.infura.io/v3/${process.env.INFURA_RPC_KEY!}`,
+  constructor(private readonly configService: ConfigService) {
+    const infuraKey = this.configService.get<string>('INFURA_RPC_KEY');
+    const metamaskPrivateKey = this.configService.get<string>(
+      'METAMASK_WALLET_PRIVATE_KEY',
+    );
+    const transactionLoggerAddress = this.configService.get<string>(
+      'TRANSACTION_LOGGER_ADDRESS',
     );
 
-    this.wallet = new ethers.Wallet(
-      process.env.METAMASK_WALLET_PRIVATE_KEY!,
-      this.provider,
+    this.provider = new ethers.JsonRpcProvider(
+      `https://sepolia.infura.io/v3/${infuraKey}`,
     );
+
+    this.wallet = new ethers.Wallet(metamaskPrivateKey!, this.provider);
 
     this.loggerContract = new ethers.Contract(
-      process.env.TRANSACTION_LOGGER_ADDRESS!,
+      transactionLoggerAddress!,
       ['function recordTransaction(uint8 txType, uint256 amount) external'],
       this.wallet,
     );
@@ -29,13 +35,25 @@ export class BlockchainService {
       0,
       amount,
     )) as ethers.ContractTransactionResponse;
-    await tx.wait();
-    return tx;
+    const receipt = await tx.wait();
+    return {
+      tx,
+      receipt,
+    };
   }
 
   async recordPurchase(amount: number) {
     const tx = (await this.loggerContract.recordTransaction(
       1,
+      amount,
+    )) as ethers.ContractTransactionResponse;
+    await tx.wait();
+    return tx;
+  }
+
+  async recordContract(amount: number) {
+    const tx = (await this.loggerContract.recordTransaction(
+      2,
       amount,
     )) as ethers.ContractTransactionResponse;
     await tx.wait();

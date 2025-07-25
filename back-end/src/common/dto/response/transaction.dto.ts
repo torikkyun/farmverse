@@ -1,6 +1,7 @@
-import { Expose } from 'class-transformer/types/decorators/expose.decorator';
+import { Expose } from 'class-transformer';
 import { TransactionType } from 'generated/prisma';
 import { FarmResponseDto } from './farm.dto';
+import { UserResponseDto } from './user.dto';
 
 export class TransactionResponseDto {
   @Expose()
@@ -29,6 +30,9 @@ export class TransactionResponseDto {
 
   @Expose()
   type: TransactionType;
+
+  @Expose()
+  user: UserResponseDto;
 
   @Expose()
   farm: FarmResponseDto;

@@ -4,7 +4,8 @@ pragma solidity ^0.8.28;
 contract TransactionLogger {
   enum TransactionType {
     DEPOSIT,
-    PURCHASE
+    PURCHASE,
+    CONTRACT
   }
 
   struct Transaction {
