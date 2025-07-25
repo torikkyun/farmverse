@@ -2,9 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { TransactionStatus, TransactionType } from 'generated/prisma';
 import { DepositDto } from './dto/deposit.dto';
 import { plainToInstance } from 'class-transformer';
-
 import { ContractDto } from './dto/contract.dto';
-import { BlockchainService } from '@app/providers/blockchain.service';
 import { PrismaService } from '@app/providers/prisma.service';
 import { QueueService } from '@app/providers/queue/queue.service';
 import { TransactionResponseDto } from '@app/common/dto/response/transaction.dto';
@@ -14,7 +12,6 @@ import { FarmResponseDto } from '@app/common/dto/response/farm.dto';
 @Injectable()
 export class TransactionsService {
   constructor(
-    private readonly blockchainService: BlockchainService,
     private readonly prisma: PrismaService,
     private readonly queueService: QueueService,
   ) {}

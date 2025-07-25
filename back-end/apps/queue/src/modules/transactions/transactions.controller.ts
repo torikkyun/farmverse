@@ -1,16 +1,16 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { QueueService } from './queue.service';
+import { TransactionsService } from './transactions.service';
 
 @Controller()
-export class QueueController {
-  constructor(private readonly queueService: QueueService) {}
+export class TransactionsController {
+  constructor(private readonly transactionsService: TransactionsService) {}
 
   @MessagePattern('deposit')
   async handleDeposit(
     @Payload() data: { transactionId: string; userId: string; amount: number },
   ) {
-    await this.queueService.handleDeposit(data);
+    await this.transactionsService.handleDeposit(data);
   }
 
   @MessagePattern('contract')
@@ -29,6 +29,6 @@ export class QueueController {
       }[];
     },
   ) {
-    await this.queueService.handleContract(data);
+    await this.transactionsService.handleContract(data);
   }
 }

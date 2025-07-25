@@ -1,10 +1,10 @@
-import { BlockchainService } from '@app/providers/blockchain.service';
 import { PrismaService } from '@app/providers/prisma.service';
 import { BadGatewayException, Injectable } from '@nestjs/common';
+import { BlockchainService } from '@queue/blockchain/blockchain.service';
 import { TransactionStatus } from 'generated/prisma';
 
 @Injectable()
-export class QueueService {
+export class TransactionsService {
   constructor(
     private readonly blockchainService: BlockchainService,
     private readonly prisma: PrismaService,
