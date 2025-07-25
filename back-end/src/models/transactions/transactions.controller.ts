@@ -3,8 +3,8 @@ import { TransactionsService } from './transactions.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { DepositDto } from './dto/deposit.dto';
-import { PurchaseItemsDto } from './dto/purchase-items.dto';
-import { Public } from 'src/common/decorators/public.decorator';
+import { ContractDto } from './dto/contract.dto';
+import { TransactionResponseDto } from 'src/common/dto/response/transaction.dto';
 
 @Controller('api/transactions')
 @ApiTags('transactions')
@@ -20,6 +20,15 @@ export class TransactionsController {
     return await this.transactionsService.deposit(user, depositDto);
   }
 
+  @Post('contract')
+  @ApiBearerAuth()
+  async createContract(
+    @CurrentUser() user: { id: string },
+    @Body() contractDto: ContractDto,
+  ) {
+    return await this.transactionsService.contract(user, contractDto);
+  }
+
   // @Post('purchase-items')
   // @ApiBearerAuth()
   // async purchaseItems(
@@ -29,11 +38,13 @@ export class TransactionsController {
   //   return await this.transactionsService.purchaseItems(user, purchaseItemsDto);
   // }
 
-  // @Get()
-  // @ApiBearerAuth()
-  // async getAllTransactions(@CurrentUser() user: { id: string }) {
-  //   return await this.transactionsService.getAllTransactions(user);
-  // }
+  @Get()
+  @ApiBearerAuth()
+  async getAllTransactions(
+    @CurrentUser() user: { id: string },
+  ): Promise<{ message: string; transactions: TransactionResponseDto[] }> {
+    return await this.transactionsService.getAllTransactions(user);
+  }
 
   // @Get('/:transactionId')
   // @ApiBearerAuth()

@@ -21,7 +21,10 @@ import { UserRole } from 'generated/prisma';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { FileValidationPipe } from 'src/common/pipes/file-validation.pipe';
-import { FarmResponseDto } from 'src/common/dto/response/farm.dto';
+import {
+  FarmBaseResponseDto,
+  FarmResponseDto,
+} from 'src/common/dto/response/farm.dto';
 
 @Controller('api/farms')
 @ApiTags('farms')
@@ -44,9 +47,10 @@ export class FarmsController {
 
   @Get()
   @Public()
-  findAll(
-    @Query() searchFarmsQueryDto: SearchFarmsQueryDto,
-  ): Promise<PaginationResponseDto<FarmResponseDto>> {
+  findAll(@Query() searchFarmsQueryDto: SearchFarmsQueryDto): Promise<{
+    message: string;
+    items: FarmBaseResponseDto[];
+  }> {
     return this.farmsService.findAll(searchFarmsQueryDto);
   }
 

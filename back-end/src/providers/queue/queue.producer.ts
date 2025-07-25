@@ -31,4 +31,19 @@ export class QueueProducer implements OnModuleInit {
   }) {
     await lastValueFrom(this.client.emit('deposit', data));
   }
+
+  async contract(data: {
+    transactionId: string;
+    userId: string;
+    items: {
+      itemId: string;
+      quantity: number;
+      includesIot?: boolean;
+      startDate: Date;
+      endDate: Date;
+      totalPrice: number;
+    }[];
+  }) {
+    await lastValueFrom(this.client.emit('contract', data));
+  }
 }

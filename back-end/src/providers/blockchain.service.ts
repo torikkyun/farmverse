@@ -47,8 +47,11 @@ export class BlockchainService {
       1,
       amount,
     )) as ethers.ContractTransactionResponse;
-    await tx.wait();
-    return tx;
+    const receipt = await tx.wait();
+    return {
+      tx,
+      receipt,
+    };
   }
 
   async recordContract(amount: number) {
@@ -56,7 +59,10 @@ export class BlockchainService {
       2,
       amount,
     )) as ethers.ContractTransactionResponse;
-    await tx.wait();
-    return tx;
+    const receipt = await tx.wait();
+    return {
+      tx,
+      receipt,
+    };
   }
 }

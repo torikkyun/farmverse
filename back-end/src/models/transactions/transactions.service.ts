@@ -1,4 +1,4 @@
-import { BadGatewayException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { TransactionStatus, TransactionType } from 'generated/prisma';
 import { BlockchainService } from 'src/providers/blockchain.service';
 import { PrismaService } from 'src/providers/prisma.service';
@@ -8,6 +8,7 @@ import { TransactionResponseDto } from 'src/common/dto/response/transaction.dto'
 import { UserResponseDto } from 'src/common/dto/response/user.dto';
 import { FarmResponseDto } from 'src/common/dto/response/farm.dto';
 import { QueueProducer } from 'src/providers/queue/queue.producer';
+import { ContractDto } from './dto/contract.dto';
 
 @Injectable()
 export class TransactionsService {
@@ -71,6 +72,62 @@ export class TransactionsService {
     return {
       message: 'Đang xỷ lý giao dịch nạp tiền',
       transaction: this.toTransactionResponse(transaction),
+    };
+  }
+
+  async contract(
+    { id }: { id: string },
+    { items }: ContractDto,
+  ): Promise<{
+    message: string;
+    transaction: TransactionResponseDto;
+  }> {
+    const transaction = await this.prisma.transaction.create({
+      data: {
+        type: TransactionType.CONTRACT,
+        status: TransactionStatus.PENDING,
+        totalPrice: items.reduce((acc, item) => acc + item.totalPrice, 0),
+        userId: id,
+        transactionHash: '',
+        blockNumber: 0,
+        fromAddress: '',
+        toAddress: '',
+      },
+    });
+
+    await this.queueProducer.contract({
+      transactionId: transaction.id,
+      userId: id,
+      items,
+    });
+
+    return {
+      message: 'Đang xỷ lý giao dịch hợp đồng',
+      transaction: this.toTransactionResponse(transaction),
+    };
+  }
+
+  async getAllTransactions({
+    id,
+  }: {
+    id: string;
+  }): Promise<{ message: string; transactions: TransactionResponseDto[] }> {
+    const transactions = await this.prisma.transaction.findMany({
+      where: { userId: id },
+      include: {
+        user: true,
+        farm: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    const transactionResponses = transactions.map((transaction) =>
+      this.toTransactionResponse(transaction),
+    );
+
+    return {
+      message: 'Lấy danh sách giao dịch thành công',
+      transactions: transactionResponses,
     };
   }
 }

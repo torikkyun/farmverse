@@ -14,7 +14,10 @@ import {
 } from 'src/common/dto/pagination.dto';
 import { Prisma } from 'generated/prisma';
 import { UserResponseDto } from 'src/common/dto/response/user.dto';
-import { FarmResponseDto } from 'src/common/dto/response/farm.dto';
+import {
+  FarmBaseResponseDto,
+  FarmResponseDto,
+} from 'src/common/dto/response/farm.dto';
 
 @Injectable()
 export class FarmsService {
@@ -32,6 +35,20 @@ export class FarmsService {
 
     farmResponse.user = ownerResponse;
     return farmResponse;
+  }
+
+  private toFarmBaseResponse(farm: any): FarmBaseResponseDto {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const ownerResponse = plainToInstance(UserResponseDto, farm.user, {
+      excludeExtraneousValues: true,
+    });
+
+    const farmBaseResponse = plainToInstance(FarmBaseResponseDto, farm, {
+      excludeExtraneousValues: true,
+    });
+
+    farmBaseResponse.user = ownerResponse;
+    return farmBaseResponse;
   }
 
   async create(
@@ -66,11 +83,10 @@ export class FarmsService {
     };
   }
 
-  async findAll({
-    page,
-    pageSize,
-    search,
-  }: SearchFarmsQueryDto): Promise<PaginationResponseDto<FarmResponseDto>> {
+  async findAll({ page, pageSize, search }: SearchFarmsQueryDto): Promise<{
+    message: string;
+    items: FarmBaseResponseDto[];
+  }> {
     const skip = (page - 1) * pageSize;
     const where: Prisma.FarmWhereInput = {};
 
@@ -91,10 +107,13 @@ export class FarmsService {
     const meta = new PaginationMetaDto(page, pageSize, totalItems);
 
     const items = farms.map((farm) => {
-      return this.toFarmResponse(farm);
+      return this.toFarmBaseResponse(farm);
     });
 
-    return new PaginationResponseDto(items, meta);
+    return {
+      message: 'Lấy danh sách trang trại thành công',
+      ...new PaginationResponseDto(items, meta),
+    };
   }
 
   async findOne(id: string): Promise<FarmResponseDto> {

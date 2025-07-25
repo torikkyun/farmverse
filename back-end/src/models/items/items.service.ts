@@ -8,7 +8,10 @@ import { CreateItemDto } from './dto/create-item.dto';
 import { UpdateItemDto } from './dto/update-item.dto';
 import { PrismaService } from 'src/providers/prisma.service';
 import { plainToInstance } from 'class-transformer';
-import { ItemResponseDto } from 'src/common/dto/response/item.dto';
+import {
+  ItemBaseResponseDto,
+  ItemResponseDto,
+} from 'src/common/dto/response/item.dto';
 import { Prisma } from 'generated/prisma';
 import { SearchItemsQueryDto } from './dto/search-item.dto';
 import {
@@ -21,6 +24,12 @@ import { FarmResponseDto } from 'src/common/dto/response/farm.dto';
 @Injectable()
 export class ItemsService {
   constructor(private readonly prisma: PrismaService) {}
+
+  private toItemBaseResponse(item: any): ItemBaseResponseDto {
+    return plainToInstance(ItemBaseResponseDto, item, {
+      excludeExtraneousValues: true,
+    });
+  }
 
   private toItemResponse(item: any): ItemResponseDto {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -84,7 +93,10 @@ export class ItemsService {
     pageSize,
     search,
     type,
-  }: SearchItemsQueryDto): Promise<PaginationResponseDto<ItemResponseDto>> {
+  }: SearchItemsQueryDto): Promise<{
+    message: string;
+    items: ItemBaseResponseDto[];
+  }> {
     const skip = (page - 1) * pageSize;
     const where: Prisma.ItemWhereInput = {};
 
@@ -99,7 +111,7 @@ export class ItemsService {
     const [items, totalItems] = await Promise.all([
       this.prisma.item.findMany({
         where,
-        include: { farm: { include: { user: true } } },
+        include: { farm: true },
         skip,
         take: pageSize,
       }),
@@ -109,10 +121,13 @@ export class ItemsService {
     const meta = new PaginationMetaDto(page, pageSize, totalItems);
 
     const itemEntities = items.map((item) => {
-      return this.toItemResponse(item);
+      return this.toItemBaseResponse(item);
     });
 
-    return new PaginationResponseDto(itemEntities, meta);
+    return {
+      message: 'Lấy danh sách vật phẩm thành công',
+      ...new PaginationResponseDto(itemEntities, meta),
+    };
   }
 
   async findOne(
@@ -136,7 +151,7 @@ export class ItemsService {
   async findAllByFarmId(
     farmId: string,
     { page, pageSize, search, type }: SearchItemsQueryDto,
-  ): Promise<{ message: string; items: ItemResponseDto[] }> {
+  ): Promise<{ message: string; items: ItemBaseResponseDto[] }> {
     const skip = (page - 1) * pageSize;
     const where: Prisma.ItemWhereInput = {};
 
@@ -157,7 +172,7 @@ export class ItemsService {
 
     return {
       message: 'Lấy danh sách vật phẩm theo trang trại thành công',
-      items: items.map((item) => this.toItemResponse(item)),
+      items: items.map((item) => this.toItemBaseResponse(item)),
     };
   }
 

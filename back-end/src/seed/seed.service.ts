@@ -356,34 +356,6 @@ export class SeedService implements OnModuleInit {
             { month: 12, activities: ['Chuẩn bị ra hoa', 'Tưới ẩm'] },
           ],
         },
-        {
-          name: 'Mít Thái Cửu Long',
-          address: {
-            houseNumber: '66',
-            street: 'QL1A',
-            commune: 'Tân Hương',
-            city: 'Tiền Giang',
-            country: 'Việt Nam',
-          },
-          size: 8000,
-          description:
-            'Trang trại mít Thái ở Cửu Long cung cấp mít chất lượng cao, trái to, thơm và ngọt, được trồng theo hướng GAP phục vụ xuất khẩu.',
-          userId: users[5].id,
-          schedule: [
-            { month: 1, activities: ['Bón phân hữu cơ', 'Tưới nước'] },
-            { month: 2, activities: ['Tưới nước', 'Tỉa cành'] },
-            { month: 3, activities: ['Ra hoa', 'Bón phân NPK'] },
-            { month: 4, activities: ['Chăm sóc trái', 'Bao trái'] },
-            { month: 5, activities: ['Tưới nước', 'Kiểm tra sâu bệnh'] },
-            { month: 6, activities: ['Bón phân kali', 'Tưới nước'] },
-            { month: 7, activities: ['Thu hoạch', 'Bón phân sau thu hoạch'] },
-            { month: 8, activities: ['Tỉa cành', 'Tưới nước'] },
-            { month: 9, activities: ['Tưới nước', 'Chống đổ trái'] },
-            { month: 10, activities: ['Ra hoa', 'Phun thuốc sinh học'] },
-            { month: 11, activities: ['Chăm sóc trái', 'Bón phân NPK'] },
-            { month: 12, activities: ['Thu hoạch', 'Vệ sinh gốc cây'] },
-          ],
-        },
       ],
     });
   }

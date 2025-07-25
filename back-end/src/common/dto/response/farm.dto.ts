@@ -1,7 +1,7 @@
 import { Expose } from 'class-transformer';
 import { UserResponseDto } from './user.dto';
 
-export class FarmResponseDto {
+export class FarmBaseResponseDto {
   @Expose()
   id: string;
 
@@ -21,8 +21,10 @@ export class FarmResponseDto {
   images: string[];
 
   @Expose()
-  schedule: any[];
-
-  @Expose()
   user: UserResponseDto;
+}
+
+export class FarmResponseDto extends FarmBaseResponseDto {
+  @Expose()
+  schedule: any[];
 }

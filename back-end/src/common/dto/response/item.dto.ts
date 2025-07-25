@@ -2,7 +2,7 @@ import { Expose } from 'class-transformer';
 import { ItemType } from 'generated/prisma';
 import { FarmResponseDto } from './farm.dto';
 
-export class ItemResponseDto {
+export class ItemBaseResponseDto {
   @Expose()
   id: string;
 
@@ -23,7 +23,9 @@ export class ItemResponseDto {
 
   @Expose()
   stock: number;
+}
 
+export class ItemResponseDto extends ItemBaseResponseDto {
   @Expose()
   details: any;
 

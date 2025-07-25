@@ -5,7 +5,6 @@ import {
   Body,
   Patch,
   Param,
-  Delete,
   Query,
   UseInterceptors,
   UploadedFiles,
@@ -13,12 +12,14 @@ import {
 import { ItemsService } from './items.service';
 import { CreateItemDto } from './dto/create-item.dto';
 import { UpdateItemDto } from './dto/update-item.dto';
-import { ItemResponseDto } from 'src/common/dto/response/item.dto';
+import {
+  ItemBaseResponseDto,
+  ItemResponseDto,
+} from 'src/common/dto/response/item.dto';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { Public } from 'src/common/decorators/public.decorator';
 import { SearchItemsQueryDto } from './dto/search-item.dto';
-import { PaginationResponseDto } from 'src/common/dto/pagination.dto';
 import { UserRole } from 'generated/prisma';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
@@ -45,9 +46,10 @@ export class ItemsController {
 
   @Get()
   @Public()
-  findAll(
-    @Query() searchItemsQueryDto: SearchItemsQueryDto,
-  ): Promise<PaginationResponseDto<ItemResponseDto>> {
+  findAll(@Query() searchItemsQueryDto: SearchItemsQueryDto): Promise<{
+    message: string;
+    items: ItemBaseResponseDto[];
+  }> {
     return this.itemsService.findAll(searchItemsQueryDto);
   }
 
@@ -62,7 +64,10 @@ export class ItemsController {
   findAllByFarmId(
     @Param('farmId') farmId: string,
     @Query() searchItemsQueryDto: SearchItemsQueryDto,
-  ) {
+  ): Promise<{
+    message: string;
+    items: ItemBaseResponseDto[];
+  }> {
     return this.itemsService.findAllByFarmId(farmId, searchItemsQueryDto);
   }
 
