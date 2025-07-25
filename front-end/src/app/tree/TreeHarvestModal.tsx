@@ -56,17 +56,6 @@ export function TreeHarvestModal({
                 </div>
               </div>
 
-              {/* Summary Section - Column 2 */}
-              <div className="border-r border-gray-200 dark:border-gray-700 flex flex-col h-full overflow-hidden">
-                <div className="p-6 pb-3 flex-shrink-0 border-b border-gray-100 dark:border-gray-800">
-                  <HarvestSummary
-                    harvestMode={harvestMode}
-                    quantity={quantity}
-                    sellPrice={sellPrice}
-                  />
-                </div>
-              </div>
-
               {/* Input Section - Column 3 */}
               <div className="flex flex-col h-full">
                 <div className="p-6 pb-3 flex-shrink-0 border-b border-gray-100 dark:border-gray-800">
@@ -77,6 +66,17 @@ export function TreeHarvestModal({
                     onSellPriceChange={setSellPrice}
                     harvestMode={harvestMode}
                     maxQuantity={selectedTree.yield}
+                  />
+                </div>
+              </div>
+
+              {/* Summary Section - Column 2 */}
+              <div className="border-r border-gray-200 dark:border-gray-700 flex flex-col h-full overflow-hidden">
+                <div className="p-6 pb-3 flex-shrink-0 border-b border-gray-100 dark:border-gray-800">
+                  <HarvestSummary
+                    harvestMode={harvestMode}
+                    quantity={quantity}
+                    sellPrice={sellPrice}
                   />
                 </div>
               </div>
