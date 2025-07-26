@@ -1,32 +1,9 @@
 import { useState, useEffect, useRef } from "react";
-import { FARMS_MARKET, ITEMS_MARKET } from "@/data/market";
-import { Farm, Item, FarmMarket } from "@/app/market/types/market";
+import { Farm, Item } from "@/app/market/types/market";
 
-// const farms: Farm[] = (FARMS_MARKET as FarmMarket[]).map((f) => ({
-//   ...f,
-//   description: f.description ?? "",
-//   cropType: f.crops?.[0] ?? "",
-//   owner: f.owner ?? {
-//     id: "",
-//     name: "",
-//     email: "",
-//     phone: "",
-//     role: "",
-//     avatar: "",
-//   },
-//   size: typeof f.size === "number" ? f.size : 0,
-//   images: f.images ?? [],
-// }));
-// const items: Item[] = ITEMS_MARKET.map((i) => ({
-//   ...i,
-//   description: typeof i.description === "string" ? i.description : "",
-//   farm: farms.find((f) => f.id === i.farm),
-//   images: i.images ?? [],
-//   price: i.price ?? 0,
-//   quantity: i.quantity ?? 0,
-// }));
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-export function useSearch() {
+export function useSearch(page = 1, pageSize = 10) {
   const [farms, setFarms] = useState<Farm[]>([]);
   const [items, setItems] = useState<Item[]>([]);
   const [search, setSearch] = useState("");
@@ -40,29 +17,25 @@ export function useSearch() {
 
   // Gọi API lấy danh sách farms
   useEffect(() => {
-    fetch("http://localhost:2412/api/farms?page=1&pageSize=10")
+    fetch(`${API_URL}/farms?page=${page}&pageSize=${pageSize}`)
       .then((res) => res.json())
       .then((data) => {
         if (data.success && Array.isArray(data.data?.items)) {
           setFarms(data.data.items);
-          // Nếu cần map lại dữ liệu cho phù hợp với type Farm, có thể chỉnh sửa tại đây
         }
       });
-  }, []);
+  }, [page, pageSize]);
 
-  // Map items khi farms thay đổi
+  // Gọi API lấy danh sách items
   useEffect(() => {
-    setItems(
-      ITEMS_MARKET.map((i) => ({
-        ...i,
-        description: typeof i.description === "string" ? i.description : "",
-        farm: farms.find((f) => f.id === i.farm),
-        images: i.images ?? [],
-        price: i.price ?? 0,
-        quantity: i.quantity ?? 0,
-      }))
-    );
-  }, [farms]);
+    fetch(`${API_URL}/items?page=${page}&pageSize=${pageSize}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && Array.isArray(data.data?.items)) {
+          setItems(data.data.items);
+        }
+      });
+  }, [page, pageSize]);
 
   useEffect(() => {
     const history = localStorage.getItem("farmverse-search-history");
@@ -86,7 +59,7 @@ export function useSearch() {
         .filter((s, i, arr) => arr.indexOf(s) === i)
         .slice(0, 8)
     );
-  }, [search]);
+  }, [search, farms, items]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

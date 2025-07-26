@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Farm } from "./page";
+import { Farm } from "./types";
 
 export function useFarmDetail(API_URL: string, farmId: string) {
   const [farm, setFarm] = useState<Farm | null>(null);

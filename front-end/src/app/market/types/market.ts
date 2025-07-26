@@ -1,20 +1,35 @@
 export interface Farm {
   id: string;
   name: string;
-  location: string;
-  crops?: string[];
-  description?: string;
-  cropType?: string;
-  owner?: {
-    id: string;
-    name: string;
-    email: string;
-    phone: string;
-    role: string;
-    avatar: string;
+  address: {
+    houseNumber?: string;
+    street?: string;
+    commune?: string;
+    ward?: string;
+    city?: string;
+    province?: string;
+    country?: string;
   };
-  size?: number;
-  images?: string[];
+  size: number;
+  description: string;
+  images: string[];
+  user: {
+    id: string;
+    email: string;
+    name: string;
+    avatar: string;
+    address: {
+      houseNumber?: string;
+      street?: string;
+      commune?: string;
+      ward?: string;
+      city?: string;
+      province?: string;
+      country?: string;
+    };
+    fvtBalance: number;
+    role: string;
+  };
 }
 
 export interface Item {

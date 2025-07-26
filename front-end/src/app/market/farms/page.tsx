@@ -1,23 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { FarmList, Farm } from "../FarmList";
+import { useState } from "react";
+import FarmList from "../FarmList";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { Card } from "@/components/ui/card"; // Shadcn UI Card
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL?.replace(/["']/g, "") || "";
+import { Farm } from "../types/market";
 
 export default function AllFarmsPage() {
-  const [farms, setFarms] = useState<Farm[]>([]);
-
-  useEffect(() => {
-    fetch(`${API_URL}/farms`)
-      .then((res) => res.json())
-      .then((data) => setFarms(data?.data?.items || []))
-      .catch(() => setFarms([]));
-  }, []);
+  const [farms] = useState<Farm[]>([]);
 
   return (
     <SidebarProvider>

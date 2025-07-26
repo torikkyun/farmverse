@@ -93,7 +93,7 @@ export function ItemList({
                           Giá:
                         </span>
                         <span className="font-bold text-lg text-green-600">
-                          {item.price} ETH
+                          {item.price} FVT
                         </span>
                       </div>
                       <div className="flex items-center gap-2">

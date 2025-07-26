@@ -4,7 +4,7 @@ import { useState } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { FarmList } from "./FarmList";
+import FarmList from "./FarmList";
 import { ItemList } from "./ItemList";
 import { Input } from "@/components/ui/input";
 import {
@@ -17,9 +17,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Search, MapPin, X } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useSearch } from "./useSearch";
 import { SearchResultsHeader } from "./SearchResultsHeader";
 import { SearchSuggestions } from "./SearchSuggestions";
+import { useSearch } from "./useSearch";
 
 export default function MarketPage() {
   const [showResults, setShowResults] = useState(false);
@@ -46,18 +46,18 @@ export default function MarketPage() {
   } = useSearch();
 
   const locations = Array.from(
-    new Set(farms.map((farm) => farm.location).filter(Boolean))
+    new Set(farms.map((farm) => farm.address?.city).filter(Boolean))
   );
 
   // Filter data
   const filteredFarms = farms.filter((farm) => {
     const matchesSearch =
       !search ||
-      [farm.name, farm.description, farm.cropType].some((field) =>
+      [farm.name, farm.description].some((field) =>
         field?.toLowerCase().includes(search.toLowerCase())
       );
     const matchesLocation =
-      !location || location === "all" || farm.location === location;
+      !location || location === "all" || farm.address.city === location;
     return matchesSearch && matchesLocation;
   });
 
@@ -68,7 +68,7 @@ export default function MarketPage() {
         field?.toLowerCase().includes(search.toLowerCase())
       );
     const matchesLocation =
-      !location || location === "all" || item.farm?.location === location;
+      !location || location === "all" || item.farm?.address.city === location;
     return matchesSearch && matchesLocation;
   });
 
@@ -317,8 +317,8 @@ export default function MarketPage() {
                         <SelectContent>
                           <SelectItem value="all">Tất cả vị trí</SelectItem>
                           {locations.map((loc) => (
-                            <SelectItem key={loc} value={loc}>
-                              {loc}
+                            <SelectItem key={loc} value={loc || ""}>
+                              {loc || "Không xác định"}
                             </SelectItem>
                           ))}
                         </SelectContent>

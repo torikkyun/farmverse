@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { NFTItem } from "./page";
+import { NFTItem } from "./types";
 
 const PAGE = 1;
 const PAGE_SIZE = 10;
@@ -24,9 +24,9 @@ export function useFarmItems(API_URL: string, farmId: string) {
       .then((json) => {
         setItems(
           (json?.data?.items || []).map((item: RawItem) => ({
-            id: item.id || item._id,
+            id: Number(item.id || item._id),
             name: item.name,
-            price: String(item.price),
+            price: Number(item.price),
             image: Array.isArray(item.images) ? item.images[0] : "",
           }))
         );
@@ -42,9 +42,9 @@ export function useFarmItems(API_URL: string, farmId: string) {
       .then((json) => {
         setDungs(
           (json?.data?.items || []).map((item: RawItem) => ({
-            id: item.id || item._id,
+            id: Number(item.id || item._id),
             name: item.name,
-            price: String(item.price),
+            price: Number(item.price),
             image: Array.isArray(item.images) ? item.images[0] : "",
           }))
         );
