@@ -1,6 +1,6 @@
 import { PrismaService } from '@app/providers/prisma.service';
 import { BadGatewayException, Injectable } from '@nestjs/common';
-import { BlockchainService } from '@queue/blockchain/blockchain.service';
+import { BlockchainService } from '@queue/providers/blockchain.service';
 import { statusRentedTree, TransactionStatus } from 'generated/prisma';
 
 @Injectable()

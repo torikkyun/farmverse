@@ -2,31 +2,33 @@ import { useState, useEffect, useRef } from "react";
 import { FARMS_MARKET, ITEMS_MARKET } from "@/data/market";
 import { Farm, Item, FarmMarket } from "@/app/market/types/market";
 
-const farms: Farm[] = (FARMS_MARKET as FarmMarket[]).map((f) => ({
-  ...f,
-  description: f.description ?? "",
-  cropType: f.crops?.[0] ?? "",
-  owner: f.owner ?? {
-    id: "",
-    name: "",
-    email: "",
-    phone: "",
-    role: "",
-    avatar: "",
-  },
-  size: typeof f.size === "number" ? f.size : 0,
-  images: f.images ?? [],
-}));
-const items: Item[] = ITEMS_MARKET.map((i) => ({
-  ...i,
-  description: typeof i.description === "string" ? i.description : "",
-  farm: farms.find((f) => f.id === i.farm),
-  images: i.images ?? [],
-  price: i.price ?? 0,
-  quantity: i.quantity ?? 0,
-}));
+// const farms: Farm[] = (FARMS_MARKET as FarmMarket[]).map((f) => ({
+//   ...f,
+//   description: f.description ?? "",
+//   cropType: f.crops?.[0] ?? "",
+//   owner: f.owner ?? {
+//     id: "",
+//     name: "",
+//     email: "",
+//     phone: "",
+//     role: "",
+//     avatar: "",
+//   },
+//   size: typeof f.size === "number" ? f.size : 0,
+//   images: f.images ?? [],
+// }));
+// const items: Item[] = ITEMS_MARKET.map((i) => ({
+//   ...i,
+//   description: typeof i.description === "string" ? i.description : "",
+//   farm: farms.find((f) => f.id === i.farm),
+//   images: i.images ?? [],
+//   price: i.price ?? 0,
+//   quantity: i.quantity ?? 0,
+// }));
 
 export function useSearch() {
+  const [farms, setFarms] = useState<Farm[]>([]);
+  const [items, setItems] = useState<Item[]>([]);
   const [search, setSearch] = useState("");
   const [location, setLocation] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -35,6 +37,32 @@ export function useSearch() {
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
+
+  // Gọi API lấy danh sách farms
+  useEffect(() => {
+    fetch("http://localhost:2412/api/farms?page=1&pageSize=10")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && Array.isArray(data.data?.items)) {
+          setFarms(data.data.items);
+          // Nếu cần map lại dữ liệu cho phù hợp với type Farm, có thể chỉnh sửa tại đây
+        }
+      });
+  }, []);
+
+  // Map items khi farms thay đổi
+  useEffect(() => {
+    setItems(
+      ITEMS_MARKET.map((i) => ({
+        ...i,
+        description: typeof i.description === "string" ? i.description : "",
+        farm: farms.find((f) => f.id === i.farm),
+        images: i.images ?? [],
+        price: i.price ?? 0,
+        quantity: i.quantity ?? 0,
+      }))
+    );
+  }, [farms]);
 
   useEffect(() => {
     const history = localStorage.getItem("farmverse-search-history");

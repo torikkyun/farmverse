@@ -2,7 +2,7 @@ import { Expose } from 'class-transformer';
 import { statusRentedTree } from 'generated/prisma';
 import { FarmResponseDto } from './farm.dto';
 
-export class RentedTreeResponseDto {
+export class RentedTreeBaseResponseDto {
   @Expose()
   id: string;
 
@@ -16,6 +16,23 @@ export class RentedTreeResponseDto {
   images: string[];
 
   @Expose()
+  status: statusRentedTree;
+
+  @Expose()
+  totalProfit: number;
+
+  @Expose()
+  startDate: Date;
+
+  @Expose()
+  endDate: Date;
+}
+
+export class RentedTreeResponseDto extends RentedTreeBaseResponseDto {
+  @Expose()
+  harvest: any[];
+
+  @Expose()
   details: any;
 
   @Expose()
@@ -23,21 +40,6 @@ export class RentedTreeResponseDto {
 
   @Expose()
   cameraUrl?: string;
-
-  @Expose()
-  status: statusRentedTree;
-
-  @Expose()
-  totalProfit: number;
-
-  @Expose()
-  harvest: any[];
-
-  @Expose()
-  startDate: Date;
-
-  @Expose()
-  endDate: Date;
 
   @Expose()
   farm: FarmResponseDto;

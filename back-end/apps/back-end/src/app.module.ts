@@ -11,6 +11,7 @@ import { RolesGuard } from './common/guards/roles.guard';
 import { SeedModule } from './seed/seed.module';
 import { QueueModule } from './providers/queue/queue.module';
 import { TransactionsModule } from './models/transactions/transactions.module';
+import { RentedTreesModule } from './models/rented-trees/rented-trees.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { TransactionsModule } from './models/transactions/transactions.module';
     FarmsModule,
     ItemsModule,
     TransactionsModule,
+    RentedTreesModule,
   ],
   providers: [
     {
