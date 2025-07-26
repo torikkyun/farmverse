@@ -1,11 +1,5 @@
 import NFTCard from "./nft-card";
-
-interface NFTItem {
-  id: number;
-  image: string;
-  name: string;
-  price: number;
-}
+import { NFTItem } from "../[slug]/types";
 
 interface NFTGridProps {
   items: NFTItem[];

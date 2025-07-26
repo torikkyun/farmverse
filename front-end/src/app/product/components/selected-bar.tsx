@@ -1,22 +1,14 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import ModalCheckout from "./ModalCheckout";
-
-interface Item {
-  id: number;
-  price: number;
-  image: string;
-  name: string;
-  type: "Cây trồng" | "Phân bón"; // Thêm thuộc tính này
-  quantity?: number;
-}
+import { NFTItem } from "../[slug]/types";
 
 interface SelectedBarProps {
-  items: Item[];
+  items: NFTItem[]; // Sửa từ Item[] thành NFTItem[]
   selectedItems: number[];
   setSelectedItems: (ids: number[]) => void;
   activeTab: number;
-  onCheckout?: () => void;
+  onCheckout: () => void;
 }
 
 function formatPrice(price: number): string {

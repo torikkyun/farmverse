@@ -11,6 +11,7 @@ import FarmTabs from "./FarmTabs";
 import ModalCheckout from "../components/ModalCheckout";
 import { useFarmDetail } from "./useFarmDetail";
 import { useFarmItems } from "./useFarmItems";
+import { NFTItem } from "./types"; // Thêm import này
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "";
 
@@ -60,7 +61,7 @@ export default function ProductDetailPage() {
     );
   };
 
-  const tabItems = activeTab === 1 ? dungs : items;
+  const tabItems: NFTItem[] = activeTab === 1 ? dungs : items; // Thêm type annotation
 
   return (
     <SidebarProvider>

@@ -26,7 +26,7 @@ export function useFarmItems(API_URL: string, farmId: string) {
           (json?.data?.items || []).map((item: RawItem) => ({
             id: Number(item.id || item._id),
             name: item.name,
-            price: Number(item.price),
+            price: Number(item.price), // đảm bảo là number
             image: Array.isArray(item.images) ? item.images[0] : "",
           }))
         );

@@ -1,3 +1,11 @@
+export interface NFTItem {
+  id: number;
+  image: string;
+  name: string;
+  price: number;
+  quantity?: number;
+}
+
 export interface Farm {
   id: string;
   name: string;
@@ -25,11 +33,4 @@ export interface Farm {
     month: number;
     activities: string[];
   }>;
-}
-
-export interface NFTItem {
-  id: number;
-  name: string;
-  price: string;
-  image: string;
 }

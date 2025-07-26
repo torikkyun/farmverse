@@ -2,19 +2,14 @@ import React, { useMemo } from "react";
 import TabMenu from "../components/tab-menu";
 import NFTCard from "../components/nft-card";
 import DungCard from "../components/dung-card";
-import { TREE_ITEMS } from "@/data/tree";
+import { NFTItem } from "./types";
+import { useFarmDetail } from "./useFarmDetail";
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 type CareSchedule = {
   month: number;
   activities: string[];
-};
-
-type NFTItem = {
-  id: number;
-  image: string;
-  name: string;
-  price: number;
-  quantity?: number;
 };
 
 interface Props {
@@ -38,13 +33,14 @@ export default function FarmTabs({
 }: Props) {
   const data = activeTab === 0 ? items : dungs;
 
-  // Lấy danh sách lịch chăm sóc từ cây trồng của farm hiện tại
+  // Lấy thông tin farm từ API
+  const { farm } = useFarmDetail(API_URL || "", farmId || "");
+
+  // Lấy danh sách lịch chăm sóc từ API
   const schedules: CareSchedule[] = useMemo(() => {
-    if (!farmId) return [];
-    return TREE_ITEMS.filter((tree) => tree.farm === farmId).flatMap(
-      (tree) => tree.careSchedule || []
-    );
-  }, [farmId]);
+    if (!farm?.schedule) return [];
+    return farm.schedule.sort((a, b) => a.month - b.month);
+  }, [farm]);
 
   return (
     <>
@@ -85,7 +81,8 @@ export default function FarmTabs({
                       Lịch chăm sóc cây trồng
                     </h3>
                     <p className="text-gray-300 text-lg">
-                      Theo dõi và quản lý lịch trình chăm sóc cây trồng của bạn
+                      Theo dõi và quản lý lịch trình chăm sóc cây trồng của{" "}
+                      {farm?.name || "nông trại"}
                     </p>
                   </div>
                 </div>
