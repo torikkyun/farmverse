@@ -12,7 +12,6 @@ import {
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
-import { PaginationResponseDto } from '@app/common/dto/pagination.dto';
 import { UserResponseDto } from '@app/common/dto/response/user.dto';
 import { SearchUsersQueryDto } from './dto/search-user.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
@@ -32,7 +31,10 @@ export class UsersController {
   @Public()
   findAll(
     @Query(new ValidationPipe()) searchUsersQueryDto: SearchUsersQueryDto,
-  ): Promise<PaginationResponseDto<UserResponseDto>> {
+  ): Promise<{
+    message: string;
+    items: UserResponseDto[];
+  }> {
     return this.usersService.findAll(searchUsersQueryDto);
   }
 

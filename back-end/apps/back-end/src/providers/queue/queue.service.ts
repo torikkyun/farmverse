@@ -38,10 +38,11 @@ export class QueueService implements OnModuleInit {
     items: {
       itemId: string;
       quantity: number;
-      includesIot?: boolean;
+      includesIot: boolean;
       startDate: Date;
       endDate: Date;
     }[];
+    contractImage: Express.Multer.File;
   }) {
     await lastValueFrom(this.client.emit('contract', data));
   }

@@ -1,15 +1,26 @@
 import { Expose } from 'class-transformer';
-import { TransactionType } from 'generated/prisma';
+import { TransactionStatus, TransactionType } from 'generated/prisma';
 import { FarmResponseDto } from './farm.dto';
 import { UserResponseDto } from './user.dto';
 
-export class TransactionResponseDto {
+export class TransactionBaseResponseDto {
   @Expose()
   id: string;
 
   @Expose()
   totalPrice: number;
 
+  @Expose()
+  details?: any;
+
+  @Expose()
+  createdAt: Date;
+
+  @Expose()
+  type: TransactionType;
+}
+
+export class TransactionResponseDto extends TransactionBaseResponseDto {
   @Expose()
   transactionHash: string;
 
@@ -23,13 +34,10 @@ export class TransactionResponseDto {
   toAddress: string;
 
   @Expose()
-  details?: any;
+  status: TransactionStatus;
 
   @Expose()
-  createdAt: Date;
-
-  @Expose()
-  type: TransactionType;
+  contractImage?: string;
 
   @Expose()
   user: UserResponseDto;

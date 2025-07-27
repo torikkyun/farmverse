@@ -1,10 +1,20 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Query,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { DepositDto } from './dto/deposit.dto';
 import { ContractDto } from './dto/contract.dto';
-import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import { TransactionResponseDto } from '../../common/dto/response/transaction.dto';
+import { SearchTransactionsQueryDto } from './dto/search-transaction.dto';
+import { TransactionBaseResponseDto } from '@app/common/dto/response/transaction.dto';
+import { CurrentUser } from '@app/common/decorators/current-user.decorator';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('api/transactions')
 @ApiTags('transactions')
@@ -16,17 +26,24 @@ export class TransactionsController {
   async deposit(
     @CurrentUser() user: { id: string },
     @Body() depositDto: DepositDto,
-  ) {
+  ): Promise<{ message: string; transaction: TransactionBaseResponseDto }> {
     return await this.transactionsService.deposit(user, depositDto);
   }
 
   @Post('contract')
+  @UseInterceptors(FileInterceptor('contractImage'))
   @ApiBearerAuth()
+  @ApiConsumes('multipart/form-data')
   async createContract(
     @CurrentUser() user: { id: string },
     @Body() contractDto: ContractDto,
-  ) {
-    return await this.transactionsService.contract(user, contractDto);
+    @UploadedFile() contractImage: Express.Multer.File,
+  ): Promise<{ message: string; transaction: TransactionBaseResponseDto }> {
+    return await this.transactionsService.contract(
+      user,
+      contractDto,
+      contractImage,
+    );
   }
 
   // @Post('purchase-items')
@@ -42,8 +59,12 @@ export class TransactionsController {
   @ApiBearerAuth()
   async getAllTransactions(
     @CurrentUser() user: { id: string },
-  ): Promise<{ message: string; transactions: TransactionResponseDto[] }> {
-    return await this.transactionsService.getAllTransactions(user);
+    @Query() searchTransactionsQueryDto: SearchTransactionsQueryDto,
+  ): Promise<{ message: string; items: TransactionBaseResponseDto[] }> {
+    return await this.transactionsService.getAllTransactions(
+      user,
+      searchTransactionsQueryDto,
+    );
   }
 
   // @Get('/:transactionId')

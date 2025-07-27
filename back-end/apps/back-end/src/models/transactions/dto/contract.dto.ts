@@ -6,7 +6,6 @@ import {
   IsDate,
   IsNotEmpty,
   IsNumber,
-  IsOptional,
   IsString,
   ValidateNested,
 } from 'class-validator';
@@ -20,10 +19,10 @@ class TreeDto {
   @ApiProperty({ required: true })
   quantity: number;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsBoolean()
-  @ApiProperty({ required: false })
-  includesIot?: boolean;
+  @ApiProperty({ required: true })
+  includesIot: boolean;
 
   @IsNotEmpty()
   @IsDate()
@@ -49,4 +48,12 @@ export class ContractDto {
   @IsNumber()
   @ApiProperty({ required: true })
   totalPrice: number;
+
+  @IsNotEmpty()
+  @ApiProperty({
+    type: 'string',
+    format: 'binary',
+    required: true,
+  })
+  contractImage: any;
 }

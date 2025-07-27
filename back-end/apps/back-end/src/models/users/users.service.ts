@@ -11,17 +11,30 @@ import {
   PaginationMetaDto,
   PaginationResponseDto,
 } from '@app/common/dto/pagination.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly configService: ConfigService,
+  ) {}
+
+  private toUserResponseDto(user: any): UserResponseDto {
+    return plainToInstance(UserResponseDto, user, {
+      excludeExtraneousValues: true,
+    });
+  }
 
   async findAll({
     page,
     pageSize,
     search,
     role,
-  }: SearchUsersQueryDto): Promise<PaginationResponseDto<UserResponseDto>> {
+  }: SearchUsersQueryDto): Promise<{
+    message: string;
+    items: UserResponseDto[];
+  }> {
     const skip = (page - 1) * pageSize;
     const where: Prisma.UserWhereInput = {};
 
@@ -46,11 +59,12 @@ export class UsersService {
     ]);
 
     const meta = new PaginationMetaDto(page, pageSize, totalItems);
-    const items = plainToInstance(UserResponseDto, users, {
-      excludeExtraneousValues: true,
-    });
+    const items = users.map((user) => this.toUserResponseDto(user));
 
-    return new PaginationResponseDto(items, meta);
+    return {
+      message: 'Lấy danh sách người dùng thành công',
+      ...new PaginationResponseDto(items, meta),
+    };
   }
 
   async findOne(
@@ -64,9 +78,7 @@ export class UsersService {
 
     return {
       message: 'Lấy thông tin người dùng thành công',
-      user: plainToInstance(UserResponseDto, user, {
-        excludeExtraneousValues: true,
-      }),
+      user: this.toUserResponseDto(user),
     };
   }
 
@@ -79,15 +91,15 @@ export class UsersService {
       where: { id },
       data: {
         ...updateUserDto,
-        avatar: avatar ? `/static/avatars/${avatar.filename}` : undefined,
+        avatar: avatar
+          ? `${this.configService.get('BACKEND_URL')}/static/avatars/${avatar.filename}`
+          : undefined,
       },
     });
 
     return {
       message: 'Cập nhật thông tin người dùng thành công',
-      user: plainToInstance(UserResponseDto, updatedUser, {
-        excludeExtraneousValues: true,
-      }),
+      user: this.toUserResponseDto(updatedUser),
     };
   }
 
@@ -108,9 +120,7 @@ export class UsersService {
 
     return {
       message: 'Đổi mật khẩu thành công',
-      user: plainToInstance(UserResponseDto, updatedUser, {
-        excludeExtraneousValues: true,
-      }),
+      user: this.toUserResponseDto(updatedUser),
     };
   }
 

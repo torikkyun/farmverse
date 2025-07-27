@@ -6,7 +6,7 @@ export class EmailVerificationDto {
   @IsNotEmpty({ message: UserValidationMessages.EMAIL.NOT_EMPTY })
   @IsEmail({}, { message: UserValidationMessages.EMAIL.INVALID_FORMAT })
   @ApiProperty({
-    example: 'farmer@gmail.com',
+    example: 'hoangminh0701@gmail.com',
   })
   email: string;
 }

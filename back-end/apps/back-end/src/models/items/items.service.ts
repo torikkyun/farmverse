@@ -20,10 +20,14 @@ import {
   PaginationMetaDto,
   PaginationResponseDto,
 } from '@app/common/dto/pagination.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class ItemsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly configService: ConfigService,
+  ) {}
 
   private toItemBaseResponse(item: any): ItemBaseResponseDto {
     return plainToInstance(ItemBaseResponseDto, item, {
@@ -68,7 +72,8 @@ export class ItemsService {
 
     if (images && images.length > 0) {
       createItemDto.images = images.map(
-        (file) => `/static/items/${file.filename}`,
+        (file) =>
+          `${this.configService.get('BACKEND_URL')}/static/items/${file.filename}`,
       );
     }
 
@@ -208,7 +213,8 @@ export class ItemsService {
 
     if (images && images.length > 0) {
       updateItemDto.images = images.map(
-        (file) => `/static/items/${file.filename}`,
+        (file) =>
+          `${this.configService.get('BACKEND_URL')}/static/items/${file.filename}`,
       );
     }
 

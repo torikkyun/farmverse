@@ -42,17 +42,17 @@ export class RentedTreesService {
     return rentedTreeResponse;
   }
 
-  async findAll({
-    page,
-    pageSize,
-    search,
-    status,
-  }: SearchRentedTreesQueryDto): Promise<{
+  async findAll(
+    { id }: { id: string },
+    { page, pageSize, search, status }: SearchRentedTreesQueryDto,
+  ): Promise<{
     message: string;
     items: RentedTreeBaseResponseDto[];
   }> {
     const skip = (page - 1) * pageSize;
-    const where: Prisma.RentedTreeWhereInput = {};
+    const where: Prisma.RentedTreeWhereInput = {
+      userId: id,
+    };
 
     if (search) {
       where.OR = [{ name: { contains: search, mode: 'insensitive' } }];
@@ -87,7 +87,7 @@ export class RentedTreesService {
   async findOne(
     { id }: { id: string },
     rentedTreeId: string,
-  ): Promise<RentedTreeResponseDto> {
+  ): Promise<{ message: string; rentedTree: RentedTreeResponseDto }> {
     const rentedTree = await this.prisma.rentedTree.findUnique({
       where: { id: rentedTreeId, userId: id },
       include: { farm: true },
@@ -99,6 +99,9 @@ export class RentedTreesService {
       );
     }
 
-    return this.toRentedTreeResponse(rentedTree);
+    return {
+      message: 'Lấy cây thuê thành công',
+      rentedTree: this.toRentedTreeResponse(rentedTree),
+    };
   }
 }

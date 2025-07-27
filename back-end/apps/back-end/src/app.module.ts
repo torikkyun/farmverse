@@ -12,6 +12,7 @@ import { SeedModule } from './seed/seed.module';
 import { QueueModule } from './providers/queue/queue.module';
 import { TransactionsModule } from './models/transactions/transactions.module';
 import { RentedTreesModule } from './models/rented-trees/rented-trees.module';
+import { InventoryModule } from './models/inventory/inventory.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { RentedTreesModule } from './models/rented-trees/rented-trees.module';
     ItemsModule,
     TransactionsModule,
     RentedTreesModule,
+    InventoryModule,
   ],
   providers: [
     {

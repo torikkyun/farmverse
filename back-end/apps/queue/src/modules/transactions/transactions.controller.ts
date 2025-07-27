@@ -22,11 +22,12 @@ export class TransactionsController {
       items: {
         itemId: string;
         quantity: number;
-        includesIot?: boolean;
+        includesIot: boolean;
         startDate: Date;
         endDate: Date;
         totalPrice: number;
       }[];
+      contractImage: Express.Multer.File;
     },
   ) {
     await this.transactionsService.handleContract(data);

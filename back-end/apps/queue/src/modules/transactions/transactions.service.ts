@@ -1,5 +1,6 @@
 import { PrismaService } from '@app/providers/prisma.service';
 import { BadGatewayException, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { BlockchainService } from '@queue/providers/blockchain.service';
 import { statusRentedTree, TransactionStatus } from 'generated/prisma';
 
@@ -8,6 +9,7 @@ export class TransactionsService {
   constructor(
     private readonly blockchainService: BlockchainService,
     private readonly prisma: PrismaService,
+    private readonly configService: ConfigService,
   ) {}
 
   async handleDeposit({
@@ -58,17 +60,19 @@ export class TransactionsService {
     transactionId,
     userId,
     items,
+    contractImage,
   }: {
     transactionId: string;
     userId: string;
     items: {
       itemId: string;
       quantity: number;
-      includesIot?: boolean;
+      includesIot: boolean;
       startDate: Date;
       endDate: Date;
       totalPrice: number;
     }[];
+    contractImage: Express.Multer.File;
   }) {
     try {
       const totalPrice = items.reduce((acc, item) => acc + item.totalPrice, 0);
@@ -90,6 +94,7 @@ export class TransactionsService {
           fromAddress: tx.from,
           toAddress: tx.to,
           status: TransactionStatus.SUCCESS,
+          contractImage: `${this.configService.get('BACKEND_URL')}/static/contracts/${contractImage.filename}`,
           userId,
         },
       });

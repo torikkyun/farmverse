@@ -18,10 +18,14 @@ import {
   PaginationMetaDto,
   PaginationResponseDto,
 } from '@app/common/dto/pagination.dto';
+import { ConfigService } from '@nestjs/config/dist/config.service';
 
 @Injectable()
 export class FarmsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly configService: ConfigService,
+  ) {}
 
   private toFarmResponse(farm: any): FarmResponseDto {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -66,7 +70,8 @@ export class FarmsService {
 
     if (images && images.length > 0) {
       createFarmDto.images = images.map(
-        (file) => `/static/farms/${file.filename}`,
+        (file) =>
+          `${this.configService.get('BACKEND_URL')}/static/farms/${file.filename}`,
       );
     }
 
@@ -164,7 +169,8 @@ export class FarmsService {
 
     if (images && images.length > 0) {
       updateFarmDto.images = images.map(
-        (file) => `/static/farms/${file.filename}`,
+        (file) =>
+          `${this.configService.get('BACKEND_URL')}/static/farms/${file.filename}`,
       );
     }
 
