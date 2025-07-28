@@ -3,8 +3,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Item } from "../utils/checkoutUtils";
 
 type ItemsByType = {
-  caytrong: Item[];
-  phanbon: Item[];
+  tree: Item[];
+  fertilizer: Item[];
 };
 
 type ContractData = {
@@ -74,6 +74,12 @@ export default function ContractForm({
     },
   ];
 
+  // Giả sử items là mảng các cây trồng
+  const totalCay = itemsByType.tree.reduce(
+    (sum, item) => sum + (item.quantity ?? 1),
+    0
+  );
+
   return (
     <div className="w-full px-2 overflow-x-hidden">
       <div className="text-center border-b-2 border-black pb-4 mb-6">
@@ -137,9 +143,9 @@ export default function ContractForm({
         <ul className="text-base space-y-1 list-disc list-inside text-black">
           <li>
             Loại cây:{" "}
-            {itemsByType.caytrong.map((item: Item) => item.name).join(", ")}
+            {itemsByType.tree.map((item: Item) => item.name).join(", ")}
           </li>
-          <li>Số lượng: {itemsByType.caytrong.length} cây</li>
+          <li>Số lượng: {totalCay} cây</li>
           <li>Tuổi cây: 2-3 năm</li>
           <li>Tình trạng: Khỏe mạnh, phát triển tốt</li>
           <li>Vị trí trồng: Khu vực A, Trang trại FarmVerse</li>

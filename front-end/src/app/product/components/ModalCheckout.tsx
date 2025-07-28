@@ -65,8 +65,17 @@ export default function ModalCheckout({
     }
   }, [success, onClose, onHideSelectedBar]);
 
-  const itemsByType = classifyItems(items);
-  const total = calculateTotal(items, includesIot, itemsByType.caytrong.length);
+  const itemsWithType = items.map((item) => ({
+    ...item,
+    type: item.type || "TREE", // hoặc logic xác định type phù hợp
+  }));
+
+  const itemsByType = classifyItems(itemsWithType);
+  const total = calculateTotal(
+    itemsWithType,
+    includesIot,
+    itemsByType.tree.length
+  );
 
   const handleCheckout = async () => {
     if (!agreeTerms) {
@@ -96,6 +105,8 @@ export default function ModalCheckout({
     setContractData((prev) => ({ ...prev, [field]: value }));
   };
 
+  console.log("items", items);
+
   return (
     <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center w-screen h-screen">
       {isLoading && <LoadingOverlay />}
@@ -118,6 +129,17 @@ export default function ModalCheckout({
               itemsByType={itemsByType}
               total={total}
             />
+            {/* Hiển thị danh sách vật phẩm mua */}
+            <div className="p-4 border-b border-black">
+              <h3 className="font-bold text-lg mb-2">Danh sách vật phẩm</h3>
+              <ul className="list-disc ml-6 text-base text-gray-800">
+                {items.map((item, idx) => (
+                  <li key={idx}>
+                    {item.name} {item.quantity ? `x${item.quantity}` : ""}
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
           <OrderSummary
             itemsByType={itemsByType}

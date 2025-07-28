@@ -1,13 +1,13 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import ItemCard from "./ItemCard";
-import { Checkbox } from "@/components/ui/checkbox";
+// import { Checkbox } from "@/components/ui/checkbox";
 import { Item } from "../utils/checkoutUtils";
 import { useRouter } from "next/navigation";
 
-type ItemsByType = {
-  caytrong: Item[];
-  phanbon: Item[];
-};
+// type ItemsByType = {
+//   tree: Item[];
+//   fertilizer: Item[];
+// };
 
 type ContractData = {
   lessorName: string;
@@ -28,20 +28,22 @@ type ContractData = {
 };
 
 type OrderSummaryProps = {
-  itemsByType: ItemsByType;
-  includesIot: boolean;
-  setIncludesIot: (checked: boolean) => void;
+  itemsByType: {
+    tree: Item[];
+    fertilizer: Item[];
+  };
   total: number;
   agreeTerms: boolean;
   isLoading: boolean;
   contractData: ContractData;
-  handleCheckout: () => void;
+  handleCheckout: () => Promise<void>;
+  // Thêm 2 dòng dưới nếu bạn truyền props này từ ModalCheckout
+  includesIot?: boolean;
+  setIncludesIot?: (checked: boolean) => void;
 };
 
 export default function OrderSummary({
   itemsByType,
-  includesIot,
-  setIncludesIot,
   total,
   agreeTerms,
   isLoading,
@@ -50,42 +52,90 @@ export default function OrderSummary({
 }: OrderSummaryProps) {
   const router = useRouter();
 
+  // State lưu trạng thái IOT cho từng cây
+  const [iotSelections, setIotSelections] = useState<{ [id: string]: boolean }>(
+    {}
+  );
+
+  // Khi danh sách cây thay đổi, tự động cập nhật iotSelections
+  useEffect(() => {
+    setIotSelections((prev) => {
+      const newSelections: { [id: string]: boolean } = {};
+      itemsByType.tree.forEach((item) => {
+        newSelections[item.id] = prev[item.id] ?? false;
+      });
+      return newSelections;
+    });
+  }, [itemsByType.tree]);
+
+  // Tạo state lưu danh sách cây với quantity
+  const [treeItems, setTreeItems] = useState<Item[]>(itemsByType.tree);
+
+  // Hàm cập nhật số lượng
+  const handleQuantityChange = (id: string, newQuantity: number) => {
+    setTreeItems((prev) =>
+      prev.map((item) =>
+        item.id === id ? { ...item, quantity: newQuantity } : item
+      )
+    );
+  };
+
+  const handleIotChange = (id: string, checked: boolean) => {
+    setIotSelections((prev) => ({ ...prev, [id]: checked }));
+  };
+
   const handleCheckoutAndRedirect = () => {
     handleCheckout();
     router.push("/tree");
   };
 
+  console.log("itemsByType", itemsByType);
+
   return (
     <div className="flex-[1] p-8 bg-gray-100 overflow-y-auto min-w-[400px] max-w-[500px] border-l border-black">
       <h2 className="text-2xl font-bold text-black mb-6">Chi tiết đơn hàng</h2>
       {/* Cây trồng */}
-      {itemsByType.caytrong.length > 0 && (
+      {itemsByType.tree.length > 0 && (
         <div className="mb-6">
           <div className="font-bold text-lg mb-4 text-black bg-gray-200 px-4 py-2 rounded-lg border border-black">
             🌱 Cây trồng (Thuê 1 năm)
           </div>
-          {itemsByType.caytrong.map((item: Item) => (
-            <ItemCard key={`tree-${item.id}`} item={item} type="tree" />
+          {treeItems.map((item) => (
+            <ItemCard
+              key={item.id}
+              item={item}
+              type="tree"
+              quantity={item.quantity ?? 1}
+              onQuantityChange={(newQuantity) =>
+                handleQuantityChange(item.id, newQuantity)
+              }
+              includesIot={!!iotSelections[item.id]}
+              setIncludesIot={(checked) => handleIotChange(item.id, checked)}
+            />
           ))}
         </div>
       )}
       {/* Phân bón */}
-      {itemsByType.phanbon.length > 0 && (
+      {itemsByType.fertilizer.length > 0 && (
         <div className="mb-6">
           <div className="font-bold text-lg mb-4 text-black bg-gray-200 px-4 py-2 rounded-lg border border-black">
             🌾 Phân bón (Mua)
           </div>
-          {itemsByType.phanbon.map((item: Item) => (
+          {itemsByType.fertilizer.map((item: Item) => (
             <ItemCard
               key={`fertilizer-${item.id}`}
               item={item}
               type="fertilizer"
+              quantity={item.quantity ?? 1}
+              onQuantityChange={(newQuantity) =>
+                handleQuantityChange(item.id, newQuantity)
+              }
             />
           ))}
         </div>
       )}
       {/* IOT checkbox */}
-      {itemsByType.caytrong.length > 0 && (
+      {/* {itemsByType.tree.length > 0 && (
         <div className="mb-6">
           <div className="bg-white p-4 rounded-lg border border-black">
             <div className="flex items-start gap-3">
@@ -103,7 +153,7 @@ export default function OrderSummary({
                   📡 Thiết bị theo dõi IOT
                 </label>
                 <div className="text-black font-semibold mb-2">
-                  +{(itemsByType.caytrong.length * 500).toLocaleString()} FVT
+                  +{(itemsByType.tree.length * 500).toLocaleString()} FVT
                 </div>
                 <div className="text-sm text-gray-700 space-y-1">
                   <div>✓ Theo dõi độ ẩm đất 24/7</div>
@@ -115,7 +165,7 @@ export default function OrderSummary({
             </div>
           </div>
         </div>
-      )}
+      )} */}
       {/* Chi tiết thanh toán */}
       <div className="bg-white p-6 rounded-lg border-2 border-black mb-6">
         <div className="font-bold text-lg text-black mb-4">
@@ -155,13 +205,13 @@ export default function OrderSummary({
               </div>
             )
         )}
-        {includesIot && itemsByType.caytrong.length > 0 && (
+        {itemsByType.tree.length > 0 && (
           <div className="flex justify-between mb-2">
             <span className="text-gray-700">
-              Thiết bị IOT ({itemsByType.caytrong.length} bộ):
+              Thiết bị IOT ({itemsByType.tree.length} bộ):
             </span>
             <span className="font-semibold text-black">
-              {(itemsByType.caytrong.length * 500).toLocaleString()} FVT
+              {(itemsByType.tree.length * 500).toLocaleString()} FVT
             </span>
           </div>
         )}

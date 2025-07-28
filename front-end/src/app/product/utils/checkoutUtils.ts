@@ -4,18 +4,10 @@ import { NFTItem, DungItem } from "../[slug]/types";
 export type Item = NFTItem | DungItem; // Thêm export ở đây
 
 export function classifyItems(items: Item[]) {
-  const caytrong: Item[] = [];
-  const phanbon: Item[] = [];
-
-  items.forEach((item) => {
-    if (item.type === "caytrong") {
-      caytrong.push(item);
-    } else if (item.type === "phanbon") {
-      phanbon.push(item);
-    }
-  });
-
-  return { caytrong, phanbon };
+  return {
+    tree: items.filter((item) => item.type === "TREE"),
+    fertilizer: items.filter((item) => item.type === "FERTILIZER"),
+  };
 }
 
 export function calculateTotal(
