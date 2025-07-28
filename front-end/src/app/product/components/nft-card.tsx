@@ -22,8 +22,8 @@ export default function NFTCard({ item, selected, onSelect }: NFTCardProps) {
       <div className="relative">
         <Image
           src={
-            Array.isArray(item.image) && item.image.length > 0
-              ? item.image[0]
+            Array.isArray(item.images) && item.images.length > 0
+              ? item.images[0]
               : "/no-image.png"
           }
           alt={item.name}
@@ -36,7 +36,6 @@ export default function NFTCard({ item, selected, onSelect }: NFTCardProps) {
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            console.log("NFTCard button clicked for item:", item.id);
             onSelect(item.id); // Đảm bảo item.id là string
           }}
           className={`absolute top-2 right-2 rounded-full w-8 h-8 flex items-center justify-center transition-all duration-200 shadow-md

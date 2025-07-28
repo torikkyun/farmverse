@@ -7,8 +7,6 @@ interface NFTGridProps {
   onSelect: (id: string) => void; // Đã có rồi
 }
 
-console.log("NFTGrid component loaded");
-
 export default function NFTGrid({
   items,
   selectedItems,

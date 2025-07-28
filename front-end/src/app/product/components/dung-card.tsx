@@ -22,8 +22,8 @@ export default function DungCard({ dungs, selected, onSelect }: DungCardProps) {
       <div className="relative">
         <Image
           src={
-            Array.isArray(dungs.image) && dungs.image.length > 0
-              ? dungs.image[0]
+            Array.isArray(dungs.images) && dungs.images.length > 0
+              ? dungs.images[0]
               : "/no-image.png"
           }
           alt={dungs.name}
@@ -36,7 +36,6 @@ export default function DungCard({ dungs, selected, onSelect }: DungCardProps) {
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            console.log("DungCard button clicked for item:", dungs.id);
             onSelect(dungs.id);
           }}
           className={`absolute top-2 right-2 rounded-full w-8 h-8 flex items-center justify-center transition-all duration-200 shadow-md

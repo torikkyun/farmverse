@@ -25,9 +25,6 @@ export default function ProductDetailPage() {
   // Lấy cây trồng và phân bón từ API
   const { items, dungs } = useFarmItems(API_URL, farmId);
 
-  console.log("Items: ", items);
-  console.log("Dungs: ", dungs);
-
   const [activeTab, setActiveTab] = useState(0);
   const [selectedItems, setSelectedItems] = useState<string[]>([]); // Thay đổi từ number[] sang string[]
   const [showCheckout, setShowCheckout] = useState(false);

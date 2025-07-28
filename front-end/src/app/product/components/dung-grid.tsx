@@ -2,7 +2,7 @@ import DungCard from "./dung-card";
 
 interface DungItem {
   id: string;
-  image: string[];
+  images: string[];
   name: string;
   price: number;
   description: string;

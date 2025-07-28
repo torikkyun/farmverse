@@ -64,7 +64,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
             left: 0,
             width: "100vw",
             height: "100vh",
-            background: "rgba(0,0,0,0.5)",
+            background: "rgba(0,0,0,0.6)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -74,14 +74,51 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
           <div
             style={{
               background: "#fff",
-              padding: "32px",
-              borderRadius: "8px",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+              padding: "40px 32px",
+              borderRadius: "16px",
+              boxShadow: "0 4px 24px rgba(0,0,0,0.18)",
               textAlign: "center",
+              minWidth: 320,
+              maxWidth: "90vw",
             }}
           >
-            <h2>Bạn chưa đăng nhập</h2>
-            <p>Đang chuyển hướng đến trang đăng nhập...</p>
+            <svg
+              width="48"
+              height="48"
+              fill="none"
+              viewBox="0 0 24 24"
+              style={{ marginBottom: 12 }}
+            >
+              <circle cx="12" cy="12" r="12" fill="#FDE68A" />
+              <path
+                d="M12 8v4m0 4h.01"
+                stroke="#B45309"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            <h2
+              style={{
+                color: "#B45309",
+                fontWeight: 700,
+                fontSize: 22,
+                marginBottom: 8,
+              }}
+            >
+              Bạn cần đăng nhập để tiếp tục
+            </h2>
+            <p
+              style={{
+                color: "#444",
+                fontSize: 16,
+                marginBottom: 0,
+              }}
+            >
+              Vui lòng đăng nhập để sử dụng các tính năng của Farmverse.
+              <br />
+              Đang chuyển hướng đến trang đăng nhập...
+            </p>
           </div>
         </div>
       )}

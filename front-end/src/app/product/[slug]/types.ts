@@ -1,20 +1,20 @@
 export interface NFTItem {
-  id: string; // Đảm bảo là string
+  id: string;
   name: string;
-  type: string;
   description: string;
-  image: string[];
+  images: string[];
   quantity: number;
   price: number;
   stock: number;
+  type: "FERTILIZER" | "TREE" | "PESTICIDE";
 }
 
 export interface DungItem {
-  id: string; // Đảm bảo là string
+  id: string;
   name: string;
-  type: string;
+  type: "FERTILIZER" | "TREE" | "PESTICIDE";
   description: string;
-  image: string[];
+  images: string[];
   quantity: number;
   price: number;
   stock: number;

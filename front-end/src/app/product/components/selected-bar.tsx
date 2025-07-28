@@ -74,8 +74,8 @@ export default function SelectedBar({
                 <Image
                   key={`selected-item-${i.id}-${index}`}
                   src={
-                    Array.isArray(i.image) && i.image.length > 0
-                      ? i.image[0]
+                    Array.isArray(i.images) && i.images.length > 0
+                      ? i.images[0]
                       : "/no-image.png"
                   }
                   alt={i.name}

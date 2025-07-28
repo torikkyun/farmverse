@@ -27,7 +27,7 @@ export function useFarmItems(API_URL: string, farmId: string) {
             id: String(item.id || item._id),
             name: item.name,
             price: Number(item.price), // đảm bảo là number
-            image: Array.isArray(item.images) ? item.images[0] : "",
+            images: Array.isArray(item.images) ? item.images : [],
           }))
         );
       })
@@ -45,7 +45,7 @@ export function useFarmItems(API_URL: string, farmId: string) {
             id: String(item.id || item._id), // ép về number
             name: item.name,
             price: Number(item.price),
-            image: Array.isArray(item.images) ? item.images[0] : "",
+            images: Array.isArray(item.images) ? item.images : [],
           }))
         );
       })
