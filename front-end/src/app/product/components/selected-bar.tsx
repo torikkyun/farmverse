@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import ModalCheckout from "./ModalCheckout";
-import { NFTItem } from "../[slug]/types";
+import { NFTItem, DungItem } from "../[slug]/types";
 
 interface SelectedBarProps {
-  items: NFTItem[]; // Sửa từ Item[] thành NFTItem[]
-  selectedItems: number[];
-  setSelectedItems: (ids: number[]) => void;
+  items: NFTItem[] | DungItem[];
+  selectedItems: string[]; // Thay đổi từ number[] sang string[]
+  setSelectedItems: (ids: string[]) => void; // Thay đổi từ number[] sang string[]
   activeTab: number;
   onCheckout: () => void;
 }
@@ -73,7 +73,11 @@ export default function SelectedBar({
               .map((i, index) => (
                 <Image
                   key={`selected-item-${i.id}-${index}`}
-                  src={i.image}
+                  src={
+                    Array.isArray(i.image) && i.image.length > 0
+                      ? i.image[0]
+                      : "/no-image.png"
+                  }
                   alt={i.name}
                   width={36}
                   height={36}
@@ -117,7 +121,10 @@ export default function SelectedBar({
             id: item.id || `temp-${index}`, // Đảm bảo mỗi item có id hợp lệ
           }))}
           onClose={() => setShowCheckout(false)}
-          onHideSelectedBar={() => setVisible(false)}
+          onHideSelectedBar={() => {
+            setSelectedItems([]);
+            setShowCheckout(false);
+          }}
         />
       )}
     </>

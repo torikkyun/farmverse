@@ -4,23 +4,20 @@ import ContractForm from "./ContractForm";
 import OrderSummary from "./OrderSummary";
 import LoadingOverlay from "./LoadingOverlay";
 import AlertMessage from "./AlertMessage";
+import { FarmItem } from "../[slug]/types"; // Import union type
 
-type Item = {
-  id: string | number;
-  name: string;
-  image: string;
-  price: number | string;
-  quantity?: number;
-  type?: string;
-};
-
-type ModalCheckoutProps = {
-  items: Item[];
+interface ModalCheckoutProps {
+  items: FarmItem[]; // Sử dụng union type
   onClose: () => void;
   onHideSelectedBar?: () => void;
-};
+}
 
-export default function ModalCheckout({ items, ...props }: ModalCheckoutProps) {
+export default function ModalCheckout({
+  items,
+  onClose,
+  onHideSelectedBar,
+}: ModalCheckoutProps) {
+  // Destructure props đúng cách
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -59,14 +56,14 @@ export default function ModalCheckout({ items, ...props }: ModalCheckoutProps) {
 
   useEffect(() => {
     if (success) {
-      if (props.onHideSelectedBar) props.onHideSelectedBar();
+      if (onHideSelectedBar) onHideSelectedBar(); // Sử dụng destructured prop
       const timer = setTimeout(() => {
         setSuccess(null);
-        props.onClose();
+        onClose(); // Sử dụng destructured prop
       }, 2000);
       return () => clearTimeout(timer);
     }
-  }, [success, props.onClose, props.onHideSelectedBar]);
+  }, [success, onClose, onHideSelectedBar]);
 
   const itemsByType = classifyItems(items);
   const total = calculateTotal(items, includesIot, itemsByType.caytrong.length);
@@ -88,8 +85,9 @@ export default function ModalCheckout({ items, ...props }: ModalCheckoutProps) {
     setTimeout(() => {
       setSuccess("Hợp đồng đã được ký thành công!");
       setIsLoading(false);
-      if (props.onHideSelectedBar) {
-        props.onHideSelectedBar();
+      if (onHideSelectedBar) {
+        // Sử dụng destructured prop
+        onHideSelectedBar();
       }
     }, 3000);
   };
@@ -106,7 +104,7 @@ export default function ModalCheckout({ items, ...props }: ModalCheckoutProps) {
         <AlertMessage type="success" message={success} />
         <button
           className="absolute top-6 right-8 text-black text-2xl z-10 hover:bg-gray-100 w-8 h-8 rounded-full flex items-center justify-center border border-black"
-          onClick={props.onClose}
+          onClick={onClose} // Sử dụng destructured prop
         >
           ×
         </button>

@@ -11,7 +11,7 @@ import FarmTabs from "./FarmTabs";
 import ModalCheckout from "../components/ModalCheckout";
 import { useFarmDetail } from "./useFarmDetail";
 import { useFarmItems } from "./useFarmItems";
-import { NFTItem } from "./types"; // Thêm import này
+import { NFTItem, DungItem } from "./types"; // Import cả 2 types
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "";
 
@@ -25,43 +25,41 @@ export default function ProductDetailPage() {
   // Lấy cây trồng và phân bón từ API
   const { items, dungs } = useFarmItems(API_URL, farmId);
 
+  console.log("Items: ", items);
+  console.log("Dungs: ", dungs);
+
   const [activeTab, setActiveTab] = useState(0);
-  const [selectedPlants, setSelectedPlants] = useState<number[]>([]);
-  const [selectedDungs, setSelectedDungs] = useState<number[]>([]);
+  const [selectedItems, setSelectedItems] = useState<string[]>([]); // Thay đổi từ number[] sang string[]
   const [showCheckout, setShowCheckout] = useState(false);
 
   React.useEffect(() => {
-    setSelectedPlants([]);
-    setSelectedDungs([]);
+    setSelectedItems([]);
   }, [farmId]);
 
-  // Lấy userId từ localStorage nếu cần
-  let userId: string | undefined = undefined;
-  if (typeof window !== "undefined") {
-    try {
-      const userStr = localStorage.getItem("user");
-      if (userStr) {
-        const userObj = JSON.parse(userStr);
-        userId = userObj?.user?.id || userObj?.id;
-      }
-    } catch {
-      userId = undefined;
+  // Thêm useEffect này để clear selectedItems khi chuyển tab
+  React.useEffect(() => {
+    setSelectedItems([]);
+  }, [activeTab]);
+
+  const handleSelect = (id: string) => {
+    // Kiểm tra ID hợp lệ
+    if (!id || id === null || id === undefined) {
+      return;
     }
-  }
 
-  const handleSelectPlant = (id: number) => {
-    setSelectedPlants((prev) =>
-      prev.includes(id) ? prev.filter((itemId) => itemId !== id) : [...prev, id]
-    );
+    setSelectedItems((prev) => {
+      if (prev.includes(id)) {
+        const newSelection = prev.filter((itemId) => itemId !== id);
+        return newSelection;
+      } else {
+        const newSelection = [...prev, id];
+        return newSelection;
+      }
+    });
   };
 
-  const handleSelectDung = (id: number) => {
-    setSelectedDungs((prev) =>
-      prev.includes(id) ? prev.filter((itemId) => itemId !== id) : [...prev, id]
-    );
-  };
-
-  const tabItems: NFTItem[] = activeTab === 1 ? dungs : items; // Thêm type annotation
+  // Sửa tabItems để có thể là cả NFTItem hoặc DungItem
+  const tabItems: (NFTItem | DungItem)[] = activeTab === 1 ? dungs : items; // Thêm type annotation
 
   return (
     <SidebarProvider>
@@ -73,40 +71,29 @@ export default function ProductDetailPage() {
             farmId={farmId}
             loading={loading}
             error={error}
-            currentUserId={userId}
+            // currentUserId={userId}
           />
           <FarmTabs
             activeTab={activeTab}
             setActiveTab={setActiveTab}
             items={items}
             dungs={dungs}
-            selectedItems={activeTab === 0 ? selectedPlants : selectedDungs}
-            handleSelect={
-              activeTab === 0 ? handleSelectPlant : handleSelectDung
-            }
+            selectedItems={selectedItems}
+            handleSelect={handleSelect}
             farmId={farmId}
           />
-          {(activeTab === 0 ? selectedPlants.length : selectedDungs.length) >
-            0 && (
+          {selectedItems.length > 0 && (
             <SelectedBar
               items={tabItems}
-              selectedItems={activeTab === 0 ? selectedPlants : selectedDungs}
-              setSelectedItems={
-                activeTab === 0
-                  ? (ids: number[]) => setSelectedPlants(ids)
-                  : (ids: number[]) => setSelectedDungs(ids)
-              }
+              selectedItems={selectedItems}
+              setSelectedItems={setSelectedItems}
               activeTab={activeTab}
               onCheckout={() => setShowCheckout(true)}
             />
           )}
           {showCheckout && (
             <ModalCheckout
-              items={tabItems.filter((item) =>
-                (activeTab === 0 ? selectedPlants : selectedDungs).includes(
-                  item.id
-                )
-              )}
+              items={tabItems.filter((item) => selectedItems.includes(item.id))}
               onClose={() => setShowCheckout(false)}
             />
           )}

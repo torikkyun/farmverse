@@ -1,24 +1,16 @@
 import Image from "next/image";
-
-interface DungItem {
-  id: number;
-  image: string;
-  name: string;
-  price: number;
-  description?: string;
-  type?: string;
-  quantity?: number;
-}
+import { DungItem } from "../[slug]/types";
 
 interface DungCardProps {
   dungs: DungItem;
   selected: boolean;
-  onSelect: (id: number) => void;
+  onSelect: (id: string) => void;
 }
 
 export default function DungCard({ dungs, selected, onSelect }: DungCardProps) {
   return (
     <div
+      onClick={(e) => e.stopPropagation()}
       className={`group bg-white border rounded-lg p-0 flex flex-col items-stretch text-black relative overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer
         ${
           selected
@@ -29,7 +21,11 @@ export default function DungCard({ dungs, selected, onSelect }: DungCardProps) {
     >
       <div className="relative">
         <Image
-          src={dungs.image}
+          src={
+            Array.isArray(dungs.image) && dungs.image.length > 0
+              ? dungs.image[0]
+              : "/no-image.png"
+          }
           alt={dungs.name}
           width={200}
           height={200}
@@ -37,7 +33,12 @@ export default function DungCard({ dungs, selected, onSelect }: DungCardProps) {
           priority
         />
         <button
-          onClick={() => onSelect(dungs.id)}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log("DungCard button clicked for item:", dungs.id);
+            onSelect(dungs.id);
+          }}
           className={`absolute top-2 right-2 rounded-full w-8 h-8 flex items-center justify-center transition-all duration-200 shadow-md
             ${
               selected

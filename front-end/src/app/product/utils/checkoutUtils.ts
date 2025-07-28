@@ -1,44 +1,29 @@
-export type Item = {
-  id: string | number;
-  name: string;
-  image: string;
-  price: number | string;
-  quantity?: number;
-  type?: string;
-};
+import { NFTItem, DungItem } from "../[slug]/types";
 
-export const classifyItems = (items: Item[]) => ({
-  caytrong: items
-    .filter((item) => item.type === "tree" || item.type === "caytrong")
-    .map((item) => ({ ...item, quantity: item.quantity || 1 })),
-  phanbon: items
-    .filter((item) => item.type === "fertilizer" || item.type === "phanbon")
-    .map((item) => ({ ...item, quantity: item.quantity || 1 })),
-  other: items
-    .filter(
-      (item) =>
-        item.type !== "tree" &&
-        item.type !== "caytrong" &&
-        item.type !== "fertilizer" &&
-        item.type !== "phanbon"
-    )
-    .map((item) => ({ ...item, quantity: item.quantity || 1 })),
-});
+// Tạo base type cho các functions
+export type Item = NFTItem | DungItem; // Thêm export ở đây
 
-export const calculateTotal = (
+export function classifyItems(items: Item[]) {
+  const caytrong: Item[] = [];
+  const phanbon: Item[] = [];
+
+  items.forEach((item) => {
+    if (item.type === "caytrong") {
+      caytrong.push(item);
+    } else if (item.type === "phanbon") {
+      phanbon.push(item);
+    }
+  });
+
+  return { caytrong, phanbon };
+}
+
+export function calculateTotal(
   items: Item[],
   includesIot: boolean,
   caytrongCount: number
-) => {
-  const baseTotal = items.reduce(
-    (sum, item) =>
-      sum +
-      (typeof item.price === "string"
-        ? parseFloat(item.price) || 0
-        : item.price || 0) *
-        (item.quantity || 1),
-    0
-  );
-  const iotCost = includesIot && caytrongCount > 0 ? caytrongCount * 500 : 0;
-  return baseTotal + iotCost;
-};
+): number {
+  const itemsTotal = items.reduce((sum, item) => sum + item.price, 0);
+  const iotCost = includesIot ? caytrongCount * 50 : 0; // 50 FVT per cây trồng for IoT
+  return itemsTotal + iotCost;
+}

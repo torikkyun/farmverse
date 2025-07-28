@@ -1,16 +1,20 @@
 import DungCard from "./dung-card";
 
 interface DungItem {
-  id: number;
-  image: string;
+  id: string;
+  image: string[];
   name: string;
   price: number;
+  description: string;
+  type: string;
+  quantity: number;
+  stock: number;
 }
 
 interface DungGridProps {
   dungs: DungItem[];
-  selectedItems: number[];
-  onSelect: (id: number) => void;
+  selectedItems: string[];
+  onSelect: (id: string) => void;
 }
 
 export default function DungGrid({

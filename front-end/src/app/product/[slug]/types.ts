@@ -1,9 +1,23 @@
 export interface NFTItem {
-  id: number;
-  image: string;
+  id: string; // Đảm bảo là string
   name: string;
+  type: string;
+  description: string;
+  image: string[];
+  quantity: number;
   price: number;
-  quantity?: number;
+  stock: number;
+}
+
+export interface DungItem {
+  id: string; // Đảm bảo là string
+  name: string;
+  type: string;
+  description: string;
+  image: string[];
+  quantity: number;
+  price: number;
+  stock: number;
 }
 
 export interface Farm {
@@ -34,3 +48,5 @@ export interface Farm {
     activities: string[];
   }>;
 }
+
+export type FarmItem = NFTItem | DungItem;

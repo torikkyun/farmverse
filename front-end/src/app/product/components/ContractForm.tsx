@@ -5,7 +5,6 @@ import { Item } from "../utils/checkoutUtils";
 type ItemsByType = {
   caytrong: Item[];
   phanbon: Item[];
-  other: Item[];
 };
 
 type ContractData = {

@@ -6,7 +6,12 @@ import { getValidAccessToken } from "../utils/auth";
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const [showModal, setShowModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     async function checkToken() {
@@ -38,6 +43,8 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     pathname?.startsWith("/signup") ||
     pathname?.startsWith("/forgot") ||
     pathname?.startsWith("/confirm");
+
+  if (!mounted) return null; // Chỉ render trên client
 
   if (isLoading) {
     return <div>Loading...</div>; // Hoặc loading spinner

@@ -3,9 +3,11 @@ import { NFTItem } from "../[slug]/types";
 
 interface NFTGridProps {
   items: NFTItem[];
-  selectedItems: number[];
-  onSelect: (id: number) => void;
+  selectedItems: string[]; // Đã có rồi
+  onSelect: (id: string) => void; // Đã có rồi
 }
+
+console.log("NFTGrid component loaded");
 
 export default function NFTGrid({
   items,

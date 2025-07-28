@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import TabMenu from "../components/tab-menu";
 import NFTCard from "../components/nft-card";
 import DungCard from "../components/dung-card";
-import { NFTItem } from "./types";
+import { NFTItem, DungItem } from "./types"; // Import cả 2 types
 import { useFarmDetail } from "./useFarmDetail";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -15,10 +15,10 @@ type CareSchedule = {
 interface Props {
   activeTab: number;
   setActiveTab: (tab: number) => void;
-  items: NFTItem[];
-  dungs: NFTItem[];
-  selectedItems: number[];
-  handleSelect: (id: number) => void;
+  items: NFTItem[]; // Cây trồng
+  dungs: DungItem[]; // Phân bón
+  selectedItems: string[];
+  handleSelect: (id: string) => void;
   farmId?: string;
 }
 
@@ -31,7 +31,7 @@ export default function FarmTabs({
   handleSelect,
   farmId,
 }: Props) {
-  const data = activeTab === 0 ? items : dungs;
+  // Không cần gộp data nữa, render riêng từng loại
 
   // Lấy thông tin farm từ API
   const { farm } = useFarmDetail(API_URL || "", farmId || "");
@@ -197,40 +197,27 @@ export default function FarmTabs({
               </div>
             </div>
           </div>
-        ) : (
+        ) : activeTab === 0 ? (
+          // Tab Cây trồng
           <div className="px-8 py-10">
             <div className="max-w-7xl mx-auto">
-              {/* Products Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
-                {data.map((item, index) =>
-                  activeTab === 0 ? (
-                    <div
-                      key={`nft-${item.id || index}`}
-                      className="group transform hover:-translate-y-2 transition-all duration-300"
-                    >
-                      <NFTCard
-                        item={item}
-                        selected={selectedItems.includes(item.id)}
-                        onSelect={handleSelect}
-                      />
-                    </div>
-                  ) : (
-                    <div
-                      key={`dung-${item.id || index}`}
-                      className="group transform hover:-translate-y-2 transition-all duration-300"
-                    >
-                      <DungCard
-                        dungs={item}
-                        selected={selectedItems.includes(item.id)}
-                        onSelect={handleSelect}
-                      />
-                    </div>
-                  )
-                )}
+                {items.map((item, index) => (
+                  <div
+                    key={`nft-${item.id || index}`}
+                    className="group transform hover:-translate-y-2 transition-all duration-300"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <NFTCard
+                      item={item}
+                      selected={selectedItems.includes(item.id)}
+                      onSelect={handleSelect}
+                    />
+                  </div>
+                ))}
               </div>
 
-              {/* Empty State */}
-              {data.length === 0 && (
+              {items.length === 0 && (
                 <div className="text-center py-24">
                   <div className="w-28 h-28 mx-auto mb-8 bg-gray-100 rounded-full flex items-center justify-center shadow-lg">
                     <svg
@@ -248,12 +235,57 @@ export default function FarmTabs({
                     </svg>
                   </div>
                   <h4 className="text-2xl font-bold text-gray-900 mb-4">
-                    {activeTab === 0 ? "Chưa có cây trồng" : "Chưa có phân bón"}
+                    Chưa có cây trồng
                   </h4>
                   <p className="text-gray-500 text-xl max-w-md mx-auto">
-                    {activeTab === 0
-                      ? "Hiện tại chưa có cây trồng nào có sẵn."
-                      : "Hiện tại chưa có phân bón nào có sẵn."}
+                    Hiện tại chưa có cây trồng nào có sẵn.
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        ) : (
+          // Tab Phân bón
+          <div className="px-8 py-10">
+            <div className="max-w-7xl mx-auto">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
+                {dungs.map((dung, index) => (
+                  <div
+                    key={`dung-${dung.id || index}`}
+                    className="group transform hover:-translate-y-2 transition-all duration-300"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <DungCard
+                      dungs={dung}
+                      selected={selectedItems.includes(dung.id)}
+                      onSelect={handleSelect}
+                    />
+                  </div>
+                ))}
+              </div>
+
+              {dungs.length === 0 && (
+                <div className="text-center py-24">
+                  <div className="w-28 h-28 mx-auto mb-8 bg-gray-100 rounded-full flex items-center justify-center shadow-lg">
+                    <svg
+                      className="w-12 h-12 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={1.5}
+                        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                      />
+                    </svg>
+                  </div>
+                  <h4 className="text-2xl font-bold text-gray-900 mb-4">
+                    Chưa có phân bón
+                  </h4>
+                  <p className="text-gray-500 text-xl max-w-md mx-auto">
+                    Hiện tại chưa có phân bón nào có sẵn.
                   </p>
                 </div>
               )}

@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation";
 type ItemsByType = {
   caytrong: Item[];
   phanbon: Item[];
-  other: Item[];
 };
 
 type ContractData = {
@@ -82,17 +81,6 @@ export default function OrderSummary({
               item={item}
               type="fertilizer"
             />
-          ))}
-        </div>
-      )}
-      {/* Sản phẩm khác */}
-      {itemsByType.other.length > 0 && (
-        <div className="mb-6">
-          <div className="font-bold text-lg mb-4 text-black bg-gray-200 px-4 py-2 rounded-lg border border-black">
-            🛒 Sản phẩm khác
-          </div>
-          {itemsByType.other.map((item: Item) => (
-            <ItemCard key={`other-${item.id}`} item={item} type="other" />
           ))}
         </div>
       )}

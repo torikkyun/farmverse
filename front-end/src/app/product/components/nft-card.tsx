@@ -4,12 +4,13 @@ import { NFTItem } from "../[slug]/types";
 interface NFTCardProps {
   item: NFTItem;
   selected: boolean;
-  onSelect: (id: number) => void;
+  onSelect: (id: string) => void; // Thay đổi từ number sang string
 }
 
 export default function NFTCard({ item, selected, onSelect }: NFTCardProps) {
   return (
     <div
+      onClick={(e) => e.stopPropagation()}
       className={`group bg-white border rounded-lg p-0 flex flex-col items-stretch text-black relative overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer
         ${
           selected
@@ -20,7 +21,11 @@ export default function NFTCard({ item, selected, onSelect }: NFTCardProps) {
     >
       <div className="relative">
         <Image
-          src={item.image}
+          src={
+            Array.isArray(item.image) && item.image.length > 0
+              ? item.image[0]
+              : "/no-image.png"
+          }
           alt={item.name}
           width={200}
           height={160}
@@ -28,7 +33,12 @@ export default function NFTCard({ item, selected, onSelect }: NFTCardProps) {
           priority
         />
         <button
-          onClick={() => onSelect(item.id)}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log("NFTCard button clicked for item:", item.id);
+            onSelect(item.id); // Đảm bảo item.id là string
+          }}
           className={`absolute top-2 right-2 rounded-full w-8 h-8 flex items-center justify-center transition-all duration-200 shadow-md
             ${
               selected
@@ -47,17 +57,11 @@ export default function NFTCard({ item, selected, onSelect }: NFTCardProps) {
               />
             </svg>
           ) : (
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
               <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                fillRule="evenodd"
+                d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                clipRule="evenodd"
               />
             </svg>
           )}
