@@ -99,7 +99,7 @@ export default function TreeDetailModal({
                 </div>
                 <div className="border-r border-gray-200 dark:border-gray-700 flex flex-col h-full overflow-hidden">
                   <div className="p-6 pb-3 flex-shrink-0 border-b border-gray-100 dark:border-gray-800">
-                    <TreeScheduleTimeline schedule={selectedTree.schedule} />
+                    <TreeScheduleTimeline rentedTreeId={selectedTree.id} />
                   </div>
                 </div>
                 <div className="flex flex-col h-full">

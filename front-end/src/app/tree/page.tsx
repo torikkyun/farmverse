@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
@@ -9,108 +9,32 @@ import { TreeHarvestModal } from "./TreeHarvestModal";
 import Pagination from "@/components/ui/pagination";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Search, Clipboard } from "lucide-react";
-import { TreeOverviewStats } from "./TreeOverviewStats";
 import { TreeCard } from "./TreeCard";
+import type { TreeItem } from "./types";
 
-const rentedTrees = [
-  {
-    id: "1",
-    name: "Cây Xoài",
-    type: "Cây trồng",
-    age: 3,
-    yield: 150,
-    status: "Đang thuê",
-    ownerName: "Nông trại ABC",
-    rentStartDate: "2024-01-15",
-    rentEndDate: "2025-01-15",
-    monthlyRent: 80,
-    totalPaid: 560, // Số tiền đã trả
-    remainingMonths: 5, // Số tháng còn lại
-    img: "https://cayxanhgiapham.com/wp-content/uploads/2020/06/cay-xoa-3-600x450.jpg",
-    schedule: [
-      {
-        date: "2025-07-01",
-        action: "Gieo hạt/Trồng cây con",
-        stage: "seedling",
-      },
-      { date: "2025-07-05", action: "Tưới nước hàng ngày", stage: "care" },
-      { date: "2025-07-10", action: "Bón phân hữu cơ lần 1", stage: "care" },
-      { date: "2025-07-15", action: "Kiểm tra sâu bệnh", stage: "protect" },
-      { date: "2025-07-20", action: "Cắt tỉa cành non", stage: "care" },
-      { date: "2025-08-01", action: "Bón phân hữu cơ lần 2", stage: "care" },
-      { date: "2025-08-10", action: "Phun thuốc phòng sâu", stage: "protect" },
-      { date: "2025-09-01", action: "Kiểm tra quả non", stage: "care" },
-      {
-        date: "2025-10-01",
-        action: "Thu hoạch quả đầu tiên",
-        stage: "harvest",
-      },
-    ],
-  },
-  {
-    id: "2",
-    name: "Cây Sầu Riêng",
-    type: "Cây trồng",
-    age: 2,
-    yield: 80,
-    status: "Đang thuê",
-    ownerName: "Vườn Nhiệt Đới XYZ",
-    rentStartDate: "2024-03-01",
-    rentEndDate: "2025-03-01",
-    monthlyRent: 150,
-    totalPaid: 750,
-    remainingMonths: 7,
-    img: "https://th.bing.com/th/id/R.f8ea8c40cdead4e44f25a0c866b3f021?rik=GohkeybcLR4k6Q&pid=ImgRaw&r=0",
-    schedule: [
-      { date: "2025-07-01", action: "Trồng cây giống", stage: "seedling" },
-      { date: "2025-07-03", action: "Tưới nước hàng ngày", stage: "care" },
-      { date: "2025-07-07", action: "Bón phân NPK lần 1", stage: "care" },
-      { date: "2025-07-14", action: "Kiểm tra lá và thân", stage: "protect" },
-      { date: "2025-07-21", action: "Cắt tỉa lá già", stage: "care" },
-      { date: "2025-08-01", action: "Bón phân NPK lần 2", stage: "care" },
-      { date: "2025-08-15", action: "Phun thuốc phòng bệnh", stage: "protect" },
-      { date: "2025-09-10", action: "Kiểm tra quả", stage: "care" },
-      { date: "2025-10-05", action: "Thu hoạch quả", stage: "harvest" },
-    ],
-  },
-  {
-    id: "3",
-    name: "Cây Chôm Chôm",
-    type: "Cây trồng",
-    age: 3,
-    yield: 40,
-    status: "Sắp hết hạn",
-    ownerName: "Trang trại DEF",
-    rentStartDate: "2024-06-01",
-    rentEndDate: "2025-06-01",
-    monthlyRent: 40,
-    totalPaid: 320,
-    remainingMonths: 1,
-    img: "https://elead.com.vn/wp-content/uploads/2022/09/cay-chom-chom-22.jpg",
-    schedule: [
-      { date: "2025-07-01", action: "Trồng cây giống", stage: "seedling" },
-      { date: "2025-07-04", action: "Tưới nước", stage: "care" },
-      { date: "2025-07-09", action: "Bón phân hữu cơ", stage: "care" },
-      { date: "2025-07-16", action: "Kiểm tra sâu bệnh", stage: "protect" },
-      { date: "2025-07-23", action: "Cắt tỉa cành", stage: "care" },
-      { date: "2025-08-02", action: "Bón phân vi sinh", stage: "care" },
-      { date: "2025-08-18", action: "Phun thuốc phòng sâu", stage: "protect" },
-      { date: "2025-09-15", action: "Kiểm tra quả", stage: "care" },
-      { date: "2025-10-10", action: "Thu hoạch quả", stage: "harvest" },
-    ],
-  },
-];
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+// 1. Định nghĩa interface cho cây thuê
+interface RentedTree {
+  id: string;
+  name: string;
+  description: string;
+  images: string[];
+  status: string;
+  totalProfit: number;
+  startDate: string;
+  endDate: string;
+}
 
 export default function TreePage() {
   const [open, setOpen] = useState(false);
   const [harvestOpen, setHarvestOpen] = useState(false);
-  const [selectedTree, setSelectedTree] = useState<
-    (typeof rentedTrees)[0] | null
-  >(null);
+  const [selectedTree, setSelectedTree] = useState<RentedTree | null>(null);
   const [meta, setMeta] = useState({
     currentPage: 1,
-    totalPages: 5,
-    totalItems: 50,
+    totalPages: 1,
+    totalItems: 0,
+    pageSize: 10,
   });
   const [showAlert, setShowAlert] = useState(false);
   const [alertContent, setAlertContent] = useState({
@@ -119,13 +43,56 @@ export default function TreePage() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [search, setSearch] = useState("");
+  const [status, setStatus] = useState("");
+  const [trees, setTrees] = useState<RentedTree[]>([]);
+  const [loadingTrees, setLoadingTrees] = useState(false);
 
-  const handleOpenModal = (item: (typeof rentedTrees)[0]) => {
+  const fetchTrees = async () => {
+    setLoadingTrees(true);
+    try {
+      // Lấy token từ localStorage
+      const userStr = localStorage.getItem("user");
+      const userObj = userStr ? JSON.parse(userStr) : null;
+      const token = userObj?.accessToken;
+
+      const params = new URLSearchParams({
+        page: meta.currentPage.toString(),
+        pageSize: meta.pageSize.toString(),
+        ...(search ? { search } : {}),
+        ...(status ? { status } : {}),
+      });
+
+      const res = await fetch(`${API_URL}/rented-trees?${params}`, {
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
+
+      const data = await res.json();
+      setTrees(data.data.items || []);
+      setMeta((prev) => ({
+        ...prev,
+        totalPages: data.data.meta.totalPages || 1,
+        totalItems: data.data.meta.totalItems || 0,
+      }));
+    } catch {
+      setTrees([]);
+    }
+    setLoadingTrees(false);
+  };
+
+  useEffect(() => {
+    fetchTrees();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [meta.currentPage, search, status]);
+
+  const handleOpenModal = (item: RentedTree) => {
     setSelectedTree(item);
     setOpen(true);
   };
 
-  const handleOpenHarvestModal = (item: (typeof rentedTrees)[0]) => {
+  const handleOpenHarvestModal = (item: RentedTree) => {
     setSelectedTree(item);
     setHarvestOpen(true);
   };
@@ -162,21 +129,30 @@ export default function TreePage() {
     }));
   };
 
-  // Lọc cây theo từ khóa tìm kiếm
-  const filteredTrees = rentedTrees.filter(
-    (item) =>
-      item.name.toLowerCase().includes(search.toLowerCase()) ||
-      item.ownerName.toLowerCase().includes(search.toLowerCase())
-  );
+  const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setStatus(e.target.value);
+    setMeta((prev) => ({ ...prev, currentPage: 1 }));
+  };
 
-  // Tính tổng chi phí đã trả
-  const totalPaid = rentedTrees.reduce((sum, item) => sum + item.totalPaid, 0);
-  const activeTreesCount = rentedTrees.filter(
-    (item) => item.status === "Đang thuê"
-  ).length;
-  const expiringSoonCount = rentedTrees.filter(
-    (item) => item.status === "Sắp hết hạn"
-  ).length;
+  function mapRentedTreeToTreeItem(tree: RentedTree | null): TreeItem | null {
+    if (!tree) return null;
+    return {
+      id: tree.id,
+      name: tree.name,
+      img: tree.images?.[0] || "",
+      type: "",
+      age: 0,
+      yield: 0,
+      status: tree.status,
+      ownerName: "",
+      rentStartDate: tree.startDate,
+      rentEndDate: tree.endDate,
+      monthlyRent: 0,
+      totalPaid: 0,
+      remainingMonths: 0,
+      schedule: [],
+    };
+  }
 
   return (
     <SidebarProvider
@@ -192,13 +168,6 @@ export default function TreePage() {
         <SiteHeader />
         <div className="flex flex-1 flex-col bg-gray-50 min-h-screen">
           <div className="w-full px-2 sm:px-4 py-8 flex-1 flex flex-col gap-6">
-            {/* Header và thống kê tổng quan */}
-            <TreeOverviewStats
-              totalPaid={totalPaid}
-              activeTreesCount={activeTreesCount}
-              expiringSoonCount={expiringSoonCount}
-            />
-
             {/* Thanh tìm kiếm và lọc */}
             <div className="bg-white rounded-xl p-4 shadow-lg">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -208,16 +177,24 @@ export default function TreePage() {
                       type="text"
                       placeholder="Tìm kiếm cây, chủ vườn..."
                       value={search}
-                      onChange={(e) => setSearch(e.target.value)}
+                      onChange={(e) => {
+                        setSearch(e.target.value);
+                        setMeta((prev) => ({ ...prev, currentPage: 1 }));
+                      }}
                       className="w-full pl-10 pr-4 py-3 rounded-lg bg-white text-black focus:outline-none focus:ring-2 focus:ring-gray-400 transition"
                     />
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-black w-4 h-4" />
                   </div>
-                  <select className="w-auto px-4 py-3 rounded-lg bg-white text-black focus:outline-none">
-                    <option>Tất cả trạng thái</option>
-                    <option>Đang thuê</option>
-                    <option>Sắp hết hạn</option>
-                    <option>Đã hết hạn</option>
+                  <select
+                    className="w-auto px-4 py-3 rounded-lg bg-white text-black focus:outline-none"
+                    value={status}
+                    onChange={handleStatusChange}
+                  >
+                    <option value="">Tất cả trạng thái</option>
+                    <option value="GROWING">Đang thuê</option>
+                    <option value="READY_TO_HARVEST">Sắp hết hạn</option>
+                    <option value="HARVESTING">Đã hết hạn</option>
+                    <option value="HARVESTED">Đã thu hoạch</option>
                   </select>
                 </div>
               </div>
@@ -232,19 +209,41 @@ export default function TreePage() {
                 </h2>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {filteredTrees.length === 0 ? (
+                  {loadingTrees ? (
+                    <div className="col-span-full text-center text-gray-500 py-8">
+                      Đang tải dữ liệu...
+                    </div>
+                  ) : trees.length === 0 ? (
                     <div className="col-span-full text-center text-gray-500 py-8">
                       Không tìm thấy cây phù hợp.
                     </div>
                   ) : (
-                    filteredTrees.map((item) => (
-                      <TreeCard
-                        key={item.id}
-                        item={item}
-                        onDetail={handleOpenModal}
-                        onHarvest={handleOpenHarvestModal}
-                      />
-                    ))
+                    trees.map((item) => {
+                      const mappedItem: TreeItem = {
+                        id: item.id,
+                        name: item.name,
+                        img: item.images?.[0] || "",
+                        type: "",
+                        age: 0,
+                        yield: 0,
+                        status: item.status,
+                        ownerName: "",
+                        rentStartDate: item.startDate,
+                        rentEndDate: item.endDate,
+                        monthlyRent: 0,
+                        totalPaid: 0,
+                        remainingMonths: 0,
+                        schedule: [], // Nếu có trường schedule thì lấy, không thì để []
+                      };
+                      return (
+                        <TreeCard
+                          key={item.id}
+                          item={mappedItem}
+                          onDetail={() => handleOpenModal(item)}
+                          onHarvest={() => handleOpenHarvestModal(item)}
+                        />
+                      );
+                    })
                   )}
                 </div>
               </div>
@@ -254,14 +253,14 @@ export default function TreePage() {
             <TreeDetailModal
               open={open}
               setOpen={setOpen}
-              selectedTree={selectedTree}
+              selectedTree={mapRentedTreeToTreeItem(selectedTree)}
             />
 
             {/* Modal thu hoạch */}
             <TreeHarvestModal
               open={harvestOpen}
               setOpen={setHarvestOpen}
-              selectedTree={selectedTree}
+              selectedTree={mapRentedTreeToTreeItem(selectedTree)}
               onHarvest={handleHarvest}
             />
 

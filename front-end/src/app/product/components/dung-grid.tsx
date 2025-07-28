@@ -1,15 +1,6 @@
 import DungCard from "./dung-card";
 
-interface DungItem {
-  id: string;
-  images: string[];
-  name: string;
-  price: number;
-  description: string;
-  type: string;
-  quantity: number;
-  stock: number;
-}
+import type { DungItem } from "../[slug]/types";
 
 interface DungGridProps {
   dungs: DungItem[];
