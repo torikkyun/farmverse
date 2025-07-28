@@ -1,6 +1,6 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { InventoryService } from './inventory.service';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { SearchInventoriesQueryDto } from './dto/search-inventory.dto';
 import { CurrentUser } from '@app/common/decorators/current-user.decorator';
 import { InventoryResponseDto } from '@app/common/dto/response/inventory.dto';
@@ -11,6 +11,7 @@ export class InventoryController {
   constructor(private readonly inventoryService: InventoryService) {}
 
   @Get()
+  @ApiBearerAuth()
   findAll(
     @CurrentUser() user: { id: string },
     @Query() searchInventoriesQueryDto: SearchInventoriesQueryDto,
@@ -22,6 +23,7 @@ export class InventoryController {
   }
 
   @Get(':inventoryId')
+  @ApiBearerAuth()
   findOne(
     @CurrentUser() user: { id: string },
     @Param('inventoryId') inventoryId: string,

@@ -124,32 +124,23 @@ export class AuthService {
     const hashPassword = await bcrypt.hash(password, 10);
     const avatar = `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(registerDto.name)}`;
 
-    let user: User | null;
-    let _otpRecord: Otp | null;
-
-    try {
-      [user, _otpRecord] = await this.prisma.$transaction([
-        this.prisma.user.create({
-          data: {
-            email,
-            password: hashPassword,
-            avatar,
-            ...registerDto,
-          },
-        }),
-        this.prisma.otp.create({
-          data: {
-            email,
-            otp,
-            expiresAt: expires,
-          },
-        }),
-      ]);
-    } catch {
-      throw new ConflictException(
-        'Không thể tạo tài khoản. Vui lòng thử lại sau',
-      );
-    }
+    const [user, _] = await this.prisma.$transaction([
+      this.prisma.user.create({
+        data: {
+          email,
+          password: hashPassword,
+          avatar,
+          ...registerDto,
+        },
+      }),
+      this.prisma.otp.create({
+        data: {
+          email,
+          otp,
+          expiresAt: expires,
+        },
+      }),
+    ]);
 
     await this.mailService.sendEmailVerification(user.email, otp, user.name);
 
@@ -160,35 +151,37 @@ export class AuthService {
     };
   }
 
-  // async verifyEmail({ otp }: AccountVerificationDto): Promise<{
-  //   message: string;
-  //   email: string;
-  // }> {
-  //   const user = await this.prisma.user.findFirst({
-  //     where: {
-  //       otp: otp,
-  //       otpExpires: {
-  //         gt: new Date(),
-  //       },
-  //     },
-  //   });
+  async verifyEmail({ otp }: AccountVerificationDto): Promise<{
+    message: string;
+    email: string;
+  }> {
+    const otpRecord = await this.prisma.otp.findFirst({
+      where: {
+        otp: otp,
+        expiresAt: {
+          gt: new Date(),
+        },
+      },
+    });
 
-  //   if (!user) {
-  //     throw new BadRequestException('Mã xác thực không hợp lệ hoặc đã hết hạn');
-  //   }
+    if (!otpRecord) {
+      throw new BadRequestException('Mã xác thực không hợp lệ hoặc đã hết hạn');
+    }
 
-  //   await this.prisma.user.update({
-  //     where: { id: user.id },
-  //     data: {
-  //       isEmailVerified: true,
-  //       otp: null,
-  //       otpExpires: null,
-  //     },
-  //   });
+    const [_, user] = await this.prisma.$transaction([
+      this.prisma.otp.update({
+        where: { id: otpRecord.id },
+        data: { used: true },
+      }),
+      this.prisma.user.update({
+        where: { email: otpRecord.email },
+        data: { emailVerified: true },
+      }),
+    ]);
 
-  //   await this.mailService.sendWelcomeEmail(user.email, user.name);
-  //   return { message: 'Xác thực email thành công', email: user.email };
-  // }
+    await this.mailService.sendWelcomeEmail(user.email, user.name);
+    return { message: 'Xác thực email thành công', email: user.email };
+  }
 
   // async resendVerificationEmail({ email }: EmailVerificationDto): Promise<{
   //   message: string;

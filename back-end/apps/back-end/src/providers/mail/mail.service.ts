@@ -30,7 +30,7 @@ export class MailService {
   }
 
   async sendWelcomeEmail(email: string, name: string) {
-    const loginUrl = `${this.frontendUrl}`;
+    const loginUrl = `${this.frontendUrl}/login`;
     await this.mailerService.sendMail({
       to: email,
       subject: 'Chào mừng đến với FarmVerse!',

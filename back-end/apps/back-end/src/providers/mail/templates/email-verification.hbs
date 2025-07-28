@@ -1,20 +1,162 @@
 <!DOCTYPE html>
-<html>
-
-<head>
-  <meta charset="utf-8">
-  <title>Xác thực email</title>
-</head>
-
-<body>
-  <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-    <h2>Xin chào {{name}},</h2>
-    <p>Cảm ơn bạn đã đăng ký tài khoản FarmVerse!</p>
-    <p>Mã OTP của bạn để xác thực email là:</p>
-    <h3 style="color: #4CAF50;">{{otp}}</h3>
-    <p>Mã OTP này sẽ hết hạn sau 15 phút.</p>
-    <p>Trân trọng,<br>Farmverse Team</p>
-  </div>
-</body>
-
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Xác thực email - FarmVerse</title>
+  </head>
+  <body
+    style="
+      background: #fff;
+      color: #111;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    "
+  >
+    <div
+      style="
+        max-width: 420px;
+        margin: 48px auto;
+        background: #fff;
+        border-radius: 18px;
+        box-shadow: 0 6px 32px #0002;
+        padding: 40px 36px 32px 36px;
+        border: 1px solid #eee;
+        position: relative;
+      "
+    >
+      <div
+        style="
+          text-align: center;
+          margin-bottom: 24px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          gap: 18px;
+        "
+      >
+        {{!-- <span
+          class="material-symbols-outlined"
+          style="
+            font-size: 35px;
+            color: #111;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          "
+        >
+          agriculture
+        </span> --}}
+        <span
+          style="
+            font-size: 28px;
+            font-weight: 700;
+            color: #111;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            height: 72px;
+          "
+        >
+          FarmVerse
+        </span>
+      </div>
+      <h2
+        style="
+          font-size: 24px;
+          font-weight: 700;
+          margin-bottom: 20px;
+          color: #111;
+          letter-spacing: 1px;
+          text-align: center;
+        "
+      >
+        Xác thực email - FarmVerse
+      </h2>
+      <hr
+        style="
+          border: none;
+          border-top: 1.5px solid #eee;
+          margin: 18px 0 28px 0;
+        "
+      />
+      <p style="font-size: 17px; margin-bottom: 10px; text-align: center">
+        Xin chào <span style="color: #111; font-weight: 700">{{name}}</span>,
+      </p>
+      <p
+        style="
+          font-size: 17px;
+          margin-bottom: 25px;
+          color: #222;
+          text-align: center;
+        "
+      >
+        Cảm ơn bạn đã đăng ký tài khoản tại
+        <span style="font-weight: 600">FarmVerse</span>!
+      </p>
+      <p style="font-size: 17px; margin-bottom: 25px; text-align: center">
+        Mã OTP của bạn để xác thực email là:
+      </p>
+      <div
+        style="
+          font-size: 20px;
+          font-weight: 900;
+          color: #fff;
+          background: #111;
+          padding: 14px 0;
+          border-radius: 12px;
+          display: block;
+          margin: 18px auto 24px auto;
+          letter-spacing: 4px;
+          box-shadow: 0 2px 8px #0001;
+          width: 180px;
+          text-align: center;
+          line-height: 1.4;
+        "
+      >
+        {{otp}}
+      </div>
+      <p style="font-size: 20px; margin-bottom: 18px; text-align: center">
+        Mã OTP này sẽ hết hạn sau <strong>15 phút</strong>.
+      </p>
+      <p
+        style="
+          font-size: 17px;
+          margin-bottom: 0;
+          color: #222;
+          text-align: center;
+        "
+      >
+        Vui lòng không chia sẻ mã này cho bất kỳ ai.
+      </p>
+      <div style="margin-top: 36px; text-align: center">
+        <span
+          style="
+            display: inline-block;
+            background: #f7f7f7;
+            padding: 16px 36px;
+            color: #222;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+          "
+        >
+          Trân trọng,<br />
+          <span
+            style="
+              font-size: 17px;
+              font-weight: 600;
+              color: #111;
+              letter-spacing: 2px;
+            "
+          >
+            FarmVerse Team
+          </span>
+        </span>
+      </div>
+    </div>
+  </body>
 </html>

@@ -45,13 +45,13 @@ export class AuthController {
     return this.authService.register(registerDto);
   }
 
-  // @Post('verify-email')
-  // verifyEmail(@Body() accountVerificationDto: AccountVerificationDto): Promise<{
-  //   message: string;
-  //   email: string;
-  // }> {
-  //   return this.authService.verifyEmail(accountVerificationDto);
-  // }
+  @Post('verify-email')
+  verifyEmail(@Body() accountVerificationDto: AccountVerificationDto): Promise<{
+    message: string;
+    email: string;
+  }> {
+    return this.authService.verifyEmail(accountVerificationDto);
+  }
 
   // @Post('resend-verification-email')
   // resendVerificationEmail(
