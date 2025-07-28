@@ -6,6 +6,7 @@ import {
   Transport,
 } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
+import { ContractQueuePayload } from '@app/common/types/contract-payload.type';
 
 @Injectable()
 export class QueueService implements OnModuleInit {
@@ -32,18 +33,16 @@ export class QueueService implements OnModuleInit {
     await lastValueFrom(this.client.emit('deposit', data));
   }
 
-  async contract(data: {
+  async contract(data: ContractQueuePayload) {
+    await lastValueFrom(this.client.emit('contract', data));
+  }
+
+  async purchaseItems(data: {
     transactionId: string;
     userId: string;
-    items: {
-      itemId: string;
-      quantity: number;
-      includesIot: boolean;
-      startDate: Date;
-      endDate: Date;
-    }[];
-    contractImage: Express.Multer.File;
+    items: any[];
+    totalPrice: number;
   }) {
-    await lastValueFrom(this.client.emit('contract', data));
+    await lastValueFrom(this.client.emit('purchase_items', data));
   }
 }

@@ -12,7 +12,7 @@ import { v4 as uuidv4 } from 'uuid';
   imports: [
     MulterModule.register({
       storage: diskStorage({
-        destination: './static/transactions',
+        destination: './static/contracts',
         filename: (_req, file, cb) => {
           const fileExtName = extname(file.originalname);
           const newFileName = `${uuidv4()}${fileExtName}`;

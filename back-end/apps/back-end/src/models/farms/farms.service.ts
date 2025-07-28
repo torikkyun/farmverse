@@ -71,7 +71,7 @@ export class FarmsService {
     if (images && images.length > 0) {
       createFarmDto.images = images.map(
         (file) =>
-          `${this.configService.get('BACKEND_URL')}/static/farms/${file.filename}`,
+          `${this.configService.get('STATIC_URL')}/farms/${file.filename}`,
       );
     }
 
@@ -170,7 +170,7 @@ export class FarmsService {
     if (images && images.length > 0) {
       updateFarmDto.images = images.map(
         (file) =>
-          `${this.configService.get('BACKEND_URL')}/static/farms/${file.filename}`,
+          `${this.configService.get('STATIC_URL')}/farms/${file.filename}`,
       );
     }
 

@@ -16,7 +16,6 @@ import { UserResponseDto } from '@app/common/dto/response/user.dto';
 import { SearchUsersQueryDto } from './dto/search-user.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { CurrentUser } from '@app/common/decorators/current-user.decorator';
-import { ValidationPipe } from '@nestjs/common';
 import { Public } from '@app/common/decorators/public.decorator';
 import { LocalGuard } from '@app/common/guards/local.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -29,9 +28,7 @@ export class UsersController {
 
   @Get()
   @Public()
-  findAll(
-    @Query(new ValidationPipe()) searchUsersQueryDto: SearchUsersQueryDto,
-  ): Promise<{
+  findAll(@Query() searchUsersQueryDto: SearchUsersQueryDto): Promise<{
     message: string;
     items: UserResponseDto[];
   }> {

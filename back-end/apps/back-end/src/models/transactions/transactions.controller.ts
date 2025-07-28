@@ -2,19 +2,22 @@ import {
   Body,
   Controller,
   Get,
+  Param,
   Post,
   Query,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
-import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { DepositDto } from './dto/deposit.dto';
 import { ContractDto } from './dto/contract.dto';
 import { SearchTransactionsQueryDto } from './dto/search-transaction.dto';
 import { TransactionBaseResponseDto } from '@app/common/dto/response/transaction.dto';
 import { CurrentUser } from '@app/common/decorators/current-user.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { PurchaseItemsDto } from './dto/purchase-items.dto';
+import { FileValidationPipe } from '@app/common/pipes/file-validation.pipe';
 
 @Controller('api/transactions')
 @ApiTags('transactions')
@@ -31,29 +34,50 @@ export class TransactionsController {
   }
 
   @Post('contract')
-  @UseInterceptors(FileInterceptor('contractImage'))
   @ApiBearerAuth()
-  @ApiConsumes('multipart/form-data')
   async createContract(
     @CurrentUser() user: { id: string },
     @Body() contractDto: ContractDto,
-    @UploadedFile() contractImage: Express.Multer.File,
   ): Promise<{ message: string; transaction: TransactionBaseResponseDto }> {
-    return await this.transactionsService.contract(
+    return await this.transactionsService.contract(user, contractDto);
+  }
+
+  @Post('contract/:contractId/upload-image')
+  @UseInterceptors(FileInterceptor('contractImage'))
+  @ApiConsumes('multipart/form-data')
+  @ApiBearerAuth()
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        contractImage: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+      required: ['contractImage'],
+    },
+  })
+  async uploadContractImage(
+    @CurrentUser() user: { id: string },
+    @Param('contractId') contractId: string,
+    @UploadedFile(new FileValidationPipe()) contractImage: Express.Multer.File,
+  ) {
+    return await this.transactionsService.attachImageToContract(
       user,
-      contractDto,
+      contractId,
       contractImage,
     );
   }
 
-  // @Post('purchase-items')
-  // @ApiBearerAuth()
-  // async purchaseItems(
-  //   @CurrentUser() user: { id: string },
-  //   @Body() purchaseItemsDto: PurchaseItemsDto,
-  // ) {
-  //   return await this.transactionsService.purchaseItems(user, purchaseItemsDto);
-  // }
+  @Post('purchase-items')
+  @ApiBearerAuth()
+  async purchaseItems(
+    @CurrentUser() user: { id: string },
+    @Body() purchaseItemsDto: PurchaseItemsDto,
+  ): Promise<{ message: string; transaction: TransactionBaseResponseDto }> {
+    return await this.transactionsService.purchaseItems(user, purchaseItemsDto);
+  }
 
   @Get()
   @ApiBearerAuth()
@@ -67,15 +91,15 @@ export class TransactionsController {
     );
   }
 
-  // @Get('/:transactionId')
-  // @ApiBearerAuth()
-  // async getTransactionById(
-  //   @CurrentUser() user: { id: string },
-  //   @Param('transactionId') transactionId: string,
-  // ) {
-  //   return await this.transactionsService.getTransactionById(
-  //     user,
-  //     transactionId,
-  //   );
-  // }
+  @Get('/:transactionId')
+  @ApiBearerAuth()
+  async getTransactionById(
+    @CurrentUser() user: { id: string },
+    @Param('transactionId') transactionId: string,
+  ): Promise<{ message: string; transaction: TransactionBaseResponseDto }> {
+    return await this.transactionsService.getTransactionById(
+      user,
+      transactionId,
+    );
+  }
 }

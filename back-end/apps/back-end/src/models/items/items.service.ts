@@ -73,7 +73,7 @@ export class ItemsService {
     if (images && images.length > 0) {
       createItemDto.images = images.map(
         (file) =>
-          `${this.configService.get('BACKEND_URL')}/static/items/${file.filename}`,
+          `${this.configService.get('STATIC_URL')}/items/${file.filename}`,
       );
     }
 
@@ -214,7 +214,7 @@ export class ItemsService {
     if (images && images.length > 0) {
       updateItemDto.images = images.map(
         (file) =>
-          `${this.configService.get('BACKEND_URL')}/static/items/${file.filename}`,
+          `${this.configService.get('STATIC_URL')}/items/${file.filename}`,
       );
     }
 

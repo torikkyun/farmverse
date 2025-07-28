@@ -135,7 +135,7 @@ model Transaction {
   blockNumber     Int
   fromAddress     String
   toAddress       String
-  details         Json?
+  details         Json[]
   createdAt       DateTime          @default(now())
   type            TransactionType
   status          TransactionStatus

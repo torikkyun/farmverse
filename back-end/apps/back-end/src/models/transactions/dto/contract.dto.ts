@@ -1,7 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
-  IsArray,
   IsBoolean,
   IsDate,
   IsNotEmpty,
@@ -38,7 +37,6 @@ class TreeDto {
 }
 
 export class ContractDto {
-  @IsArray()
   @ValidateNested({ each: true })
   @Type(() => TreeDto)
   @ApiProperty({ type: [TreeDto], required: true })
@@ -48,12 +46,4 @@ export class ContractDto {
   @IsNumber()
   @ApiProperty({ required: true })
   totalPrice: number;
-
-  @IsNotEmpty()
-  @ApiProperty({
-    type: 'string',
-    format: 'binary',
-    required: true,
-  })
-  contractImage: any;
 }

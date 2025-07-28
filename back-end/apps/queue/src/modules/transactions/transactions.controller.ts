@@ -1,6 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { TransactionsService } from './transactions.service';
+import { ContractQueuePayload } from '@app/common/types/contract-payload.type';
 
 @Controller()
 export class TransactionsController {
@@ -14,22 +15,7 @@ export class TransactionsController {
   }
 
   @MessagePattern('contract')
-  async handleContract(
-    @Payload()
-    data: {
-      transactionId: string;
-      userId: string;
-      items: {
-        itemId: string;
-        quantity: number;
-        includesIot: boolean;
-        startDate: Date;
-        endDate: Date;
-        totalPrice: number;
-      }[];
-      contractImage: Express.Multer.File;
-    },
-  ) {
+  async handleContract(@Payload() data: ContractQueuePayload) {
     await this.transactionsService.handleContract(data);
   }
 }

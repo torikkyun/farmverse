@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Prisma, TransactionStatus, TransactionType } from 'generated/prisma';
 import { DepositDto } from './dto/deposit.dto';
 import { plainToInstance } from 'class-transformer';
@@ -16,12 +20,15 @@ import {
   PaginationMetaDto,
   PaginationResponseDto,
 } from '@app/common/dto/pagination.dto';
+import { PurchaseItemsDto } from './dto/purchase-items.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class TransactionsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly queueService: QueueService,
+    private readonly configService: ConfigService,
   ) {}
 
   private toTransactionBaseResponse(
@@ -92,11 +99,40 @@ export class TransactionsService {
   async contract(
     { id }: { id: string },
     { items, totalPrice }: ContractDto,
-    contractImage: Express.Multer.File,
   ): Promise<{
     message: string;
     transaction: TransactionResponseDto;
   }> {
+    const itemRecords = await Promise.all(
+      items.map((item) =>
+        this.prisma.item.findUnique({ where: { id: item.itemId } }),
+      ),
+    );
+
+    if (itemRecords.some((item) => !item)) {
+      throw new BadRequestException(
+        'Khi tạo hợp đồng, cây phải tồn tại. Vui lòng thử lại',
+      );
+    }
+
+    const farmIds = itemRecords.map((item) => item!.farmId);
+    const uniqueFarmIds = Array.from(new Set(farmIds));
+    if (uniqueFarmIds.length !== 1) {
+      throw new BadRequestException(
+        'Tất cả mặt hàng phải thuộc cùng một nông trại',
+      );
+    }
+
+    const farmRecord = await this.prisma.farm.findUnique({
+      where: { id: uniqueFarmIds[0] },
+    });
+
+    if (!farmRecord) {
+      throw new BadRequestException(
+        'Trang trại không tồn tại, vui lòng thử lại sau',
+      );
+    }
+
     const transaction = await this.prisma.transaction.create({
       data: {
         type: TransactionType.CONTRACT,
@@ -107,6 +143,7 @@ export class TransactionsService {
         blockNumber: 0,
         fromAddress: '',
         toAddress: '',
+        farmId: uniqueFarmIds[0],
       },
     });
 
@@ -114,11 +151,70 @@ export class TransactionsService {
       transactionId: transaction.id,
       userId: id,
       items,
-      contractImage,
+      totalPrice,
+      itemRecords,
+      farmRecord,
     });
 
     return {
       message: 'Đang xỷ lý giao dịch hợp đồng',
+      transaction: this.toTransactionResponse(transaction),
+    };
+  }
+
+  async attachImageToContract(
+    { id }: { id: string },
+    contractId: string,
+    contractImage: Express.Multer.File,
+  ): Promise<{ message: string; transaction: TransactionResponseDto }> {
+    const transaction = await this.prisma.transaction.update({
+      where: { id: contractId, userId: id },
+      data: {
+        contractImage: `${this.configService.get('STATIC_URL')}/contracts/${contractImage.filename}`,
+      },
+      include: { user: true, farm: true },
+    });
+
+    if (!transaction) {
+      throw new NotFoundException('Giao dịch không tồn tại');
+    }
+
+    return {
+      message: 'Ảnh hợp đồng đã được đính kèm',
+      transaction: this.toTransactionResponse(transaction),
+    };
+  }
+
+  async purchaseItems(
+    { id }: { id: string },
+    { items, totalPrice }: PurchaseItemsDto,
+  ): Promise<{
+    message: string;
+    transaction: TransactionResponseDto;
+  }> {
+    const transaction = await this.prisma.transaction.create({
+      data: {
+        type: TransactionType.PURCHASE,
+        status: TransactionStatus.PENDING,
+        totalPrice,
+        userId: id,
+        transactionHash: '',
+        blockNumber: 0,
+        fromAddress: '',
+        toAddress: '',
+        details: items as unknown as Prisma.InputJsonValue[],
+      },
+    });
+
+    await this.queueService.purchaseItems({
+      transactionId: transaction.id,
+      userId: id,
+      items,
+      totalPrice,
+    });
+
+    return {
+      message: 'Đang xỷ lý giao dịch mua hàng',
       transaction: this.toTransactionResponse(transaction),
     };
   }
@@ -159,6 +255,31 @@ export class TransactionsService {
     return {
       message: 'Lấy danh sách giao dịch thành công',
       ...new PaginationResponseDto(items, meta),
+    };
+  }
+
+  async getTransactionById(
+    { id }: { id: string },
+    transactionId: string,
+  ): Promise<{
+    message: string;
+    transaction: TransactionResponseDto;
+  }> {
+    const transaction = await this.prisma.transaction.findUnique({
+      where: { id: transactionId, userId: id },
+      include: {
+        user: true,
+        farm: true,
+      },
+    });
+
+    if (!transaction) {
+      throw new Error('Giao dịch không tồn tại');
+    }
+
+    return {
+      message: 'Lấy giao dịch thành công',
+      transaction: this.toTransactionResponse(transaction),
     };
   }
 }

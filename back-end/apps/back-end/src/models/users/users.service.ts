@@ -92,7 +92,7 @@ export class UsersService {
       data: {
         ...updateUserDto,
         avatar: avatar
-          ? `${this.configService.get('BACKEND_URL')}/static/avatars/${avatar.filename}`
+          ? `${this.configService.get('STATIC_URL')}/avatars/${avatar.filename}`
           : undefined,
       },
     });

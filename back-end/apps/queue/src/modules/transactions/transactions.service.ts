@@ -1,8 +1,14 @@
+import { ContractQueuePayload } from '@app/common/types/contract-payload.type';
 import { PrismaService } from '@app/providers/prisma.service';
 import { BadGatewayException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { RpcException } from '@nestjs/microservices';
 import { BlockchainService } from '@queue/providers/blockchain.service';
-import { statusRentedTree, TransactionStatus } from 'generated/prisma';
+import {
+  ItemType,
+  statusRentedTree,
+  TransactionStatus,
+} from 'generated/prisma';
 
 @Injectable()
 export class TransactionsService {
@@ -60,28 +66,16 @@ export class TransactionsService {
     transactionId,
     userId,
     items,
-    contractImage,
-  }: {
-    transactionId: string;
-    userId: string;
-    items: {
-      itemId: string;
-      quantity: number;
-      includesIot: boolean;
-      startDate: Date;
-      endDate: Date;
-      totalPrice: number;
-    }[];
-    contractImage: Express.Multer.File;
-  }) {
+    totalPrice,
+    itemRecords,
+    farmRecord,
+  }: ContractQueuePayload) {
     try {
-      const totalPrice = items.reduce((acc, item) => acc + item.totalPrice, 0);
-
       const { tx, receipt } =
         await this.blockchainService.recordContract(totalPrice);
 
       if (!receipt || !tx.to) {
-        throw new BadGatewayException(
+        throw new RpcException(
           'Giao dịch không thành công, vui lòng thử lại sau',
         );
       }
@@ -94,8 +88,6 @@ export class TransactionsService {
           fromAddress: tx.from,
           toAddress: tx.to,
           status: TransactionStatus.SUCCESS,
-          contractImage: `${this.configService.get('BACKEND_URL')}/static/contracts/${contractImage.filename}`,
-          userId,
         },
       });
 
@@ -104,26 +96,22 @@ export class TransactionsService {
         data: { fvtBalance: { decrement: totalPrice } },
       });
 
-      for (const item of items) {
-        const itemRecord = await this.prisma.item.findUnique({
-          where: { id: item.itemId },
-        });
+      const detailsArr: {
+        name: string;
+        type: ItemType;
+        description?: string;
+        images: string[];
+        price: number;
+        quantity: number;
+        details: Record<string, string | number>;
+        iot: boolean;
+        startDate: Date;
+        endDate: Date;
+      }[] = [];
 
-        if (!itemRecord) {
-          throw new BadGatewayException(
-            'Mặt hàng không tồn tại, vui lòng thử lại sau',
-          );
-        }
-
-        const farmRecord = await this.prisma.farm.findUnique({
-          where: { id: itemRecord.farmId },
-        });
-
-        if (!farmRecord) {
-          throw new BadGatewayException(
-            'Trang trại không tồn tại, vui lòng thử lại sau',
-          );
-        }
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        const itemRecord = itemRecords[i]!;
 
         await this.prisma.item.update({
           where: { id: item.itemId },
@@ -133,12 +121,12 @@ export class TransactionsService {
         const rentedTreesData = Array.from({ length: item.quantity }).map(
           () => ({
             name: itemRecord.name,
-            description: itemRecord.description,
+            description: itemRecord.description ?? undefined,
             images: itemRecord.images,
             details: itemRecord.details ?? {},
-            schedule: Array.isArray(farmRecord.schedule)
-              ? (farmRecord.schedule as any[]).filter((v) => v !== null)
-              : [],
+            schedule: ((farmRecord?.schedule as any[]) ?? []).filter(
+              (v) => v !== null,
+            ),
             cameraUrl: null,
             status: statusRentedTree.GROWING,
             totalProfit: 0,
@@ -153,7 +141,66 @@ export class TransactionsService {
         await this.prisma.rentedTree.createMany({
           data: rentedTreesData,
         });
+
+        detailsArr.push({
+          name: itemRecord.name,
+          type: itemRecord.type,
+          description: itemRecord.description ?? undefined,
+          images: itemRecord.images,
+          price: itemRecord.price,
+          details: (itemRecord.details ?? {}) as Record<string, any>,
+          quantity: item.quantity,
+          startDate: item.startDate,
+          endDate: item.endDate,
+          iot: item.includesIot,
+        });
       }
+
+      await this.prisma.transaction.update({
+        where: { id: transactionId },
+        data: {
+          details: detailsArr,
+        },
+      });
+    } catch {
+      await this.prisma.transaction.update({
+        where: { id: transactionId },
+        data: { status: 'FAILED' },
+      });
+    }
+  }
+
+  async purchaseItems(
+    userId: string,
+    transactionId: string,
+    totalPrice: number,
+    items: any,
+  ) {
+    try {
+      const { tx, receipt } =
+        await this.blockchainService.recordPurchase(totalPrice);
+
+      if (!receipt || !tx.to) {
+        throw new RpcException(
+          'Giao dịch không thành công, vui lòng thử lại sau',
+        );
+      }
+
+      await this.prisma.transaction.update({
+        where: { id: transactionId },
+        data: {
+          transactionHash: tx.hash,
+          blockNumber: receipt.blockNumber,
+          fromAddress: tx.from,
+          toAddress: tx.to,
+          status: TransactionStatus.SUCCESS,
+        },
+      });
+
+      await this.prisma.user.update({
+        where: { id: userId },
+        data: { fvtBalance: { decrement: totalPrice } },
+      });
     } catch {
       await this.prisma.transaction.update({
         where: { id: transactionId },
