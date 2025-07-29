@@ -144,7 +144,7 @@ export default function ContractForm({
           <li>Số lượng: {totalQuantity} cây</li>
           <li>Tuổi cây: 2-3 năm</li>
           <li>Tình trạng: Khỏe mạnh, phát triển tốt</li>
-          <li>Vị trí trồng: Khu vực A, Trang trại FarmVerse</li>
+          <li>Vị trí trồng: Trấn Biên, Đồng Nai</li>
         </ul>
       </div>
       <div className="mb-6">
@@ -164,7 +164,7 @@ export default function ContractForm({
               {new Date(contractData.endDate).toLocaleDateString("vi-VN")}
             </span>
           </li>
-          <li>Thời hạn: 12 tháng / 1 năm</li>
+          <li>Thời hạn: 1 năm</li>
         </ul>
       </div>
       <div className="mb-6">
@@ -210,9 +210,16 @@ export default function ContractForm({
           Hợp đồng có hiệu lực kể từ ngày ký và có đầy đủ chữ ký của hai bên.
         </p>
         <p className="text-base italic text-center mt-4 text-black">
-          <span className="font-bold">* Ngày</span> .....{" "}
-          <span className="font-bold">tháng</span> .....{" "}
-          <span className="font-bold">năm</span> .....
+          {(() => {
+            const today = new Date();
+            return (
+              <>
+                <span className="font-bold">Ngày {today.getDate()} </span>
+                <span className="font-bold">tháng {today.getMonth() + 1} </span>
+                <span className="font-bold">năm {today.getFullYear()}</span>
+              </>
+            );
+          })()}
         </p>
       </div>
       <div className="grid grid-cols-2 gap-8 mb-6">
