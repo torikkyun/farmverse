@@ -17,7 +17,7 @@ interface Props {
   setActiveTab: (tab: number) => void;
   items: NFTItem[]; // Cây trồng
   dungs: DungItem[]; // Phân bón
-  selectedItems: string[];
+  selectedItems: { id: string; quantity: number }[]; // <-- sửa lại kiểu này
   handleSelect: (id: string) => void;
   farmId?: string;
 }
@@ -31,8 +31,6 @@ export default function FarmTabs({
   handleSelect,
   farmId,
 }: Props) {
-  // Không cần gộp data nữa, render riêng từng loại
-
   // Lấy thông tin farm từ API
   const { farm } = useFarmDetail(API_URL || "", farmId || "");
 
@@ -210,7 +208,7 @@ export default function FarmTabs({
                   >
                     <NFTCard
                       item={item}
-                      selected={selectedItems.includes(item.id)}
+                      selected={selectedItems.includes(item)}
                       onSelect={handleSelect}
                     />
                   </div>
@@ -257,7 +255,7 @@ export default function FarmTabs({
                   >
                     <DungCard
                       dungs={dung}
-                      selected={selectedItems.includes(dung.id)}
+                      selected={selectedItems.includes(dung)}
                       onSelect={handleSelect}
                     />
                   </div>

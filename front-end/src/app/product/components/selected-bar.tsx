@@ -3,6 +3,12 @@ import Image from "next/image";
 import ModalCheckout from "./ModalCheckout";
 import ModalAddItems from "./ModalAddItems"; // Thêm dòng này
 import { NFTItem, DungItem } from "../[slug]/types";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface SelectedBarProps {
   items: NFTItem[] | DungItem[];
@@ -14,8 +20,8 @@ interface SelectedBarProps {
 
 function formatPrice(price: number): string {
   return price.toLocaleString("en-US", {
-    minimumFractionDigits: 3,
-    maximumFractionDigits: 3,
+    maximumFractionDigits: 0,
+    minimumFractionDigits: 0,
   });
 }
 
@@ -42,18 +48,21 @@ export default function SelectedBar({
     (sum, item) => sum + (item.quantity ?? 1),
     0
   );
-  const totalPrice = formatPrice(
-    selectedItems.reduce((sum, item) => {
-      const found = items.find((i) => i.id === item.id);
-      return sum + (found ? found.price * (item.quantity ?? 1) : 0);
-    }, 0)
-  );
+
+  // Tính tổng giá trị dạng number
+  const totalPriceNumber = selectedItems.reduce((sum, item) => {
+    const found = items.find((i) => i.id === item.id);
+    return sum + (found ? found.price * (item.quantity ?? 1) : 0);
+  }, 0);
+
+  // Format ra string để hiển thị
+  const totalPrice = formatPrice(totalPriceNumber);
 
   // Xác định loại sản phẩm đang thuê
   let rentLabel = "Thuê";
   if (selectedItems.length > 0) {
     if (activeTab === 0) {
-      rentLabel = `Thuê ${selectedItems.length} cây trồng`;
+      rentLabel = `Thuê ${totalQuantity} cây trồng`;
     } else if (activeTab === 1) {
       rentLabel = `Mua ${selectedItems.length} bao phân bón`;
     }
@@ -64,9 +73,6 @@ export default function SelectedBar({
       rentLabel = "Mua bao phân bón";
     }
   }
-
-  console.log("selectedItems", selectedItems);
-  console.log("items", items);
 
   return (
     <>
@@ -81,29 +87,52 @@ export default function SelectedBar({
         {/* Desktop: avatar, clear */}
         <div className="hidden md:flex items-center gap-3">
           <div className="flex items-center gap-2 mx-5 overflow-x-auto max-w-[220px] scrollbar-thin scrollbar-thumb-white/30">
-            {items
-              .filter((i) =>
-                Array.isArray(selectedItems)
-                  ? typeof selectedItems[0] === "string"
-                    ? selectedItems.includes(i.id)
-                    : selectedItems.some((item) => item.id === i.id)
-                  : false
-              )
-              .slice(0, 4)
-              .map((i, index) => (
-                <Image
-                  key={`selected-item-${i.id}-${index}`}
-                  src={
-                    Array.isArray(i.images) && i.images.length > 0
-                      ? i.images[0]
-                      : "/no-image.png"
-                  }
-                  alt={i.name}
-                  width={36}
-                  height={36}
-                  className="w-9 h-9 rounded-full border-2 border-white object-cover shadow-md"
-                />
-              ))}
+            <TooltipProvider>
+              {selectedItems.slice(0, 4).map((selected, index) => {
+                const selectedId =
+                  typeof selected === "string" ? selected : selected.id;
+                const quantity =
+                  typeof selected === "string" ? 1 : selected.quantity ?? 1;
+                const item = items.find(
+                  (i) => String(i.id) === String(selectedId)
+                );
+                if (!item) {
+                  return (
+                    <span
+                      key={`notfound-${selectedId}-${index}`}
+                      className="text-red-500"
+                    >
+                      Không tìm thấy: {selectedId}
+                    </span>
+                  );
+                }
+                return (
+                  <Tooltip key={`selected-item-${item.id}-${index}`}>
+                    <TooltipTrigger asChild>
+                      <div className="relative flex items-center">
+                        <Image
+                          src={
+                            Array.isArray(item.images) && item.images.length > 0
+                              ? item.images[0]
+                              : "/no-image.png"
+                          }
+                          alt={item.name}
+                          width={36}
+                          height={36}
+                          className="w-9 h-9 rounded-full border-2 border-white object-cover shadow-md"
+                        />
+                        <span className="ml-1 text-white font-bold text-base">
+                          {""} x {quantity}
+                        </span>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent className="bg-white text-black border border-gray-200">
+                      {item.name}
+                    </TooltipContent>
+                  </Tooltip>
+                );
+              })}
+            </TooltipProvider>
             {selectedItems.length > 10 && (
               <span className="ml-2 text-xs text-white/80 min-w-[32px] font-semibold">
                 +{selectedItems.length - 10}
@@ -124,7 +153,7 @@ export default function SelectedBar({
         </button>
         {/* Tổng số FVT */}
         <span className="font-semibold text-base md:text-lg mr-2 md:mr-5 whitespace-nowrap bg-white/10 px-3 py-1 rounded-full border border-white/20">
-          {Number(totalPrice).toLocaleString()} FVT
+          {totalPrice} FVT
         </span>
         {/* Clear (desktop) */}
         <button
@@ -148,8 +177,9 @@ export default function SelectedBar({
         <ModalCheckout
           items={selectedItemObjects.map((item, index) => ({
             ...item,
-            id: item.id || `temp-${index}`, // Đảm bảo mỗi item có id hợp lệ
+            id: item.id || `temp-${index}`,
           }))}
+          totalQuantity={totalQuantity} // Thêm dòng này
           onClose={() => setShowCheckout(false)}
           onHideSelectedBar={() => {
             setSelectedItems([]);

@@ -26,7 +26,9 @@ export default function ProductDetailPage() {
   const { items, dungs } = useFarmItems(API_URL, farmId);
 
   const [activeTab, setActiveTab] = useState(0);
-  const [selectedItems, setSelectedItems] = useState<string[]>([]); // Thay đổi từ number[] sang string[]
+  const [selectedItems, setSelectedItems] = useState<
+    { id: string; quantity: number }[]
+  >([]);
   const [showCheckout, setShowCheckout] = useState(false);
 
   React.useEffect(() => {
@@ -39,24 +41,25 @@ export default function ProductDetailPage() {
   }, [activeTab]);
 
   const handleSelect = (id: string) => {
-    // Kiểm tra ID hợp lệ
-    if (!id || id === null || id === undefined) {
-      return;
-    }
-
     setSelectedItems((prev) => {
-      if (prev.includes(id)) {
-        const newSelection = prev.filter((itemId) => itemId !== id);
-        return newSelection;
+      const exists = prev.find((item) => item.id === id);
+      if (exists) {
+        // Nếu đã có thì bỏ chọn
+        return prev.filter((item) => item.id !== id);
       } else {
-        const newSelection = [...prev, id];
-        return newSelection;
+        // Nếu chưa có thì thêm mới với quantity mặc định là 1
+        return [...prev, { id, quantity: 1 }];
       }
     });
   };
 
   // Sửa tabItems để có thể là cả NFTItem hoặc DungItem
   const tabItems: (NFTItem | DungItem)[] = activeTab === 1 ? dungs : items; // Thêm type annotation
+
+  const totalQuantity = selectedItems.reduce(
+    (sum, item) => sum + (item.quantity ?? 1),
+    0
+  );
 
   return (
     <SidebarProvider>
@@ -90,7 +93,10 @@ export default function ProductDetailPage() {
           )}
           {showCheckout && (
             <ModalCheckout
-              items={tabItems.filter((item) => selectedItems.includes(item.id))}
+              items={tabItems.filter((item) =>
+                selectedItems.some((s) => s.id === item.id)
+              )}
+              totalQuantity={totalQuantity}
               onClose={() => setShowCheckout(false)}
             />
           )}

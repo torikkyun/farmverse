@@ -8,6 +8,7 @@ import { FarmItem } from "../[slug]/types"; // Import union type
 
 interface ModalCheckoutProps {
   items: FarmItem[]; // Sử dụng union type
+  totalQuantity: number;
   onClose: () => void;
   onHideSelectedBar?: () => void;
 }
@@ -15,6 +16,7 @@ interface ModalCheckoutProps {
 export default function ModalCheckout({
   items,
   onClose,
+  totalQuantity,
   onHideSelectedBar,
 }: ModalCheckoutProps) {
   // Destructure props đúng cách
@@ -128,6 +130,7 @@ export default function ModalCheckout({
               setAgreeTerms={setAgreeTerms}
               itemsByType={itemsByType}
               total={total}
+              totalQuantity={totalQuantity}
             />
             {/* Hiển thị danh sách vật phẩm mua */}
             <div className="p-4 border-b border-black">

@@ -32,6 +32,7 @@ type ContractFormProps = {
   setAgreeTerms: (checked: boolean) => void;
   itemsByType: ItemsByType;
   total: number;
+  totalQuantity: number; // Thêm dòng này
 };
 
 export default function ContractForm({
@@ -40,6 +41,7 @@ export default function ContractForm({
   agreeTerms,
   setAgreeTerms,
   itemsByType,
+  totalQuantity,
   total,
 }: ContractFormProps) {
   const inputFields: Array<{
@@ -73,12 +75,6 @@ export default function ContractForm({
       placeholder: "Nhập email liên hệ",
     },
   ];
-
-  // Giả sử items là mảng các cây trồng
-  const totalCay = itemsByType.tree.reduce(
-    (sum, item) => sum + (item.quantity ?? 1),
-    0
-  );
 
   return (
     <div className="w-full px-2 overflow-x-hidden">
@@ -145,7 +141,7 @@ export default function ContractForm({
             Loại cây:{" "}
             {itemsByType.tree.map((item: Item) => item.name).join(", ")}
           </li>
-          <li>Số lượng: {totalCay} cây</li>
+          <li>Số lượng: {totalQuantity} cây</li>
           <li>Tuổi cây: 2-3 năm</li>
           <li>Tình trạng: Khỏe mạnh, phát triển tốt</li>
           <li>Vị trí trồng: Khu vực A, Trang trại FarmVerse</li>
