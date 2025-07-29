@@ -53,10 +53,6 @@ export default function ModalAddItems({
         initialQuantities[id] = quantity;
       });
     setItemQuantities(initialQuantities);
-
-    console.log("selectedItems in useEffect", selectedItems);
-    console.log("normalized", normalized);
-    console.log("initialQuantities in useEffect", initialQuantities);
   }, [selectedItems]);
 
   // Lấy danh sách vật phẩm đang mua dựa trên normalizedSelectedItems
@@ -71,13 +67,6 @@ export default function ModalAddItems({
         : null;
     })
     .filter((item): item is NonNullable<typeof item> => item !== null);
-
-  console.log("==================================================");
-  console.log("itemQuantities", itemQuantities);
-  console.log("selectedItems", selectedItems);
-  console.log("items", items);
-  console.log("buyingItems", buyingItems);
-  console.log("==================================================");
 
   const handleQuantityChange = (itemId: string, quantity: number) => {
     if (quantity <= 0) {

@@ -9,7 +9,7 @@ export default function ItemCard({
   item: Item;
   type: string;
   quantity: number;
-  onQuantityChange: (newQuantity: number) => void;
+  // onQuantityChange: (newQuantity: number) => void;
   includesIot?: boolean;
   setIncludesIot?: (checked: boolean) => void;
 }) {

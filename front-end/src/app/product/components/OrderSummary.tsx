@@ -32,6 +32,7 @@ type OrderSummaryProps = {
     tree: Item[];
     fertilizer: Item[];
   };
+  selectedItems: { id: string; quantity: number }[]; // <-- thêm dòng này
   total: number;
   agreeTerms: boolean;
   isLoading: boolean;
@@ -44,6 +45,7 @@ type OrderSummaryProps = {
 
 export default function OrderSummary({
   itemsByType,
+  selectedItems, // <-- thêm dòng này
   total,
   agreeTerms,
   isLoading,
@@ -69,16 +71,16 @@ export default function OrderSummary({
   }, [itemsByType.tree]);
 
   // Tạo state lưu danh sách cây với quantity
-  const [treeItems, setTreeItems] = useState<Item[]>(itemsByType.tree);
+  // const [treeItems, setTreeItems] = useState<Item[]>(itemsByType.tree);
 
   // Hàm cập nhật số lượng
-  const handleQuantityChange = (id: string, newQuantity: number) => {
-    setTreeItems((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, quantity: newQuantity } : item
-      )
-    );
-  };
+  // const handleQuantityChange = (id: string, newQuantity: number) => {
+  //   setTreeItems((prev) =>
+  //     prev.map((item) =>
+  //       item.id === id ? { ...item, quantity: newQuantity } : item
+  //     )
+  //   );
+  // };
 
   const handleIotChange = (id: string, checked: boolean) => {
     setIotSelections((prev) => ({ ...prev, [id]: checked }));
@@ -89,7 +91,25 @@ export default function OrderSummary({
     router.push("/tree");
   };
 
-  console.log("itemsByType", itemsByType);
+  // Tạo lại object itemsByType nhưng quantity đúng
+  const itemsByTypeWithQuantity = {
+    tree: selectedItems
+      .map((sel) => {
+        const item = itemsByType.tree.find((i) => i.id === sel.id);
+        return item ? { ...item, quantity: sel.quantity } : null;
+      })
+      .filter(Boolean) as Item[],
+    fertilizer: selectedItems
+      .map((sel) => {
+        const item = itemsByType.fertilizer.find((i) => i.id === sel.id);
+        return item ? { ...item, quantity: sel.quantity } : null;
+      })
+      .filter(Boolean) as Item[],
+  };
+
+  console.log("selectedItems:", selectedItems);
+  console.log("itemsByType:", itemsByType);
+  console.log("itemsByTypeWithQuantity:", itemsByTypeWithQuantity);
 
   return (
     <div className="flex-[1] p-8 bg-gray-100 overflow-y-auto min-w-[400px] max-w-[500px] border-l border-black">
@@ -100,19 +120,24 @@ export default function OrderSummary({
           <div className="font-bold text-lg mb-4 text-black bg-gray-200 px-4 py-2 rounded-lg border border-black">
             🌱 Cây trồng (Thuê 1 năm)
           </div>
-          {treeItems.map((item) => (
-            <ItemCard
-              key={item.id}
-              item={item}
-              type="tree"
-              quantity={item.quantity ?? 1}
-              onQuantityChange={(newQuantity) =>
-                handleQuantityChange(item.id, newQuantity)
-              }
-              includesIot={!!iotSelections[item.id]}
-              setIncludesIot={(checked) => handleIotChange(item.id, checked)}
-            />
-          ))}
+          {itemsByTypeWithQuantity.tree.map((item) => {
+            console.log(
+              "Render ItemCard:",
+              item.name,
+              "quantity:",
+              item.quantity
+            );
+            return (
+              <ItemCard
+                key={item.id}
+                item={item}
+                type="tree"
+                quantity={item.quantity ?? 1}
+                includesIot={!!iotSelections[item.id]}
+                setIncludesIot={(checked) => handleIotChange(item.id, checked)}
+              />
+            );
+          })}
         </div>
       )}
       {/* Phân bón */}
@@ -121,15 +146,15 @@ export default function OrderSummary({
           <div className="font-bold text-lg mb-4 text-black bg-gray-200 px-4 py-2 rounded-lg border border-black">
             🌾 Phân bón (Mua)
           </div>
-          {itemsByType.fertilizer.map((item: Item) => (
+          {itemsByTypeWithQuantity.fertilizer.map((item) => (
             <ItemCard
               key={`fertilizer-${item.id}`}
               item={item}
               type="fertilizer"
               quantity={item.quantity ?? 1}
-              onQuantityChange={(newQuantity) =>
-                handleQuantityChange(item.id, newQuantity)
-              }
+              // onQuantityChange={(newQuantity) =>
+              //   handleQuantityChange(item.id, newQuantity)
+              // }
             />
           ))}
         </div>
@@ -171,20 +196,24 @@ export default function OrderSummary({
         <div className="font-bold text-lg text-black mb-4">
           Chi tiết thanh toán
         </div>
-        {Object.entries(itemsByType).map(
+        {Object.entries(itemsByTypeWithQuantity).map(
           ([type, typeItems]: [string, Item[]]) =>
             typeItems.length > 0 && (
               <div key={type} className="flex justify-between mb-2">
                 <span className="text-gray-700">
-                  {type === "caytrong"
+                  {type === "tree"
                     ? "Cây trồng"
-                    : type === "phanbon"
+                    : type === "fertilizer"
                     ? "Phân bón"
                     : "Sản phẩm khác"}{" "}
-                  ({typeItems.length}{" "}
-                  {type === "caytrong"
+                  (
+                  {typeItems.reduce(
+                    (sum, item) => sum + (item.quantity ?? 1),
+                    0
+                  )}{" "}
+                  {type === "tree"
                     ? "cây"
-                    : type === "phanbon"
+                    : type === "fertilizer"
                     ? "bao"
                     : "sản phẩm"}
                   ):

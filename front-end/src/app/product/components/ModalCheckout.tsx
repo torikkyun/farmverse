@@ -107,7 +107,14 @@ export default function ModalCheckout({
     setContractData((prev) => ({ ...prev, [field]: value }));
   };
 
-  console.log("items", items);
+  // Tạo selectedItems từ items (chỉ lấy id và quantity)
+  const selectedItems = items.map((item) => ({
+    id: item.id,
+    quantity: item.quantity ?? 1,
+  }));
+
+  console.log("items:", items);
+  console.log("selectedItems truyền vào OrderSummary:", selectedItems);
 
   return (
     <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center w-screen h-screen">
@@ -147,6 +154,7 @@ export default function ModalCheckout({
           <OrderSummary
             itemsByType={itemsByType}
             includesIot={includesIot}
+            selectedItems={selectedItems}
             setIncludesIot={setIncludesIot}
             total={total}
             agreeTerms={agreeTerms}
