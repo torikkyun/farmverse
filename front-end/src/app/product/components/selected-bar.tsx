@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import ModalCheckout from "./ModalCheckout";
+import ModalAddItems from "./ModalAddItems"; // Thêm dòng này
 import { NFTItem, DungItem } from "../[slug]/types";
 
 interface SelectedBarProps {
   items: NFTItem[] | DungItem[];
-  selectedItems: string[]; // Thay đổi từ number[] sang string[]
-  setSelectedItems: (ids: string[]) => void; // Thay đổi từ number[] sang string[]
+  selectedItems: { id: string; quantity: number }[];
+  setSelectedItems: (items: { id: string; quantity: number }[]) => void;
   activeTab: number;
   onCheckout: () => void;
 }
@@ -26,6 +27,7 @@ export default function SelectedBar({
 }: SelectedBarProps) {
   const [visible, setVisible] = useState(true);
   const [showCheckout, setShowCheckout] = useState(false);
+  const [showAddItems, setShowAddItems] = useState(false); // Thêm state này
 
   useEffect(() => {
     setVisible(activeTab === 0 || activeTab === 1);
@@ -33,16 +35,18 @@ export default function SelectedBar({
 
   if (!visible) return null;
 
-  const selectedItemObjects = items.filter((i) => selectedItems.includes(i.id));
-  const totalQuantity = selectedItemObjects.reduce(
+  // Lấy danh sách id đã chọn
+  const selectedIds = selectedItems.map((i) => i.id);
+  const selectedItemObjects = items.filter((i) => selectedIds.includes(i.id));
+  const totalQuantity = selectedItems.reduce(
     (sum, item) => sum + (item.quantity ?? 1),
     0
   );
   const totalPrice = formatPrice(
-    selectedItemObjects.reduce(
-      (sum, item) => sum + item.price * (item.quantity ?? 1),
-      0
-    )
+    selectedItems.reduce((sum, item) => {
+      const found = items.find((i) => i.id === item.id);
+      return sum + (found ? found.price * (item.quantity ?? 1) : 0);
+    }, 0)
   );
 
   // Xác định loại sản phẩm đang thuê
@@ -61,14 +65,30 @@ export default function SelectedBar({
     }
   }
 
+  console.log("selectedItems", selectedItems);
+  console.log("items", items);
+
   return (
     <>
       <div className="fixed bottom-0 left-0 w-full bg-gradient-to-r from-black via-neutral-900 to-black text-white flex items-center px-3 md:px-8 py-3 md:py-4 z-50 shadow-2xl border-t border-white/10 transition-all duration-300">
+        {/* Nút thêm sản phẩm */}
+        <button
+          className="flex items-center justify-center bg-black/60 border border-white/20 rounded-full px-4 py-2 mr-3 font-semibold hover:bg-white/10 transition-all"
+          onClick={() => setShowAddItems(true)} // Sửa lại onClick
+        >
+          + Thêm
+        </button>
         {/* Desktop: avatar, clear */}
         <div className="hidden md:flex items-center gap-3">
           <div className="flex items-center gap-2 mx-5 overflow-x-auto max-w-[220px] scrollbar-thin scrollbar-thumb-white/30">
             {items
-              .filter((i) => selectedItems.includes(i.id))
+              .filter((i) =>
+                Array.isArray(selectedItems)
+                  ? typeof selectedItems[0] === "string"
+                    ? selectedItems.includes(i.id)
+                    : selectedItems.some((item) => item.id === i.id)
+                  : false
+              )
               .slice(0, 4)
               .map((i, index) => (
                 <Image
@@ -114,6 +134,16 @@ export default function SelectedBar({
           Xoá
         </button>
       </div>
+      {/* Modal Add Items */}
+      {showAddItems && (
+        <ModalAddItems
+          items={items}
+          selectedItems={selectedItems}
+          setSelectedItems={setSelectedItems}
+          activeTab={activeTab}
+          onClose={() => setShowAddItems(false)}
+        />
+      )}
       {showCheckout && (
         <ModalCheckout
           items={selectedItemObjects.map((item, index) => ({
