@@ -134,9 +134,9 @@ export default function OrderSummary({
 
   const grandTotal = totalTreePrice + totalFertilizerPrice + iotPrice;
 
-  console.log("selectedItems:", selectedItems);
-  console.log("itemsByType:", itemsByType);
-  console.log("itemsByTypeWithQuantity:", itemsByTypeWithQuantity);
+  // console.log("selectedItems:", selectedItems);
+  // console.log("itemsByType:", itemsByType);
+  // console.log("itemsByTypeWithQuantity:", itemsByTypeWithQuantity);
 
   return (
     <div className="flex-[1] p-8 bg-gray-100 overflow-y-auto min-w-[400px] max-w-[500px] border-l border-black">

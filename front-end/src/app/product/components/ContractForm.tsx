@@ -75,8 +75,48 @@ export default function ContractForm({
     },
   ];
 
+  const itemsByTypeWithQuantity = {
+    tree: Array.isArray(itemsByType.tree)
+      ? itemsByType.tree.filter((item) => (item.quantity ?? 0) > 0)
+      : [],
+    fertilizer: Array.isArray(itemsByType.fertilizer)
+      ? itemsByType.fertilizer.filter((item) => (item.quantity ?? 0) > 0)
+      : [],
+  };
+
+  const totalTreeQuantity = itemsByTypeWithQuantity.tree.reduce(
+    (sum, item) => sum + (item.quantity ?? 1),
+    0
+  );
+
+  const totalTreePrice = itemsByTypeWithQuantity.tree.reduce(
+    (sum, item) =>
+      sum +
+      (typeof item.price === "string"
+        ? parseFloat(item.price) * (item.quantity ?? 1)
+        : item.price * (item.quantity ?? 1)),
+    0
+  );
+
+  const totalFertilizerPrice = itemsByTypeWithQuantity.fertilizer.reduce(
+    (sum, item) =>
+      sum +
+      (typeof item.price === "string"
+        ? parseFloat(item.price) * (item.quantity ?? 1)
+        : item.price * (item.quantity ?? 1)),
+    0
+  );
+
+  const iotPrice = totalTreeQuantity * 500;
+
+  const contractTotal = totalTreePrice + totalFertilizerPrice + iotPrice;
+
+  const hasTree =
+    Array.isArray(itemsByType.tree) &&
+    itemsByType.tree.some((item) => (item.quantity ?? 0) > 0);
+
   // Nếu không có cây trồng, chỉ hiển thị phần mua vật phẩm
-  if (!itemsByType.tree || itemsByType.tree.length === 0) {
+  if (!hasTree) {
     return (
       <div className="w-full px-2 overflow-x-hidden">
         <div className="text-center border-b-2 border-black pb-4 mb-6">
@@ -206,7 +246,9 @@ export default function ContractForm({
         <ul className="text-base space-y-1 list-disc list-inside text-black">
           <li>
             Giá thuê:{" "}
-            <span className="font-semibold">{total.toLocaleString()} FVT</span>
+            <span className="font-semibold">
+              {contractTotal.toLocaleString()} FVT
+            </span>
           </li>
           <li>Phương thức thanh toán: {contractData.paymentMethod}</li>
           <li>Thời hạn thanh toán: Trả trước 100%</li>

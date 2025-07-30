@@ -80,7 +80,7 @@ export default function DungCard({ dungs, selected, onSelect }: DungCardProps) {
 
         <div className="flex items-center justify-between text-xs text-gray-600 mt-1">
           <span className="bg-gray-100 px-2 py-1 rounded-full">
-            SL: {dungs.stock ?? 1}
+            SL: {dungs.stock}
           </span>
         </div>
 
