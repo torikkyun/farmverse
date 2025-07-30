@@ -9,6 +9,11 @@ import {
   statusRentedTree,
   TransactionStatus,
 } from 'generated/prisma';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as Handlebars from 'handlebars';
+import puppeteer from 'puppeteer';
+import { GenerateContractImage } from '@app/common/types/generate-contract.type';
 
 @Injectable()
 export class TransactionsService {
@@ -111,7 +116,7 @@ export class TransactionsService {
 
       for (let i = 0; i < items.length; i++) {
         const item = items[i];
-        const itemRecord = itemRecords[i]!;
+        const itemRecord = itemRecords[i];
 
         await this.prisma.item.update({
           where: { id: item.itemId },
@@ -170,42 +175,100 @@ export class TransactionsService {
     }
   }
 
-  async purchaseItems(
-    userId: string,
+  async generateContractDocument(
     transactionId: string,
-    totalPrice: number,
-    items: any,
+    contractData: GenerateContractImage,
   ) {
-    try {
-      const { tx, receipt } =
-        await this.blockchainService.recordPurchase(totalPrice);
+    const templatePath = path.join(
+      __dirname,
+      '..',
+      '..',
+      '..',
+      '..',
+      'back-end',
+      'apps',
+      'queue',
+      'src',
+      'modules',
+      'transactions',
+      'templates',
+      'contract.hbs',
+    );
+    const templateSource = fs.readFileSync(templatePath, 'utf8');
+    const template = Handlebars.compile(templateSource);
 
-      if (!receipt || !tx.to) {
-        throw new RpcException(
-          'Giao dịch không thành công, vui lòng thử lại sau',
-        );
-      }
+    const html = template(contractData);
 
-      await this.prisma.transaction.update({
-        where: { id: transactionId },
-        data: {
-          transactionHash: tx.hash,
-          blockNumber: receipt.blockNumber,
-          fromAddress: tx.from,
-          toAddress: tx.to,
-          status: TransactionStatus.SUCCESS,
-        },
-      });
+    const outputDir = path.join(
+      __dirname,
+      '..',
+      '..',
+      '..',
+      '..',
+      'back-end',
+      'static',
+      'contracts',
+    );
+    if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir);
 
-      await this.prisma.user.update({
-        where: { id: userId },
-        data: { fvtBalance: { decrement: totalPrice } },
-      });
-    } catch {
-      await this.prisma.transaction.update({
-        where: { id: transactionId },
-        data: { status: 'FAILED' },
-      });
-    }
+    const pdfPath = path.join(outputDir, `${transactionId}.pdf`);
+    const imgPath = path.join(outputDir, `${transactionId}.png`);
+
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+    await page.setContent(html, { waitUntil: 'networkidle0' });
+
+    // await page.pdf({ path: pdfPath, format: 'A4' });
+    await page.screenshot({ path: imgPath as `${string}.png`, fullPage: true });
+
+    await browser.close();
+
+    await this.prisma.transaction.update({
+      where: { id: transactionId },
+      data: {
+        contractImage: `${this.configService.get('STATIC_URL')}/contracts/${transactionId}.png`,
+      },
+    });
+
+    return { pdfPath, imgPath };
   }
+
+  // async purchaseItems(
+  //   userId: string,
+  //   transactionId: string,
+  //   totalPrice: number,
+  //   items: any,
+  // ) {
+  //   try {
+  //     const { tx, receipt } =
+  //       await this.blockchainService.recordPurchase(totalPrice);
+
+  //     if (!receipt || !tx.to) {
+  //       throw new RpcException(
+  //         'Giao dịch không thành công, vui lòng thử lại sau',
+  //       );
+  //     }
+
+  //     await this.prisma.transaction.update({
+  //       where: { id: transactionId },
+  //       data: {
+  //         transactionHash: tx.hash,
+  //         blockNumber: receipt.blockNumber,
+  //         fromAddress: tx.from,
+  //         toAddress: tx.to,
+  //         status: TransactionStatus.SUCCESS,
+  //       },
+  //     });
+
+  //     await this.prisma.user.update({
+  //       where: { id: userId },
+  //       data: { fvtBalance: { decrement: totalPrice } },
+  //     });
+  //   } catch {
+  //     await this.prisma.transaction.update({
+  //       where: { id: transactionId },
+  //       data: { status: 'FAILED' },
+  //     });
+  //   }
+  // }
 }

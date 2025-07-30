@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './models/users/users.module';
 import { AuthModule } from './authentication/auth.module';
-import { MailProviderModule } from './providers/mail/mail.module';
 import { FarmsModule } from './models/farms/farms.module';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtGuard } from './common/guards/jwt.guard';
@@ -13,6 +12,7 @@ import { QueueModule } from './providers/queue/queue.module';
 import { TransactionsModule } from './models/transactions/transactions.module';
 import { RentedTreesModule } from './models/rented-trees/rented-trees.module';
 import { InventoryModule } from './models/inventory/inventory.module';
+import { MailModule } from './providers/mail/mail.module';
 
 @Module({
   imports: [
@@ -22,7 +22,7 @@ import { InventoryModule } from './models/inventory/inventory.module';
       expandVariables: true,
     }),
     AuthModule,
-    MailProviderModule,
+    MailModule,
     SeedModule,
     QueueModule,
     UsersModule,

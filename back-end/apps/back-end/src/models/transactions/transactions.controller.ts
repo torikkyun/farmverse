@@ -42,33 +42,33 @@ export class TransactionsController {
     return await this.transactionsService.contract(user, contractDto);
   }
 
-  @Post('contract/:contractId/upload-image')
-  @UseInterceptors(FileInterceptor('contractImage'))
-  @ApiConsumes('multipart/form-data')
-  @ApiBearerAuth()
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        contractImage: {
-          type: 'string',
-          format: 'binary',
-        },
-      },
-      required: ['contractImage'],
-    },
-  })
-  async uploadContractImage(
-    @CurrentUser() user: { id: string },
-    @Param('contractId') contractId: string,
-    @UploadedFile(new FileValidationPipe()) contractImage: Express.Multer.File,
-  ) {
-    return await this.transactionsService.attachImageToContract(
-      user,
-      contractId,
-      contractImage,
-    );
-  }
+  // @Post('contract/:contractId/upload-image')
+  // @UseInterceptors(FileInterceptor('contractImage'))
+  // @ApiConsumes('multipart/form-data')
+  // @ApiBearerAuth()
+  // @ApiBody({
+  //   schema: {
+  //     type: 'object',
+  //     properties: {
+  //       contractImage: {
+  //         type: 'string',
+  //         format: 'binary',
+  //       },
+  //     },
+  //     required: ['contractImage'],
+  //   },
+  // })
+  // async uploadContractImage(
+  //   @CurrentUser() user: { id: string },
+  //   @Param('contractId') contractId: string,
+  //   @UploadedFile(new FileValidationPipe()) contractImage: Express.Multer.File,
+  // ) {
+  //   return await this.transactionsService.attachImageToContract(
+  //     user,
+  //     contractId,
+  //     contractImage,
+  //   );
+  // }
 
   @Post('purchase-items')
   @ApiBearerAuth()

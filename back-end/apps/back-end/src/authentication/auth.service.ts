@@ -17,9 +17,9 @@ import { randomBytes } from 'crypto';
 import { AccountVerificationDto } from './dto/account-verification.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { ConfigService } from '@nestjs/config';
-import { MailService } from '@app/providers/mail/mail.service';
 import { PrismaService } from '@app/providers/prisma.service';
 import { UserResponseDto } from '@app/common/dto/response/user.dto';
+import { MailService } from '@app/providers/mail/mail.service';
 
 @Injectable()
 export class AuthService {
@@ -142,7 +142,11 @@ export class AuthService {
       }),
     ]);
 
-    await this.mailService.sendEmailVerification(user.email, otp, user.name);
+    await this.mailService.emailVerification({
+      email: user.email,
+      name: user.name,
+      otp,
+    });
 
     return {
       message:
@@ -179,7 +183,7 @@ export class AuthService {
       }),
     ]);
 
-    await this.mailService.sendWelcomeEmail(user.email, user.name);
+    // await this.mailService.sendWelcomeEmail(user.email, user.name);
     return { message: 'Xác thực email thành công', email: user.email };
   }
 

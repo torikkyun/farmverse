@@ -11,7 +11,7 @@ export type ContractQueuePayload = {
     endDate: Date;
   }[];
   totalPrice: number;
-  itemRecords: ({
+  itemRecords: {
     id: string;
     details: Prisma.JsonValue;
     type: $Enums.ItemType;
@@ -21,7 +21,7 @@ export type ContractQueuePayload = {
     images: string[];
     price: number;
     stock: number;
-  } | null)[];
+  }[];
   farmRecord: {
     userId: string;
     id: string;
@@ -31,5 +31,17 @@ export type ContractQueuePayload = {
     images: string[];
     size: number;
     schedule: Prisma.JsonValue[];
-  } | null;
+    user: {
+      id: string;
+      email: string;
+      name: string;
+      address: Prisma.JsonValue;
+    };
+  };
+  userRecord: {
+    id: string;
+    name: string;
+    email: string;
+    address: Prisma.JsonValue;
+  };
 };

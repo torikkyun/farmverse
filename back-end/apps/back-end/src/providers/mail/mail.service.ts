@@ -1,57 +1,30 @@
-import { Injectable } from '@nestjs/common';
-import { MailerService } from '@nestjs-modules/mailer';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import {
+  ClientProxy,
+  ClientProxyFactory,
+  Transport,
+} from '@nestjs/microservices';
+import { lastValueFrom } from 'rxjs';
 
 @Injectable()
-export class MailService {
-  private readonly frontendUrl: string;
+export class MailService implements OnModuleInit {
+  client: ClientProxy;
 
-  constructor(
-    private readonly mailerService: MailerService,
-    private readonly configService: ConfigService,
-  ) {
-    const frontendUrl = this.configService.get<string>('FRONTEND_URL');
-    if (!frontendUrl) {
-      throw new Error('FRONTEND_URL is not defined in the configuration');
-    }
-    this.frontendUrl = frontendUrl;
-  }
+  constructor(private readonly configService: ConfigService) {}
 
-  async sendEmailVerification(email: string, otp: string, name: string) {
-    await this.mailerService.sendMail({
-      to: email,
-      subject: 'Xác thực email - FarmVerse',
-      template: 'email-verification',
-      context: {
-        name,
-        otp,
+  onModuleInit() {
+    this.client = ClientProxyFactory.create({
+      transport: Transport.RMQ,
+      options: {
+        urls: [this.configService.get<string>('RABBITMQ_URL')!],
+        queue: 'farmverse_queue',
+        queueOptions: { durable: true },
       },
     });
   }
 
-  async sendWelcomeEmail(email: string, name: string) {
-    const loginUrl = `${this.frontendUrl}/login`;
-    await this.mailerService.sendMail({
-      to: email,
-      subject: 'Chào mừng đến với FarmVerse!',
-      template: 'welcome',
-      context: {
-        name,
-        loginUrl,
-      },
-    });
-  }
-
-  async sendResetPasswordEmail(email: string, token: string, name: string) {
-    const resetUrl = `${this.frontendUrl}/reset-password?token=${token}`;
-    await this.mailerService.sendMail({
-      to: email,
-      subject: 'Đặt lại mật khẩu - FarmVerse',
-      template: 'reset-password',
-      context: {
-        name,
-        resetUrl,
-      },
-    });
+  async emailVerification(data: { email: string; name: string; otp: string }) {
+    await lastValueFrom(this.client.emit('email_verification', data));
   }
 }

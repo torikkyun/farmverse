@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { Prisma, TransactionStatus, TransactionType } from 'generated/prisma';
 import { DepositDto } from './dto/deposit.dto';
@@ -103,6 +104,16 @@ export class TransactionsService {
     message: string;
     transaction: TransactionResponseDto;
   }> {
+    const userRecord = await this.prisma.user.findUnique({
+      where: { id },
+    });
+
+    if (!userRecord) {
+      throw new BadRequestException(
+        'Người dùng không tồn tại, vui lòng thử lại sau',
+      );
+    }
+
     const itemRecords = await Promise.all(
       items.map((item) =>
         this.prisma.item.findUnique({ where: { id: item.itemId } }),
@@ -125,6 +136,7 @@ export class TransactionsService {
 
     const farmRecord = await this.prisma.farm.findUnique({
       where: { id: uniqueFarmIds[0] },
+      include: { user: true },
     });
 
     if (!farmRecord) {
@@ -152,8 +164,11 @@ export class TransactionsService {
       userId: id,
       items,
       totalPrice,
-      itemRecords,
+      itemRecords: itemRecords.filter(
+        (item): item is NonNullable<typeof item> => item !== null,
+      ),
       farmRecord,
+      userRecord,
     });
 
     return {
@@ -162,28 +177,28 @@ export class TransactionsService {
     };
   }
 
-  async attachImageToContract(
-    { id }: { id: string },
-    contractId: string,
-    contractImage: Express.Multer.File,
-  ): Promise<{ message: string; transaction: TransactionResponseDto }> {
-    const transaction = await this.prisma.transaction.update({
-      where: { id: contractId, userId: id },
-      data: {
-        contractImage: `${this.configService.get('STATIC_URL')}/contracts/${contractImage.filename}`,
-      },
-      include: { user: true, farm: true },
-    });
+  // async attachImageToContract(
+  //   { id }: { id: string },
+  //   contractId: string,
+  //   contractImage: Express.Multer.File,
+  // ): Promise<{ message: string; transaction: TransactionResponseDto }> {
+  //   const transaction = await this.prisma.transaction.update({
+  //     where: { id: contractId, userId: id },
+  //     data: {
+  //       contractImage: `${this.configService.get('STATIC_URL')}/contracts/${contractImage.filename}`,
+  //     },
+  //     include: { user: true, farm: true },
+  //   });
 
-    if (!transaction) {
-      throw new NotFoundException('Giao dịch không tồn tại');
-    }
+  //   if (!transaction) {
+  //     throw new NotFoundException('Giao dịch không tồn tại');
+  //   }
 
-    return {
-      message: 'Ảnh hợp đồng đã được đính kèm',
-      transaction: this.toTransactionResponse(transaction),
-    };
-  }
+  //   return {
+  //     message: 'Ảnh hợp đồng đã được đính kèm',
+  //     transaction: this.toTransactionResponse(transaction),
+  //   };
+  // }
 
   async purchaseItems(
     { id }: { id: string },

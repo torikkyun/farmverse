@@ -1,0 +1,216 @@
+<html>
+  <head>
+    <meta charset='utf-8' />
+    <title>HỢP ĐỒNG THUÊ CÂY</title>
+    <style>
+      body {
+        font-family: 'Segoe UI', Arial, sans-serif;
+        color: #111;
+        padding: 20px;
+      }
+      .title {
+        text-align: center;
+        border-bottom: 2px solid #000;
+        padding-bottom: 16px;
+        margin-bottom: 24px;
+      }
+      .section {
+        margin-bottom: 24px;
+      }
+      .section-title {
+        font-weight: bold;
+        font-size: 18px;
+        margin-bottom: 12px;
+      }
+      .list {
+        font-size: 16px;
+        margin-left: 20px;
+      }
+      .label {
+        font-weight: bold;
+      }
+      .flex {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+      .input {
+        border-bottom: 1px dotted #000;
+        background: none;
+        font-size: 16px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 32px;
+        margin-bottom: 24px;
+      }
+      .text-center {
+        text-align: center;
+      }
+      .font-bold {
+        font-weight: bold;
+      }
+      .font-semibold {
+        font-weight: 600;
+      }
+      .italic {
+        font-style: italic;
+      }
+      .mt-4 {
+        margin-top: 16px;
+      }
+      .mb-4 {
+        margin-bottom: 16px;
+      }
+      .mb-6 {
+        margin-bottom: 24px;
+      }
+      .mb-8 {
+        margin-bottom: 32px;
+      }
+      .h-16 {
+        height: 64px;
+      }
+      .bg-gray-100 {
+        background: #f3f4f6;
+      }
+      .border-l-4 {
+        border-left: 4px solid #000;
+      }
+      .p-4 {
+        padding: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class='title'>
+      <h1 class='font-bold' style='font-size: 28px; text-transform: uppercase'>
+        HỢP ĐỒNG THUÊ CÂY
+      </h1>
+      <p style='font-size: 16px; margin-top: 8px'>
+        Căn cứ Bộ luật Dân sự năm 2015 và các văn bản pháp luật có liên quan,
+        hai bên cùng thỏa thuận ký kết hợp đồng như sau:
+      </p>
+    </div>
+
+    <!-- Bên cho thuê -->
+    <div class='section'>
+      <div class='section-title'>BÊN CHO THUÊ (BÊN A):</div>
+      <div class='list'>
+        <div>Họ tên: <span class='font-semibold'>{{lessorName}}</span></div>
+        <div>
+          Địa chỉ:
+          <span class='font-semibold'>{{lessorAddress}}</span>
+        </div>
+        {{!-- <div>
+          Điện thoại:
+          <span class='font-semibold'>{{lessorPhone}}</span>
+        </div> --}}
+        <div>Email: <span class='font-semibold'>{{lessorEmail}}</span></div>
+      </div>
+    </div>
+
+    <!-- Bên thuê -->
+    <div class='section'>
+      <div class='section-title'>BÊN THUÊ (BÊN B):</div>
+      <div class='list'>
+        <div>Họ tên: <span class='font-semibold'>{{lesseeName}}</span></div>
+        <div>Địa chỉ: <span class='font-semibold'>{{lesseeAddress}}</span></div>
+        {{!-- <div>
+          Số điện thoại:
+          <span class='font-semibold'>{{lesseePhone}}</span>
+        </div> --}}
+        <div>Email: <span class='font-semibold'>{{lesseeEmail}}</span></div>
+      </div>
+    </div>
+
+    <!-- Điều khoản hợp đồng -->
+    <div class='section'>
+      <div class='section-title'>ĐIỀU 1: THÔNG TIN CÂY CHO THUÊ</div>
+      <ul class='list'>
+        <li>
+          Loại cây:
+          {{#each treeNames}}{{this}}{{#unless @last}},
+            {{/unless}}{{/each}}
+        </li>
+        <li>Số lượng: {{totalTree}} cây</li>
+        <li>Tuổi cây: 2-3 năm</li>
+        <li>Tình trạng: Khỏe mạnh, phát triển tốt</li>
+        <li>Vị trí trồng: {{farmAddress}}</li>
+      </ul>
+    </div>
+
+    <div class='section'>
+      <div class='section-title'>ĐIỀU 2: THỜI GIAN THUÊ</div>
+      <ul class='list'>
+        <li>Ngày bắt đầu: <span class='font-semibold'>{{startDate}}</span></li>
+        <li>Ngày kết thúc: <span class='font-semibold'>{{endDate}}</span></li>
+        <li>Thời hạn: 12 tháng</li>
+      </ul>
+    </div>
+
+    <div class='section'>
+      <div class='section-title'>ĐIỀU 3: GIÁ THUÊ & THANH TOÁN</div>
+      <ul class='list'>
+        <li>Giá thuê: <span class='font-semibold'>{{totalPrice}} FVT</span></li>
+        <li>Phương thức thanh toán: FarmVerse Token (FVT)</li>
+        <li>Thời hạn thanh toán: Trả trước 100%</li>
+        <li>Phí chậm trả: 5% giá trị hợp đồng/tháng</li>
+      </ul>
+    </div>
+
+    <div class='section'>
+      <div class='section-title'>ĐIỀU 4: QUYỀN VÀ NGHĨA VỤ</div>
+      <div class='list'>
+        <span class='font-semibold'>Bên A có quyền:</span>
+        <ul class='list'>
+          <li>Yêu cầu thanh toán đúng hạn</li>
+          <li>Kiểm tra tình trạng cây định kỳ</li>
+          <li>Thu hồi cây khi hết hạn hợp đồng</li>
+        </ul>
+        <span class='font-semibold'>Bên B có quyền:</span>
+        <ul class='list'>
+          <li>Chăm sóc và thu hoạch sản phẩm</li>
+          <li>Sử dụng thiết bị IoT theo dõi</li>
+          <li>Được hỗ trợ kỹ thuật từ FarmVerse</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class='section'>
+      <div class='section-title'>ĐIỀU 5: GIẢI QUYẾT TRANH CHẤP</div>
+      <p class='list'>
+        Mọi tranh chấp sẽ được giải quyết thông qua trọng tài blockchain hoặc
+        tòa án có thẩm quyền.
+      </p>
+    </div>
+
+    <div class='section mb-8'>
+      <div class='section-title'>ĐIỀU 6: HIỆU LỰC HỢP ĐỒNG</div>
+      <p class='list'>
+        Hợp đồng có hiệu lực kể từ ngày ký và có đầy đủ chữ ký của hai bên.
+      </p>
+      <p class='italic text-center mt-4'>
+        <span class='font-bold'>Ngày {{currentDate}}</span>
+        <span class='font-bold'>tháng {{currentMonth}}</span>
+        <span class='font-bold'>năm {{currentYear}}</span>
+      </p>
+    </div>
+
+    <div class='grid mb-6'>
+      <div class='text-center'>
+        <div class='font-bold mb-4'>ĐẠI DIỆN BÊN A</div>
+        <div>(Ký tên)</div>
+        <div class='h-16'></div>
+        <div class='font-semibold'>{{lessorName}}</div>
+      </div>
+      <div class='text-center'>
+        <div class='font-bold mb-4'>ĐẠI DIỆN BÊN B</div>
+        <div>(Ký tên)</div>
+        <div class='h-16'></div>
+        <div class='font-semibold'>{{lesseeName}}</div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config/dist/config.module';
 import { TransactionsModule } from './modules/transactions/transactions.module';
+import { MailModule } from './modules/mail/mail.module';
 
 @Module({
   imports: [
@@ -10,6 +11,7 @@ import { TransactionsModule } from './modules/transactions/transactions.module';
       expandVariables: true,
     }),
     TransactionsModule,
+    MailModule,
   ],
 })
 export class AppModule {}
