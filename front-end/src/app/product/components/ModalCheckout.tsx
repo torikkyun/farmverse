@@ -153,6 +153,7 @@ export default function ModalCheckout({
             contractData={contractData}
             handleCheckout={handleCheckout}
             lesseeSignature={lesseeSignature ?? undefined}
+            farm={farm}
           />
         </div>
       </div>

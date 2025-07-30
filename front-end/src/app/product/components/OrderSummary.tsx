@@ -34,25 +34,40 @@ type OrderSummaryProps = {
     tree: Item[];
     fertilizer: Item[];
   };
-  selectedItems: { id: string; quantity: number }[]; // <-- thêm dòng này
+  selectedItems: { id: string; quantity: number }[];
   total: number;
   agreeTerms: boolean;
   isLoading: boolean;
   contractData: ContractData;
   handleCheckout: () => Promise<void>;
-  // Thêm 2 dòng dưới nếu bạn truyền props này từ ModalCheckout
+  farm: Farm; // Thêm dòng này
   includesIot?: boolean;
   setIncludesIot?: (checked: boolean) => void;
 };
+
+// Thêm interface Farm nếu chưa có
+interface Farm {
+  name: string;
+  address: {
+    houseNumber?: string;
+    street?: string;
+    commune?: string;
+    province?: string;
+    city?: string;
+  };
+  user?: {
+    email?: string;
+  };
+  signatureUrl?: string;
+}
 
 export default function OrderSummary({
   itemsByType,
   selectedItems,
   agreeTerms,
-  // isLoading,
   contractData,
-  // handleCheckout,
-  lesseeSignature, // <-- truyền prop này từ ContractForm
+  lesseeSignature,
+  farm, // Thêm dòng này
 }: OrderSummaryProps & { lesseeSignature?: string }) {
   const router = useRouter(); // Thêm dòng này
 
@@ -140,7 +155,7 @@ export default function OrderSummary({
     setAlert(null);
     setLoading(true);
     try {
-      // Lấy accessToken từ localStorage key "user"
+      // Lấy accessToken từ localStorage
       const userStr = localStorage.getItem("user");
       const token =
         userStr && JSON.parse(userStr)?.accessToken
@@ -153,6 +168,7 @@ export default function OrderSummary({
       if (lesseeSignature === "data:image/png;base64,")
         throw new Error("Bạn chưa ký tên!");
       if (lesseeSignature.trim() === "") throw new Error("Bạn chưa ký tên!");
+
       const file = dataURLtoFile(lesseeSignature, "signature.png");
       const formData = new FormData();
       formData.append("signatureImage", file);
@@ -172,38 +188,73 @@ export default function OrderSummary({
         throw new Error(err.message || "Lưu chữ ký thất bại!");
       }
 
-      // 2. Gửi thông tin hợp đồng (purchase-items)
-      const allItems = [
-        ...itemsByTypeWithQuantity.tree,
-        ...itemsByTypeWithQuantity.fertilizer,
-      ];
-      const items = allItems.map((item) => ({
+      // 2. Chuẩn bị dữ liệu
+      const today = new Date();
+      const startDate = new Date();
+      const endDate = new Date();
+      endDate.setFullYear(endDate.getFullYear() + 1);
+
+      // Chuẩn bị items theo format mới
+      const items = itemsByTypeWithQuantity.tree.map((item) => ({
         itemId: item.id,
-        name: item.name,
-        type: item.type,
-        description: item.description,
-        images: item.images,
         quantity: item.quantity ?? 1,
-        price: item.price,
-        detail: {},
+        iot: !!iotSelections[item.id],
       }));
 
-      const purchaseRes = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/transactions/purchase-items`,
+      // Chuẩn bị contract data theo format mới
+      const contractPayload = {
+        items,
+        contract: {
+          lessorName: farm.name,
+          lessorAddress: [
+            farm.address.houseNumber,
+            farm.address.street,
+            farm.address.commune,
+            farm.address.province,
+            farm.address.city,
+          ]
+            .filter(Boolean)
+            .join(", "),
+          lessorEmail: farm.user?.email || "",
+          lesseeName: contractData.lesseeName,
+          lesseeAddress: contractData.lesseeAddress,
+          lesseeEmail: contractData.lesseeEmail,
+          treeNames: itemsByTypeWithQuantity.tree.map((item) => item.name),
+          totalTree: totalTreeQuantity,
+          farmAddress: [
+            farm.address.houseNumber,
+            farm.address.street,
+            farm.address.commune,
+            farm.address.province,
+            farm.address.city,
+          ]
+            .filter(Boolean)
+            .join(", "),
+          startDate: startDate.toLocaleDateString("en-GB"),
+          endDate: endDate.toLocaleDateString("en-GB"),
+          totalPrice: grandTotal,
+          currentDate: today.getDate(),
+          currentMonth: today.getMonth() + 1,
+          currentYear: today.getFullYear(),
+          lessorSignature: "signature-a",
+          lesseeSignature: "signature-b",
+        },
+      };
+
+      const contractRes = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/transactions/contract`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({
-            items,
-            totalPrice: grandTotal,
-          }),
+          body: JSON.stringify(contractPayload),
         }
       );
-      if (!purchaseRes.ok) {
-        const err = await purchaseRes.json().catch(() => ({}));
+
+      if (!contractRes.ok) {
+        const err = await contractRes.json().catch(() => ({}));
         throw new Error(err.message || "Gửi hợp đồng thất bại!");
       }
 
@@ -212,10 +263,10 @@ export default function OrderSummary({
         message: "Ký hợp đồng thành công! Đang chuyển trang...",
       });
 
-      // Chờ 1s cho người dùng thấy thông báo, sau đó chuyển trang
+      // Chờ 2s cho người dùng thấy thông báo, sau đó chuyển trang
       setTimeout(() => {
         router.push("/tree");
-      }, 1000);
+      }, 2000);
     } catch (err: unknown) {
       setAlert({
         type: "error",
@@ -420,27 +471,37 @@ export default function OrderSummary({
         </Alert>
       )}
       {/* Nút xác nhận */}
-      <button
-        className={`px-6 py-4 rounded-lg font-bold text-white w-full text-lg transition ${
-          !agreeTerms ||
-          loading ||
-          !contractData.lesseeName ||
-          !contractData.lesseeAddress ||
-          !contractData.lesseePhone
-            ? "bg-gray-400 cursor-not-allowed"
-            : "bg-black hover:bg-gray-800"
-        }`}
-        onClick={handleCheckoutAndRedirect}
-        disabled={
-          loading ||
-          !agreeTerms ||
-          !contractData.lesseeName ||
-          !contractData.lesseeAddress ||
-          !contractData.lesseePhone
-        }
-      >
-        {loading ? "Đang xử lý..." : "Xác nhận"}
-      </button>
+      {itemsByType.tree.length > 0 && (
+        <button
+          className={`px-6 py-4 rounded-lg font-bold text-white w-full text-lg transition ${
+            !agreeTerms ||
+            loading ||
+            !contractData.lesseeName ||
+            !contractData.lesseeAddress ||
+            !contractData.lesseePhone
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-black hover:bg-gray-800"
+          }`}
+          onClick={handleCheckoutAndRedirect}
+          disabled={
+            loading ||
+            !agreeTerms ||
+            !contractData.lesseeName ||
+            !contractData.lesseeAddress ||
+            !contractData.lesseePhone
+          }
+        >
+          {loading ? "Đang xử lý..." : "Xác nhận"}
+        </button>
+      )}
+      {itemsByType.tree.length === 0 && itemsByType.fertilizer.length > 0 && (
+        <button
+          className="px-6 py-4 rounded-lg font-bold text-white w-full text-lg bg-black hover:bg-gray-800 transition"
+          // onClick={handleFertilizerCheckout} // Bạn cần viết hàm này để xử lý thanh toán vật phẩm
+        >
+          Thanh toán
+        </button>
+      )}
     </div>
   );
 }

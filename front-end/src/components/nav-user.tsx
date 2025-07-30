@@ -108,7 +108,7 @@ export function NavUser() {
                 }}
               >
                 <IconCreditCard />
-                Thanh toán
+                Lịch sử thanh toán
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
