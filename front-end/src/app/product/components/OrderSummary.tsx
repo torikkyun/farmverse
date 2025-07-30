@@ -120,6 +120,13 @@ export default function OrderSummary({
     return new File([u8arr], filename, { type: mime });
   }
 
+  function formatDate(date: Date) {
+    const d = date.getDate().toString().padStart(2, "0");
+    const m = (date.getMonth() + 1).toString().padStart(2, "0");
+    const y = date.getFullYear();
+    return `${d}-${m}-${y}`;
+  }
+
   // Thêm overlay loading
   const LoadingOverlay = () => (
     <div className="fixed inset-0 bg-white/70 flex items-center justify-center z-50">
@@ -237,8 +244,8 @@ export default function OrderSummary({
           ]
             .filter(Boolean)
             .join(", "),
-          startDate: startDate.toLocaleDateString("en-GB"),
-          endDate: endDate.toLocaleDateString("en-GB"),
+          startDate: formatDate(startDate),
+          endDate: formatDate(endDate),
           totalPrice: grandTotal,
           currentDate: today.getDate(),
           currentMonth: today.getMonth() + 1,
@@ -247,8 +254,6 @@ export default function OrderSummary({
           lesseeSignature: signatureFileName,
         },
       };
-
-      console.log("contractPayload:", contractPayload);
 
       const contractRes = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/transactions/contract`,
