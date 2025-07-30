@@ -173,6 +173,8 @@ export default function OrderSummary({
       const formData = new FormData();
       formData.append("signatureImage", file);
 
+      console.log("lesseeSignature:", lesseeSignature);
+
       const signRes = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/transactions/contract/signature`,
         {
@@ -187,6 +189,11 @@ export default function OrderSummary({
         const err = await signRes.json().catch(() => ({}));
         throw new Error(err.message || "Lưu chữ ký thất bại!");
       }
+
+      const signData = await signRes.json();
+      const signatureFileName = signData?.data?.signatureFileName;
+      if (!signatureFileName)
+        throw new Error("Không lấy được tên file chữ ký!");
 
       // 2. Chuẩn bị dữ liệu
       const today = new Date();
@@ -236,10 +243,12 @@ export default function OrderSummary({
           currentDate: today.getDate(),
           currentMonth: today.getMonth() + 1,
           currentYear: today.getFullYear(),
-          lessorSignature: "signature-a",
-          lesseeSignature: "signature-b",
+          lessorSignature: signatureFileName,
+          lesseeSignature: signatureFileName,
         },
       };
+
+      console.log("contractPayload:", contractPayload);
 
       const contractRes = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/transactions/contract`,
@@ -320,8 +329,6 @@ export default function OrderSummary({
   const iotPrice = totalTreeQuantity * 500;
 
   const grandTotal = totalTreePrice + totalFertilizerPrice + iotPrice;
-
-  console.log("lesseeSignature:", lesseeSignature);
 
   // console.log("selectedItems:", selectedItems);
   // console.log("itemsByType:", itemsByType);
