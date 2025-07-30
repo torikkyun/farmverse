@@ -6,6 +6,7 @@ import {
   IsNotEmpty,
   IsNumber,
   IsString,
+  IsUrl,
   Matches,
   ValidateNested,
 } from 'class-validator';
@@ -97,6 +98,22 @@ export class ContractDto {
   @IsNumber()
   @ApiProperty({ required: true, example: 2025 })
   currentYear: number;
+
+  @IsString()
+  @IsUrl()
+  @ApiProperty({
+    required: true,
+    example: 'signature-a',
+  })
+  lessorSignature: string;
+
+  @IsString()
+  @IsUrl()
+  @ApiProperty({
+    required: true,
+    example: 'signature-a',
+  })
+  lesseeSignature: string;
 }
 
 export class CreateContractDto {

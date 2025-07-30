@@ -104,9 +104,9 @@
           <span class='font-semibold'>{{lessorAddress}}</span>
         </div>
         {{!-- <div>
-          Điện thoại:
-          <span class='font-semibold'>{{lessorPhone}}</span>
-        </div> --}}
+            Điện thoại:
+            <span class='font-semibold'>{{lessorPhone}}</span>
+          </div> --}}
         <div>Email: <span class='font-semibold'>{{lessorEmail}}</span></div>
       </div>
     </div>
@@ -118,9 +118,9 @@
         <div>Họ tên: <span class='font-semibold'>{{lesseeName}}</span></div>
         <div>Địa chỉ: <span class='font-semibold'>{{lesseeAddress}}</span></div>
         {{!-- <div>
-          Số điện thoại:
-          <span class='font-semibold'>{{lesseePhone}}</span>
-        </div> --}}
+            Số điện thoại:
+            <span class='font-semibold'>{{lesseePhone}}</span>
+          </div> --}}
         <div>Email: <span class='font-semibold'>{{lesseeEmail}}</span></div>
       </div>
     </div>
@@ -202,13 +202,25 @@
       <div class='text-center'>
         <div class='font-bold mb-4'>ĐẠI DIỆN BÊN A</div>
         <div>(Ký tên)</div>
-        <div class='h-16'></div>
+        <div class='h-16'>
+          <img
+            src='{{lessorSignature}}'
+            alt='Chữ ký bên A'
+            style='max-height: 64px; max-width: 120px'
+          />
+        </div>
         <div class='font-semibold'>{{lessorName}}</div>
       </div>
       <div class='text-center'>
         <div class='font-bold mb-4'>ĐẠI DIỆN BÊN B</div>
         <div>(Ký tên)</div>
-        <div class='h-16'></div>
+        <div class='h-16'>
+          <img
+            src='{{lesseeSignature}}'
+            alt='Chữ ký bên B'
+            style='max-height: 64px; max-width: 120px'
+          />
+        </div>
         <div class='font-semibold'>{{lesseeName}}</div>
       </div>
     </div>

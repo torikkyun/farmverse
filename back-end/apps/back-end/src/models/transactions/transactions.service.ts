@@ -174,28 +174,15 @@ export class TransactionsService {
     };
   }
 
-  // async attachImageToContract(
-  //   { id }: { id: string },
-  //   contractId: string,
-  //   contractImage: Express.Multer.File,
-  // ): Promise<{ message: string; transaction: TransactionResponseDto }> {
-  //   const transaction = await this.prisma.transaction.update({
-  //     where: { id: contractId, userId: id },
-  //     data: {
-  //       contractImage: `${this.configService.get('STATIC_URL')}/contracts/${contractImage.filename}`,
-  //     },
-  //     include: { user: true, farm: true },
-  //   });
-
-  //   if (!transaction) {
-  //     throw new NotFoundException('Giao dịch không tồn tại');
-  //   }
-
-  //   return {
-  //     message: 'Ảnh hợp đồng đã được đính kèm',
-  //     transaction: this.toTransactionResponse(transaction),
-  //   };
-  // }
+  uploadSignatureImage(signatureImage: Express.Multer.File): {
+    message: string;
+    signatureFileName: string;
+  } {
+    return {
+      message: 'Tải lên chữ ký thành công',
+      signatureFileName: signatureImage.filename,
+    };
+  }
 
   async purchaseItems(
     { id }: { id: string },

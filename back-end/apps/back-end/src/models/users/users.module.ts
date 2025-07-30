@@ -11,7 +11,7 @@ import { PrismaService } from '@app/providers/prisma.service';
   imports: [
     MulterModule.register({
       storage: diskStorage({
-        destination: './static/avatars',
+        destination: '../static/avatars',
         filename: (_req, file, cb) => {
           const fileExtName = extname(file.originalname);
           const newFileName = `${uuidv4()}${fileExtName}`;

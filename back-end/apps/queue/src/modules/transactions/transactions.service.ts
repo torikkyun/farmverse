@@ -21,7 +21,11 @@ export class TransactionsService {
     private readonly blockchainService: BlockchainService,
     private readonly prisma: PrismaService,
     private readonly configService: ConfigService,
-  ) {}
+  ) {
+    this.staticUrl = this.configService.get<string>('STATIC_URL')!;
+  }
+
+  private staticUrl: string;
 
   private parseDate(dateStr: string): Date {
     const [day, month, year] = dateStr.split('-').map(Number);
@@ -207,7 +211,11 @@ export class TransactionsService {
     }
   }
 
-  async generateContractDocument(transactionId: string, contract: ContractDto) {
+  async generateContractDocument(
+    transactionId: string,
+    contract: ContractDto,
+  ): Promise<void> {
+    console.log(this.staticUrl);
     const templatePath = path.join(
       __dirname,
       '..',
@@ -226,7 +234,11 @@ export class TransactionsService {
     const templateSource = fs.readFileSync(templatePath, 'utf8');
     const template = Handlebars.compile(templateSource);
 
-    const html = template(contract);
+    const html = template({
+      ...contract,
+      lessorSignature: `${this.staticUrl}/signatures/${contract.lessorSignature}`,
+      lesseeSignature: `${this.staticUrl}/signatures/${contract.lesseeSignature}`,
+    });
 
     const outputDir = path.join(
       __dirname,
@@ -234,18 +246,19 @@ export class TransactionsService {
       '..',
       '..',
       '..',
-      'back-end',
       'static',
       'contracts',
     );
     if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir);
 
-    const pdfPath = path.join(outputDir, `${transactionId}.pdf`);
+    // const pdfPath = path.join(outputDir, `${transactionId}.pdf`);
     const imgPath = path.join(outputDir, `${transactionId}.png`);
 
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: 'networkidle0' });
+    await page.waitForSelector('img');
+    await new Promise((res) => setTimeout(res, 1000));
 
     // await page.pdf({ path: pdfPath, format: 'A4' });
     await page.screenshot({ path: imgPath as `${string}.png`, fullPage: true });
@@ -255,11 +268,12 @@ export class TransactionsService {
     await this.prisma.transaction.update({
       where: { id: transactionId },
       data: {
-        contractImage: `${this.configService.get('STATIC_URL')}/contracts/${transactionId}.png`,
+        contractDocument: {
+          contractImage: `${this.staticUrl}/contracts/${transactionId}.png`,
+          signatureImage: `${this.staticUrl}/signatures/${contract.lesseeSignature}`,
+        },
       },
     });
-
-    return { pdfPath, imgPath };
   }
 
   // async purchaseItems(
