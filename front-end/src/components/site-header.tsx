@@ -1,10 +1,14 @@
 "use client";
 
-import { MetamaskButton } from './MetamaskButton';
+import { MetamaskButton } from "./MetamaskButton";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { usePathname } from "next/navigation";
-// Đã thay thế connectWallet bằng Web3Modal
+import { Button } from "@/components/ui/button";
+
+interface SiteHeaderProps {
+  onOpenDeposit?: () => void;
+}
 
 const routeTitles: { [key: string]: string } = {
   "/dashboard": "Quản lý trang trại",
@@ -16,13 +20,14 @@ const routeTitles: { [key: string]: string } = {
   // Thêm các route khác ở đây
 };
 
-export function SiteHeader() {
+export function SiteHeader({ onOpenDeposit }: SiteHeaderProps) {
   const pathname = usePathname();
+  const safePathname = pathname ?? ""; // fallback nếu null
   const title =
     routeTitles[
-      Object.keys(routeTitles).find((path) => pathname.startsWith(path)) || ""
+      Object.keys(routeTitles).find((path) => safePathname.startsWith(path)) ||
+        ""
     ] || " ";
-
 
   return (
     <header className="flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
@@ -34,10 +39,17 @@ export function SiteHeader() {
         />
         <h1 className="text-base font-medium">{title}</h1>
         <div className="ml-auto flex items-center gap-2">
+          {onOpenDeposit && (
+            <Button
+              className="bg-black text-white font-bold"
+              onClick={onOpenDeposit}
+            >
+              Nạp tiền
+            </Button>
+          )}
           <MetamaskButton />
         </div>
       </div>
-      {/* Hiển thị thông báo kết nối ví thành công */}
     </header>
   );
 }

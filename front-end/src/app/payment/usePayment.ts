@@ -42,9 +42,7 @@ export function usePayment() {
         });
         if (!res.ok) throw new Error("Không lấy được lịch sử giao dịch!");
         const data = await res.json();
-        setHistory(
-          Array.isArray(data.data?.transactions) ? data.data.transactions : []
-        );
+        setHistory(Array.isArray(data.data?.items) ? data.data.items : []);
       } catch {
         setHistory([]);
       } finally {
@@ -105,7 +103,7 @@ export function usePayment() {
       });
       if (!res.ok) throw new Error("Không lấy được chi tiết giao dịch!");
       const data = await res.json();
-      setDetail(data.data); // Sửa lại lấy data.data
+      setDetail(data.data?.transaction ?? data.data); // Ưu tiên lấy data.data.transaction nếu có
     } catch {
       setDetail(null);
     } finally {
