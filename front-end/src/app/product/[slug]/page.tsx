@@ -20,7 +20,7 @@ export default function ProductDetailPage() {
   const farmId = slug as string;
 
   // Lấy dữ liệu farm từ API
-  const { loading, error } = useFarmDetail(API_URL, farmId);
+  const { loading, error, farm } = useFarmDetail(API_URL, farmId);
 
   // Lấy cây trồng và phân bón từ API
   const { items, dungs } = useFarmItems(API_URL, farmId);
@@ -82,22 +82,24 @@ export default function ProductDetailPage() {
             handleSelect={handleSelect}
             farmId={farmId}
           />
-          {selectedItems.length > 0 && (
+          {selectedItems.length > 0 && farm && (
             <SelectedBar
               items={tabItems}
               selectedItems={selectedItems}
               setSelectedItems={setSelectedItems}
               activeTab={activeTab}
               onCheckout={() => setShowCheckout(true)}
+              farm={farm}
             />
           )}
-          {showCheckout && (
+          {showCheckout && farm && (
             <ModalCheckout
               items={tabItems.filter((item) =>
                 selectedItems.some((s) => s.id === item.id)
               )}
               totalQuantity={totalQuantity}
               onClose={() => setShowCheckout(false)}
+              farm={farm}
             />
           )}
         </div>

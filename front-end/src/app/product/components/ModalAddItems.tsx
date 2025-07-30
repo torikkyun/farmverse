@@ -168,10 +168,14 @@ export default function ModalAddItems({
                       onClick={() =>
                         handleQuantityChange(
                           item.id,
-                          (itemQuantities[item.id] || 0) + 1
+                          Math.min(
+                            (itemQuantities[item.id] || 0) + 1,
+                            item.stock // Giới hạn không vượt quá stock
+                          )
                         )
                       }
                       className="w-8 h-8 rounded-full bg-black hover:bg-gray-800 text-white flex items-center justify-center font-bold"
+                      disabled={(itemQuantities[item.id] || 0) >= item.stock} // Disable nếu đạt max
                     >
                       +
                     </button>

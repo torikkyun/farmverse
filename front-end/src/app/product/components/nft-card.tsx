@@ -74,7 +74,7 @@ export default function NFTCard({ item, selected, onSelect }: NFTCardProps) {
 
         <div className="flex items-center justify-between text-xs text-gray-600 mt-1">
           <span className="bg-gray-100 px-2 py-1 rounded-full">
-            SL: {item.quantity ?? 1}
+            SL: {item.stock ?? 1}
           </span>
         </div>
 

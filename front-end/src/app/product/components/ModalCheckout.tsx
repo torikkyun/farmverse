@@ -4,13 +4,14 @@ import ContractForm from "./ContractForm";
 import OrderSummary from "./OrderSummary";
 import LoadingOverlay from "./LoadingOverlay";
 import AlertMessage from "./AlertMessage";
-import { FarmItem } from "../[slug]/types"; // Import union type
+import { FarmItem, Farm } from "../[slug]/types";
 
 interface ModalCheckoutProps {
-  items: FarmItem[]; // Sử dụng union type
+  items: FarmItem[];
   totalQuantity: number;
   onClose: () => void;
   onHideSelectedBar?: () => void;
+  farm: Farm;
 }
 
 export default function ModalCheckout({
@@ -18,8 +19,8 @@ export default function ModalCheckout({
   onClose,
   totalQuantity,
   onHideSelectedBar,
+  farm,
 }: ModalCheckoutProps) {
-  // Destructure props đúng cách
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -131,6 +132,7 @@ export default function ModalCheckout({
         <div className="flex flex-col md:flex-row w-full h-full">
           <div className="flex-[2] p-6 bg-white overflow-y-auto border-r border-black">
             <ContractForm
+              farm={farm}
               contractData={contractData}
               handleInputChange={handleInputChange}
               agreeTerms={agreeTerms}
@@ -139,17 +141,6 @@ export default function ModalCheckout({
               total={total}
               totalQuantity={totalQuantity}
             />
-            {/* Hiển thị danh sách vật phẩm mua */}
-            <div className="p-4 border-b border-black">
-              <h3 className="font-bold text-lg mb-2">Danh sách vật phẩm</h3>
-              <ul className="list-disc ml-6 text-base text-gray-800">
-                {items.map((item, idx) => (
-                  <li key={idx}>
-                    {item.name} {item.quantity ? `x${item.quantity}` : ""}
-                  </li>
-                ))}
-              </ul>
-            </div>
           </div>
           <OrderSummary
             itemsByType={itemsByType}

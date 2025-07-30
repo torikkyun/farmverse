@@ -10,6 +10,7 @@ interface RawItem {
   name: string;
   price: number | string;
   images?: string[];
+  stock: number;
 }
 
 export function useFarmItems(API_URL: string, farmId: string) {
@@ -28,6 +29,7 @@ export function useFarmItems(API_URL: string, farmId: string) {
             name: item.name,
             price: Number(item.price), // đảm bảo là number
             images: Array.isArray(item.images) ? item.images : [],
+            stock: item.stock || 0,
           }))
         );
       })

@@ -1,6 +1,7 @@
 import React from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Item } from "../utils/checkoutUtils";
+import { Farm } from "../[slug]/types";
 
 type ItemsByType = {
   tree: Item[];
@@ -23,19 +24,22 @@ type ContractData = {
   lessorRights: string;
   lesseeRights: string;
   disputeResolution: string;
+  [key: string]: string;
 };
 
-type ContractFormProps = {
+interface ContractFormProps {
+  farm: Farm;
   contractData: ContractData;
   handleInputChange: (field: string, value: string) => void;
   agreeTerms: boolean;
-  setAgreeTerms: (checked: boolean) => void;
+  setAgreeTerms: (v: boolean) => void;
   itemsByType: ItemsByType;
+  totalQuantity: number;
   total: number;
-  totalQuantity: number; // Thêm dòng này
-};
+}
 
 export default function ContractForm({
+  farm,
   contractData,
   handleInputChange,
   agreeTerms,
@@ -44,12 +48,7 @@ export default function ContractForm({
   totalQuantity,
   total,
 }: ContractFormProps) {
-  const inputFields: Array<{
-    field: keyof ContractData;
-    label: string;
-    type: string;
-    placeholder: string;
-  }> = [
+  const inputFields = [
     {
       field: "lesseeName",
       label: "Họ tên",
@@ -76,6 +75,35 @@ export default function ContractForm({
     },
   ];
 
+  // Nếu không có cây trồng, chỉ hiển thị phần mua vật phẩm
+  if (!itemsByType.tree || itemsByType.tree.length === 0) {
+    return (
+      <div className="w-full px-2 overflow-x-hidden">
+        <div className="text-center border-b-2 border-black pb-4 mb-6">
+          <h1 className="text-3xl font-bold uppercase text-black">
+            MUA VẬT PHẨM
+          </h1>
+          <p className="text-base mt-2 text-black">
+            Bạn đang mua các vật phẩm sau:
+          </p>
+        </div>
+        <ul className="text-base space-y-1 list-disc list-inside text-black mb-6">
+          {itemsByType.fertilizer.map((item) => (
+            <li key={item.id}>
+              {item.name} - Số lượng: {item.quantity ?? 1} - Giá:{" "}
+              {item.price.toLocaleString()} FVT
+            </li>
+          ))}
+        </ul>
+        <div className="mb-6">
+          <span className="font-semibold text-lg">
+            Tổng: {total.toLocaleString()} FVT
+          </span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full px-2 overflow-x-hidden">
       <div className="text-center border-b-2 border-black pb-4 mb-6">
@@ -94,20 +122,24 @@ export default function ContractForm({
         </h3>
         <div className="space-y-2 text-base text-black">
           <div>
-            Tên tổ chức:{" "}
-            <span className="font-semibold">{contractData.lessorName}</span>
+            Tên nông trại: <span className="font-semibold">{farm.name}</span>
           </div>
           <div>
             Địa chỉ:{" "}
-            <span className="font-semibold">{contractData.lessorAddress}</span>
+            <span className="font-semibold">
+              {[
+                farm.address.houseNumber,
+                farm.address.street,
+                farm.address.commune,
+                farm.address.province,
+                farm.address.city,
+              ]
+                .filter(Boolean)
+                .join(", ")}
+            </span>
           </div>
           <div>
-            Điện thoại:{" "}
-            <span className="font-semibold">{contractData.lessorPhone}</span>
-          </div>
-          <div>
-            Email:{" "}
-            <span className="font-semibold">{contractData.lessorEmail}</span>
+            Email: <span className="font-semibold">{farm.user?.email}</span>
           </div>
         </div>
       </div>

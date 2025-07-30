@@ -9,6 +9,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Farm } from "../[slug]/types";
 
 interface SelectedBarProps {
   items: NFTItem[] | DungItem[];
@@ -16,6 +17,7 @@ interface SelectedBarProps {
   setSelectedItems: (items: { id: string; quantity: number }[]) => void;
   activeTab: number;
   onCheckout: () => void;
+  farm: Farm;
 }
 
 function formatPrice(price: number): string {
@@ -30,6 +32,7 @@ export default function SelectedBar({
   selectedItems,
   setSelectedItems,
   activeTab,
+  farm,
 }: SelectedBarProps) {
   const [visible, setVisible] = useState(true);
   const [showCheckout, setShowCheckout] = useState(false);
@@ -42,8 +45,15 @@ export default function SelectedBar({
   if (!visible) return null;
 
   // Lấy danh sách id đã chọn
-  const selectedIds = selectedItems.map((i) => i.id);
-  const selectedItemObjects = items.filter((i) => selectedIds.includes(i.id));
+  // const selectedIds = selectedItems.map((i) => i.id);
+  const selectedItemObjects = items
+    .filter((i) =>
+      selectedItems.some((sel) => sel.id === i.id && sel.quantity > 0)
+    )
+    .map((i) => ({
+      ...i,
+      quantity: selectedItems.find((sel) => sel.id === i.id)?.quantity ?? 0,
+    }));
   const totalQuantity = selectedItems.reduce(
     (sum, item) => sum + (item.quantity ?? 1),
     0
@@ -73,6 +83,12 @@ export default function SelectedBar({
       rentLabel = "Mua bao phân bón";
     }
   }
+
+  // selectedItemObjects.forEach((item) => {
+  //   console.log("--------");
+  //   console.log("Render ItemCard:", item.name, "quantity:", item.quantity);
+  //   console.log("--------");
+  // });
 
   return (
     <>
@@ -185,6 +201,7 @@ export default function SelectedBar({
             setSelectedItems([]);
             setShowCheckout(false);
           }}
+          farm={farm}
         />
       )}
     </>

@@ -45,8 +45,7 @@ type OrderSummaryProps = {
 
 export default function OrderSummary({
   itemsByType,
-  selectedItems, // <-- thêm dòng này
-  total,
+  selectedItems,
   agreeTerms,
   isLoading,
   contractData,
@@ -107,6 +106,34 @@ export default function OrderSummary({
       .filter(Boolean) as Item[],
   };
 
+  const totalTreeQuantity = itemsByTypeWithQuantity.tree.reduce(
+    (sum, item) => sum + (item.quantity ?? 1),
+    0
+  );
+
+  // Tính tổng giá trị của cây trồng và phân bón
+  const totalTreePrice = itemsByTypeWithQuantity.tree.reduce(
+    (sum, item) =>
+      sum +
+      (typeof item.price === "string"
+        ? parseFloat(item.price) * (item.quantity ?? 1)
+        : item.price * (item.quantity ?? 1)),
+    0
+  );
+
+  const totalFertilizerPrice = itemsByTypeWithQuantity.fertilizer.reduce(
+    (sum, item) =>
+      sum +
+      (typeof item.price === "string"
+        ? parseFloat(item.price) * (item.quantity ?? 1)
+        : item.price * (item.quantity ?? 1)),
+    0
+  );
+
+  const iotPrice = totalTreeQuantity * 500;
+
+  const grandTotal = totalTreePrice + totalFertilizerPrice + iotPrice;
+
   console.log("selectedItems:", selectedItems);
   console.log("itemsByType:", itemsByType);
   console.log("itemsByTypeWithQuantity:", itemsByTypeWithQuantity);
@@ -117,16 +144,7 @@ export default function OrderSummary({
       {/* Cây trồng */}
       {itemsByType.tree.length > 0 && (
         <div className="mb-6">
-          <div className="font-bold text-lg mb-4 text-black bg-gray-200 px-4 py-2 rounded-lg border border-black">
-            🌱 Cây trồng (Thuê 1 năm)
-          </div>
           {itemsByTypeWithQuantity.tree.map((item) => {
-            console.log(
-              "Render ItemCard:",
-              item.name,
-              "quantity:",
-              item.quantity
-            );
             return (
               <ItemCard
                 key={item.id}
@@ -143,9 +161,6 @@ export default function OrderSummary({
       {/* Phân bón */}
       {itemsByType.fertilizer.length > 0 && (
         <div className="mb-6">
-          <div className="font-bold text-lg mb-4 text-black bg-gray-200 px-4 py-2 rounded-lg border border-black">
-            🌾 Phân bón (Mua)
-          </div>
           {itemsByTypeWithQuantity.fertilizer.map((item) => (
             <ItemCard
               key={`fertilizer-${item.id}`}
@@ -237,10 +252,10 @@ export default function OrderSummary({
         {itemsByType.tree.length > 0 && (
           <div className="flex justify-between mb-2">
             <span className="text-gray-700">
-              Thiết bị IOT ({itemsByType.tree.length} bộ):
+              Thiết bị IOT ({totalTreeQuantity} bộ):
             </span>
             <span className="font-semibold text-black">
-              {(itemsByType.tree.length * 500).toLocaleString()} FVT
+              {(totalTreeQuantity * 500).toLocaleString()} FVT
             </span>
           </div>
         )}
@@ -248,7 +263,7 @@ export default function OrderSummary({
           <div className="flex justify-between">
             <span className="font-bold text-xl text-black">Tổng cộng:</span>
             <span className="font-bold text-xl text-black">
-              {total.toLocaleString()} FVT
+              {grandTotal.toLocaleString()} FVT
             </span>
           </div>
         </div>
