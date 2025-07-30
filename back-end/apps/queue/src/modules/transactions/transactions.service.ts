@@ -13,7 +13,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as Handlebars from 'handlebars';
 import puppeteer from 'puppeteer';
-import { GenerateContractImage } from '@app/common/types/generate-contract.type';
+import { ContractDto } from '@app/models/transactions/dto/create-contract.dto';
 
 @Injectable()
 export class TransactionsService {
@@ -23,6 +23,11 @@ export class TransactionsService {
     private readonly configService: ConfigService,
   ) {}
 
+  private parseDate(dateStr: string): Date {
+    const [day, month, year] = dateStr.split('-').map(Number);
+    return new Date(year, month - 1, day);
+  }
+
   async handleDeposit({
     transactionId,
     userId,
@@ -31,7 +36,7 @@ export class TransactionsService {
     transactionId: string;
     userId: string;
     amount: number;
-  }) {
+  }): Promise<void> {
     try {
       const { tx, receipt } =
         await this.blockchainService.recordDeposit(amount);
@@ -74,7 +79,12 @@ export class TransactionsService {
     totalPrice,
     itemRecords,
     farmRecord,
-  }: ContractQueuePayload) {
+    startDate,
+    endDate,
+  }: ContractQueuePayload): Promise<void> {
+    const startDateObj = this.parseDate(startDate);
+    const endDateObj = this.parseDate(endDate);
+
     try {
       const { tx, receipt } =
         await this.blockchainService.recordContract(totalPrice);
@@ -136,8 +146,8 @@ export class TransactionsService {
             status: statusRentedTree.GROWING,
             totalProfit: 0,
             harvest: [],
-            startDate: item.startDate,
-            endDate: item.endDate,
+            startDate: startDateObj,
+            endDate: endDateObj,
             farmId: itemRecord.farmId,
             userId,
           }),
@@ -155,9 +165,9 @@ export class TransactionsService {
           price: itemRecord.price,
           details: (itemRecord.details ?? {}) as Record<string, any>,
           quantity: item.quantity,
-          startDate: item.startDate,
-          endDate: item.endDate,
-          iot: item.includesIot,
+          startDate: startDateObj,
+          endDate: endDateObj,
+          iot: item.iot,
         });
       }
 
@@ -172,13 +182,32 @@ export class TransactionsService {
         where: { id: transactionId },
         data: { status: 'FAILED' },
       });
+
+      await this.prisma.user.update({
+        where: { id: userId },
+        data: { fvtBalance: { increment: totalPrice } },
+      });
+
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        await this.prisma.item.update({
+          where: { id: item.itemId },
+          data: { stock: { increment: item.quantity } },
+        });
+      }
+
+      await this.prisma.rentedTree.deleteMany({
+        where: {
+          userId,
+          startDate: startDateObj,
+          endDate: endDateObj,
+          farmId: farmRecord.id,
+        },
+      });
     }
   }
 
-  async generateContractDocument(
-    transactionId: string,
-    contractData: GenerateContractImage,
-  ) {
+  async generateContractDocument(transactionId: string, contract: ContractDto) {
     const templatePath = path.join(
       __dirname,
       '..',
@@ -197,7 +226,7 @@ export class TransactionsService {
     const templateSource = fs.readFileSync(templatePath, 'utf8');
     const template = Handlebars.compile(templateSource);
 
-    const html = template(contractData);
+    const html = template(contract);
 
     const outputDir = path.join(
       __dirname,

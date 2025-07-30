@@ -1,13 +1,8 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { Prisma, TransactionStatus, TransactionType } from 'generated/prisma';
 import { DepositDto } from './dto/deposit.dto';
 import { plainToInstance } from 'class-transformer';
-import { ContractDto } from './dto/contract.dto';
+import { CreateContractDto } from './dto/create-contract.dto';
 import { PrismaService } from '@app/providers/prisma.service';
 import { QueueService } from '@app/providers/queue/queue.service';
 import {
@@ -99,7 +94,7 @@ export class TransactionsService {
 
   async contract(
     { id }: { id: string },
-    { items, totalPrice }: ContractDto,
+    { items, contract }: CreateContractDto,
   ): Promise<{
     message: string;
     transaction: TransactionResponseDto;
@@ -149,7 +144,7 @@ export class TransactionsService {
       data: {
         type: TransactionType.CONTRACT,
         status: TransactionStatus.PENDING,
-        totalPrice: totalPrice,
+        totalPrice: contract.totalPrice,
         userId: id,
         transactionHash: '',
         blockNumber: 0,
@@ -159,17 +154,19 @@ export class TransactionsService {
       },
     });
 
-    await this.queueService.contract({
-      transactionId: transaction.id,
-      userId: id,
-      items,
-      totalPrice,
-      itemRecords: itemRecords.filter(
-        (item): item is NonNullable<typeof item> => item !== null,
-      ),
-      farmRecord,
-      userRecord,
-    });
+    await this.queueService.contract(
+      {
+        transactionId: transaction.id,
+        userId: id,
+        items,
+        totalPrice: contract.totalPrice,
+        itemRecords: itemRecords.filter((item) => item !== null),
+        farmRecord,
+        startDate: contract.startDate,
+        endDate: contract.endDate,
+      },
+      contract,
+    );
 
     return {
       message: 'Đang xỷ lý giao dịch hợp đồng',
