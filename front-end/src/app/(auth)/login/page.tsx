@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 // import Image from "next/image";
 
 import { LoginForm } from "@/components/login-form";
+import { saveAuth } from "@/utils/auth";
 
 export default function LoginPage() {
   const apiURL = process.env.NEXT_PUBLIC_API_URL;
@@ -23,6 +24,14 @@ export default function LoginPage() {
     });
     if (!res.ok) throw new Error("Đăng nhập thất bại");
     const data = await res.json();
+    console.log("Login response data:", data);
+
+    // Lưu vào localStorage
+    if (data.data) {
+      saveAuth(data.data);
+      console.log("Saved to localStorage:", localStorage.getItem("user"));
+    }
+
     // Chuyển hướng sang dashboard
     router.replace("/dashboard");
 

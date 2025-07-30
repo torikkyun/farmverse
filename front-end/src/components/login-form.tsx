@@ -8,7 +8,7 @@ import { LogIn } from "lucide-react";
 import { useState, useCallback, useRef } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useRouter } from "next/navigation";
-import { saveAuth } from "../utils/auth";
+import { saveAuth } from "@/utils/auth";
 
 const apiURL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -76,8 +76,14 @@ export function LoginForm({
         }
 
         const data = await res.json();
+        console.log("Login response data:", data);
         if (data.data) {
+          console.log("Saving to localStorage:", data.data);
           saveAuth(data.data);
+          console.log(
+            "Saved! Current localStorage:",
+            localStorage.getItem("user")
+          );
         }
         // Chuyển sang trang market ngay lập tức, không setSuccess, không delay
         router.push("/market");
