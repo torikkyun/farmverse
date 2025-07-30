@@ -9,10 +9,13 @@ export function saveAuth(data: Record<string, unknown>) {
       expireTime = Date.now() + 60 * 60 * 1000;
     }
   }
-  localStorage.setItem("user", JSON.stringify({
-    ...data,
-    accessTokenExpireTime: expireTime,
-  }));
+  localStorage.setItem(
+    "user",
+    JSON.stringify({
+      ...data,
+      accessTokenExpireTime: expireTime,
+    })
+  );
 }
 
 export function getAuth() {
@@ -24,36 +27,15 @@ export function getToken() {
   return auth.accessToken || "";
 }
 
-export function getRefreshToken() {
-  const auth = getAuth();
-  return auth.refreshToken || "";
-}
-
 export function isAccessTokenExpired() {
   const auth = getAuth();
   return !auth.accessTokenExpireTime || Date.now() > auth.accessTokenExpireTime;
 }
 
-export async function refreshAccessToken() {
-  const refreshToken = getRefreshToken();
-  if (!refreshToken) return "";
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ refreshToken }),
-  });
-  if (!res.ok) return "";
-  const data = await res.json();
-  if (data.success && data.data?.accessToken) {
-    saveAuth({ ...getAuth(), ...data.data });
-    return data.data.accessToken;
-  }
-  return "";
-}
-
 export async function getValidAccessToken() {
+  // Không tự động refresh, chỉ trả về token nếu còn hạn
   if (isAccessTokenExpired()) {
-    return await refreshAccessToken();
+    return "";
   }
   return getToken();
 }

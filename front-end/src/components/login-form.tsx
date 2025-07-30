@@ -14,6 +14,7 @@ const apiURL = process.env.NEXT_PUBLIC_API_URL;
 
 export function LoginForm({
   className,
+  onLogin, // lấy ra riêng
   ...props
 }: React.ComponentProps<"form"> & {
   onLogin?: (data: { email: string; password: string }) => Promise<void>;
@@ -43,6 +44,13 @@ export function LoginForm({
       clearExistingTimeout();
 
       try {
+        // Nếu có onLogin prop thì gọi nó
+        if (onLogin) {
+          await onLogin({ email, password });
+          router.push("/market");
+          return;
+        }
+
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 10000);
 
@@ -91,7 +99,7 @@ export function LoginForm({
         setIsLoading(false);
       }
     },
-    [email, password, isLoading, router, clearExistingTimeout]
+    [email, password, isLoading, router, clearExistingTimeout, onLogin]
   );
 
   const handleEmailChange = useCallback(
