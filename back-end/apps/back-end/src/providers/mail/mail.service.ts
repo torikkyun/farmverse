@@ -27,4 +27,8 @@ export class MailService implements OnModuleInit {
   async emailVerification(data: { email: string; name: string; otp: string }) {
     await lastValueFrom(this.client.emit('email_verification', data));
   }
+
+  async sendWelcomeEmail(data: { email: string; name: string }) {
+    await lastValueFrom(this.client.emit('send_welcome_email', data));
+  }
 }

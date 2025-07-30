@@ -32,7 +32,7 @@ enum TransactionStatus {
   FAILED
 }
 
-enum statusRentedTree {
+enum statusTree {
   GROWING
   READY_TO_HARVEST
   HARVESTING
@@ -153,15 +153,15 @@ model Transaction {
 }
 
 model RentedTree {
-  id          String           @id @default(auto()) @map("_id") @db.ObjectId
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
   name        String
   description String?
   images      String[]
   details     Json
   schedule    Json[]
   cameraUrl   String?
-  status      statusRentedTree
-  totalProfit Float            @default(0.0)
+  status      statusTree
+  totalProfit Float      @default(0.0)
   harvest     Json[]
   startDate   DateTime
   endDate     DateTime

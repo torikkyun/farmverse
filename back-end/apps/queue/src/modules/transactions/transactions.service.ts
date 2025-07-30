@@ -216,9 +216,8 @@ export class TransactionsService {
     contract: ContractDto,
   ): Promise<void> {
     const templatePath = path.join(
-      __dirname,
-      '..',
-      '..',
+      process.cwd(),
+      'dist',
       'modules',
       'transactions',
       'templates',
@@ -233,15 +232,7 @@ export class TransactionsService {
       lesseeSignature: `${this.staticUrl}/signatures/${contract.lesseeSignature}`,
     });
 
-    const outputDir = path.join(
-      __dirname,
-      '..',
-      '..',
-      '..',
-      '..',
-      'static',
-      'contracts',
-    );
+    const outputDir = path.join(process.cwd(), '..', 'static', 'contracts');
     if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir);
 
     // const pdfPath = path.join(outputDir, `${transactionId}.pdf`);

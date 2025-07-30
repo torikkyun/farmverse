@@ -17,14 +17,12 @@ import {
   PaginationResponseDto,
 } from '@app/common/dto/pagination.dto';
 import { PurchaseItemsDto } from './dto/purchase-items.dto';
-import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class TransactionsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly queueService: QueueService,
-    private readonly configService: ConfigService,
   ) {}
 
   private toTransactionBaseResponse(

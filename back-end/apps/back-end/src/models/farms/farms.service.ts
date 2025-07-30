@@ -25,7 +25,11 @@ export class FarmsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly configService: ConfigService,
-  ) {}
+  ) {
+    this.staticUrl = this.configService.get('STATIC_URL')!;
+  }
+
+  private staticUrl: string;
 
   private toFarmResponse(farm: any): FarmResponseDto {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -70,8 +74,7 @@ export class FarmsService {
 
     if (images && images.length > 0) {
       createFarmDto.images = images.map(
-        (file) =>
-          `${this.configService.get('STATIC_URL')}/farms/${file.filename}`,
+        (file) => `${this.staticUrl}/farms/${file.filename}`,
       );
     }
 
@@ -169,8 +172,7 @@ export class FarmsService {
 
     if (images && images.length > 0) {
       updateFarmDto.images = images.map(
-        (file) =>
-          `${this.configService.get('STATIC_URL')}/farms/${file.filename}`,
+        (file) => `${this.staticUrl}/farms/${file.filename}`,
       );
     }
 

@@ -10,10 +10,7 @@ export class MailService {
     private readonly mailerService: MailerService,
     private readonly configService: ConfigService,
   ) {
-    const frontendUrl = this.configService.get<string>('FRONTEND_URL');
-    if (!frontendUrl) {
-      throw new Error('FRONTEND_URL chưa được cấu hình trong ConfigService');
-    }
+    const frontendUrl = this.configService.get<string>('FRONTEND_URL')!;
     this.frontendUrl = frontendUrl;
   }
 
@@ -37,7 +34,7 @@ export class MailService {
     });
   }
 
-  async sendWelcomeEmail(email: string, name: string) {
+  async sendWelcomeEmail({ email, name }: { email: string; name: string }) {
     const loginUrl = `${this.frontendUrl}/login`;
     await this.mailerService.sendMail({
       to: email,

@@ -12,4 +12,11 @@ export class MailController {
   ) {
     await this.mailService.sendEmailVerification(data);
   }
+
+  @MessagePattern('send_welcome_email')
+  async handleSendWelcomeEmail(
+    @Payload() data: { email: string; name: string },
+  ) {
+    await this.mailService.sendWelcomeEmail(data);
+  }
 }

@@ -103,7 +103,7 @@ export class ContractDto {
   @IsUrl()
   @ApiProperty({
     required: true,
-    example: 'signature-a',
+    example: 'signature-a.png',
   })
   lessorSignature: string;
 
@@ -111,7 +111,7 @@ export class ContractDto {
   @IsUrl()
   @ApiProperty({
     required: true,
-    example: 'signature-a',
+    example: 'signature-a.png',
   })
   lesseeSignature: string;
 }

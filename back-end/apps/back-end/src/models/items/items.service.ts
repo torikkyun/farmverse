@@ -27,7 +27,11 @@ export class ItemsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly configService: ConfigService,
-  ) {}
+  ) {
+    this.staticUrl = this.configService.get('STATIC_URL')!;
+  }
+
+  private staticUrl: string;
 
   private toItemBaseResponse(item: any): ItemBaseResponseDto {
     return plainToInstance(ItemBaseResponseDto, item, {
@@ -72,8 +76,7 @@ export class ItemsService {
 
     if (images && images.length > 0) {
       createItemDto.images = images.map(
-        (file) =>
-          `${this.configService.get('STATIC_URL')}/items/${file.filename}`,
+        (file) => `${this.staticUrl}/items/${file.filename}`,
       );
     }
 
@@ -213,8 +216,7 @@ export class ItemsService {
 
     if (images && images.length > 0) {
       updateItemDto.images = images.map(
-        (file) =>
-          `${this.configService.get('STATIC_URL')}/items/${file.filename}`,
+        (file) => `${this.staticUrl}/items/${file.filename}`,
       );
     }
 
