@@ -1,23 +1,12 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Post,
-  Query,
-  UploadedFile,
-  UseInterceptors,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
-import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { DepositDto } from './dto/deposit.dto';
-import { ContractDto } from './dto/contract.dto';
+import { CreateContractDto } from './dto/create-contract.dto';
 import { SearchTransactionsQueryDto } from './dto/search-transaction.dto';
 import { TransactionBaseResponseDto } from '@app/common/dto/response/transaction.dto';
 import { CurrentUser } from '@app/common/decorators/current-user.decorator';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { PurchaseItemsDto } from './dto/purchase-items.dto';
-import { FileValidationPipe } from '@app/common/pipes/file-validation.pipe';
 
 @Controller('api/transactions')
 @ApiTags('transactions')
@@ -37,9 +26,9 @@ export class TransactionsController {
   @ApiBearerAuth()
   async createContract(
     @CurrentUser() user: { id: string },
-    @Body() contractDto: ContractDto,
+    @Body() createContractDto: CreateContractDto,
   ): Promise<{ message: string; transaction: TransactionBaseResponseDto }> {
-    return await this.transactionsService.contract(user, contractDto);
+    return await this.transactionsService.contract(user, createContractDto);
   }
 
   // @Post('contract/:contractId/upload-image')

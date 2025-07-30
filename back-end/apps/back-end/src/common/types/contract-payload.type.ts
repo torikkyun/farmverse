@@ -6,9 +6,7 @@ export type ContractQueuePayload = {
   items: {
     itemId: string;
     quantity: number;
-    includesIot: boolean;
-    startDate: Date;
-    endDate: Date;
+    iot: boolean;
   }[];
   totalPrice: number;
   itemRecords: {
@@ -31,17 +29,7 @@ export type ContractQueuePayload = {
     images: string[];
     size: number;
     schedule: Prisma.JsonValue[];
-    user: {
-      id: string;
-      email: string;
-      name: string;
-      address: Prisma.JsonValue;
-    };
   };
-  userRecord: {
-    id: string;
-    name: string;
-    email: string;
-    address: Prisma.JsonValue;
-  };
+  startDate: string;
+  endDate: string;
 };
