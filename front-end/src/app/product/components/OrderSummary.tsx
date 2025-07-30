@@ -2,7 +2,9 @@ import React, { useState, useEffect } from "react";
 import ItemCard from "./ItemCard";
 // import { Checkbox } from "@/components/ui/checkbox";
 import { Item } from "../utils/checkoutUtils";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useRouter } from "next/navigation"; // Thêm dòng này
 
 // type ItemsByType = {
 //   tree: Item[];
@@ -47,11 +49,12 @@ export default function OrderSummary({
   itemsByType,
   selectedItems,
   agreeTerms,
-  isLoading,
+  // isLoading,
   contractData,
-  handleCheckout,
-}: OrderSummaryProps) {
-  const router = useRouter();
+  // handleCheckout,
+  lesseeSignature, // <-- truyền prop này từ ContractForm
+}: OrderSummaryProps & { lesseeSignature?: string }) {
+  const router = useRouter(); // Thêm dòng này
 
   // State lưu trạng thái IOT cho từng cây
   const [iotSelections, setIotSelections] = useState<{ [id: string]: boolean }>(
@@ -85,9 +88,142 @@ export default function OrderSummary({
     setIotSelections((prev) => ({ ...prev, [id]: checked }));
   };
 
-  const handleCheckoutAndRedirect = () => {
-    handleCheckout();
-    router.push("/tree");
+  const [alert, setAlert] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  // Hàm chuyển dataURL sang File
+  function dataURLtoFile(dataurl: string, filename: string) {
+    const arr = dataurl.split(",");
+    const mime = arr[0].match(/:(.*?);/)?.[1] || "image/png";
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) u8arr[n] = bstr.charCodeAt(n);
+    return new File([u8arr], filename, { type: mime });
+  }
+
+  // Thêm overlay loading
+  const LoadingOverlay = () => (
+    <div className="fixed inset-0 bg-white/70 flex items-center justify-center z-50">
+      <div className="bg-white px-8 py-6 rounded-xl shadow-2xl flex flex-col items-center border border-gray-200">
+        <span className="loader mb-4"></span>
+        <span className="font-semibold text-black text-lg">
+          Hợp đồng của bạn đang được xác nhận. Cảm ơn bạn đã đồng hành cùng
+          FarmVerse!
+        </span>
+      </div>
+      <style jsx>{`
+        .loader {
+          border: 4px solid #e5e7eb;
+          border-top: 4px solid #38bdf8;
+          border-radius: 50%;
+          width: 40px;
+          height: 40px;
+          animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg);
+          }
+        }
+      `}</style>
+    </div>
+  );
+
+  const handleCheckoutAndRedirect = async () => {
+    setAlert(null);
+    setLoading(true);
+    try {
+      // Lấy accessToken từ localStorage key "user"
+      const userStr = localStorage.getItem("user");
+      const token =
+        userStr && JSON.parse(userStr)?.accessToken
+          ? JSON.parse(userStr).accessToken
+          : null;
+      if (!token) throw new Error("Không tìm thấy token đăng nhập!");
+
+      // 1. Gửi chữ ký trước
+      if (!lesseeSignature) throw new Error("Bạn chưa ký tên!");
+      if (lesseeSignature === "data:image/png;base64,")
+        throw new Error("Bạn chưa ký tên!");
+      if (lesseeSignature.trim() === "") throw new Error("Bạn chưa ký tên!");
+      const file = dataURLtoFile(lesseeSignature, "signature.png");
+      const formData = new FormData();
+      formData.append("signatureImage", file);
+
+      const signRes = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/transactions/contract/signature`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
+      if (!signRes.ok) {
+        const err = await signRes.json().catch(() => ({}));
+        throw new Error(err.message || "Lưu chữ ký thất bại!");
+      }
+
+      // 2. Gửi thông tin hợp đồng (purchase-items)
+      const allItems = [
+        ...itemsByTypeWithQuantity.tree,
+        ...itemsByTypeWithQuantity.fertilizer,
+      ];
+      const items = allItems.map((item) => ({
+        itemId: item.id,
+        name: item.name,
+        type: item.type,
+        description: item.description,
+        images: item.images,
+        quantity: item.quantity ?? 1,
+        price: item.price,
+        detail: {},
+      }));
+
+      const purchaseRes = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/transactions/purchase-items`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            items,
+            totalPrice: grandTotal,
+          }),
+        }
+      );
+      if (!purchaseRes.ok) {
+        const err = await purchaseRes.json().catch(() => ({}));
+        throw new Error(err.message || "Gửi hợp đồng thất bại!");
+      }
+
+      setAlert({
+        type: "success",
+        message: "Ký hợp đồng thành công! Đang chuyển trang...",
+      });
+
+      // Chờ 1s cho người dùng thấy thông báo, sau đó chuyển trang
+      setTimeout(() => {
+        router.push("/tree");
+      }, 1000);
+    } catch (err: unknown) {
+      setAlert({
+        type: "error",
+        message: (err as Error)?.message || "Có lỗi xảy ra!",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Tạo lại object itemsByType nhưng quantity đúng
@@ -134,12 +270,15 @@ export default function OrderSummary({
 
   const grandTotal = totalTreePrice + totalFertilizerPrice + iotPrice;
 
+  console.log("lesseeSignature:", lesseeSignature);
+
   // console.log("selectedItems:", selectedItems);
   // console.log("itemsByType:", itemsByType);
   // console.log("itemsByTypeWithQuantity:", itemsByTypeWithQuantity);
 
   return (
     <div className="flex-[1] p-8 bg-gray-100 overflow-y-auto min-w-[400px] max-w-[500px] border-l border-black">
+      {loading && <LoadingOverlay />}
       <h2 className="text-2xl font-bold text-black mb-6">Chi tiết đơn hàng</h2>
       {/* Cây trồng */}
       {itemsByType.tree.length > 0 && (
@@ -268,11 +407,23 @@ export default function OrderSummary({
           </div>
         </div>
       </div>
+      {/* Thông báo */}
+      {alert && (
+        <Alert
+          variant={alert.type === "success" ? "default" : "destructive"}
+          className="mb-4"
+        >
+          <AlertTitle>
+            {alert.type === "success" ? "Thành công" : "Lỗi"}
+          </AlertTitle>
+          <AlertDescription>{alert.message}</AlertDescription>
+        </Alert>
+      )}
       {/* Nút xác nhận */}
       <button
         className={`px-6 py-4 rounded-lg font-bold text-white w-full text-lg transition ${
           !agreeTerms ||
-          isLoading ||
+          loading ||
           !contractData.lesseeName ||
           !contractData.lesseeAddress ||
           !contractData.lesseePhone
@@ -281,14 +432,14 @@ export default function OrderSummary({
         }`}
         onClick={handleCheckoutAndRedirect}
         disabled={
-          isLoading ||
+          loading ||
           !agreeTerms ||
           !contractData.lesseeName ||
           !contractData.lesseeAddress ||
           !contractData.lesseePhone
         }
       >
-        {isLoading ? "Đang xử lý..." : "Xác nhận"}
+        {loading ? "Đang xử lý..." : "Xác nhận"}
       </button>
     </div>
   );

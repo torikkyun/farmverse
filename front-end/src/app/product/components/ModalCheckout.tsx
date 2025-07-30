@@ -26,6 +26,7 @@ export default function ModalCheckout({
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [agreeTerms, setAgreeTerms] = useState<boolean>(false);
   const [includesIot, setIncludesIot] = useState<boolean>(true);
+  const [lesseeSignature, setLesseeSignature] = useState<string | null>(null);
 
   const [contractData, setContractData] = useState({
     lessorName: "FarmVerse Co., Ltd",
@@ -114,9 +115,6 @@ export default function ModalCheckout({
     quantity: item.quantity ?? 1,
   }));
 
-  console.log("items:", items);
-  console.log("selectedItems truyền vào OrderSummary:", selectedItems);
-
   return (
     <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center w-screen h-screen">
       {isLoading && <LoadingOverlay />}
@@ -140,6 +138,8 @@ export default function ModalCheckout({
               itemsByType={itemsByType}
               total={total}
               totalQuantity={totalQuantity}
+              setLesseeSignature={setLesseeSignature}
+              lesseeSignature={lesseeSignature}
             />
           </div>
           <OrderSummary
@@ -152,6 +152,7 @@ export default function ModalCheckout({
             isLoading={isLoading}
             contractData={contractData}
             handleCheckout={handleCheckout}
+            lesseeSignature={lesseeSignature ?? undefined}
           />
         </div>
       </div>

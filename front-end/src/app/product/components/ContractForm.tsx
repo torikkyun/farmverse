@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Item } from "../utils/checkoutUtils";
 import { Farm } from "../[slug]/types";
@@ -38,6 +38,8 @@ interface ContractFormProps {
   itemsByType: ItemsByType;
   totalQuantity: number;
   total: number;
+  setLesseeSignature: React.Dispatch<React.SetStateAction<string | null>>; // <-- thêm dòng này
+  lesseeSignature?: string | null;
 }
 
 export default function ContractForm({
@@ -49,8 +51,9 @@ export default function ContractForm({
   itemsByType,
   totalQuantity,
   total,
+  setLesseeSignature,
+  lesseeSignature,
 }: ContractFormProps) {
-  const [lesseeSignature, setLesseeSignature] = useState<string | null>(null);
   const sigPadRef = useRef<SignaturePad | null>(null);
 
   const inputFields = [
@@ -148,6 +151,11 @@ export default function ContractForm({
       </div>
     );
   }
+
+  const handleSignatureEnd = () => {
+    const dataUrl = sigPadRef.current?.toDataURL();
+    if (dataUrl) setLesseeSignature(dataUrl); // dùng prop từ cha
+  };
 
   return (
     <div className="w-full px-2 overflow-x-hidden">
@@ -333,22 +341,12 @@ export default function ContractForm({
             ) : (
               <SignaturePad
                 ref={sigPadRef}
+                onEnd={handleSignatureEnd}
                 penColor="black"
                 canvasProps={{
                   width: 200,
                   height: 64,
                   className: "border",
-                }}
-                onEnd={() => {
-                  const canvas = sigPadRef.current?.getCanvas();
-                  if (canvas) {
-                    canvas.toBlob((blob) => {
-                      if (blob) {
-                        const url = URL.createObjectURL(blob);
-                        setLesseeSignature(url);
-                      }
-                    }, "image/png");
-                  }
                 }}
               />
             )}

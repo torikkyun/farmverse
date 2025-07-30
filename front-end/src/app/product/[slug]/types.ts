@@ -7,6 +7,7 @@ export interface NFTItem {
   price: number;
   stock: number;
   type: "FERTILIZER" | "TREE" | "PESTICIDE";
+  details: string;
 }
 
 export interface DungItem {
@@ -18,6 +19,7 @@ export interface DungItem {
   quantity: number;
   price: number;
   stock: number;
+  details: string;
 }
 
 export interface Farm {
