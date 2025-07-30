@@ -11,7 +11,20 @@ services:
     networks:
       - farmverse-net
     volumes:
-      - ./back-end/static:/app/static
+      - ./static:/app/static
+
+  queue:
+    container_name: queue
+    build:
+      context: ./back-end
+      dockerfile: Dockerfile
+    command: pnpm queue:prod
+    ports:
+      - ${QUEUE_PORT:-2413}:2413
+    env_file:
+      - ./back-end/.env.production.local
+    networks:
+      - farmverse-net
 
   front-end:
     container_name: front-end

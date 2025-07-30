@@ -215,17 +215,10 @@ export class TransactionsService {
     transactionId: string,
     contract: ContractDto,
   ): Promise<void> {
-    console.log(this.staticUrl);
     const templatePath = path.join(
       __dirname,
       '..',
       '..',
-      '..',
-      '..',
-      'back-end',
-      'apps',
-      'queue',
-      'src',
       'modules',
       'transactions',
       'templates',

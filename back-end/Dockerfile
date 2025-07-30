@@ -10,7 +10,7 @@ COPY pnpm-lock.yaml ./
 COPY tsconfig*.json ./
 COPY nest-cli.json ./
 COPY prisma ./prisma
-COPY src ./src
+COPY apps ./apps
 
 RUN pnpm install
 RUN pnpm dlx prisma generate
@@ -26,5 +26,6 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
 
 EXPOSE 2412
+EXPOSE 2413
 
 CMD ["pnpm", "start:prod"]
