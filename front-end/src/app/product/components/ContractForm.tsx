@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useRef, useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Item } from "../utils/checkoutUtils";
 import { Farm } from "../[slug]/types";
+import SignaturePad from "react-signature-canvas"; // Cài: npm i react-signature-canvas
+import Image from "next/image";
 
 type ItemsByType = {
   tree: Item[];
@@ -48,6 +50,9 @@ export default function ContractForm({
   totalQuantity,
   total,
 }: ContractFormProps) {
+  const [lesseeSignature, setLesseeSignature] = useState<string | null>(null);
+  const sigPadRef = useRef<SignaturePad | null>(null);
+
   const inputFields = [
     {
       field: "lesseeName",
@@ -301,18 +306,53 @@ export default function ContractForm({
           <div className="font-bold mb-4 text-base text-black">
             ĐẠI DIỆN BÊN A
           </div>
-          <div className="text-base text-black">(Ký tên)</div>
-          <div className="h-16"></div>
-          <div className="font-semibold text-base text-black">
-            FarmVerse Co., Ltd
+          <div className="h-16 flex items-center justify-center">
+            <Image
+              src={farm.signatureUrl || "/signature-a.png"}
+              alt="Chữ ký bên A"
+              width={120}
+              height={64}
+              className="h-16 object-contain"
+            />
           </div>
+          <div className="font-semibold text-base text-black">{farm.name}</div>
         </div>
         <div className="text-center">
           <div className="font-bold mb-4 text-base text-black">
             ĐẠI DIỆN BÊN B
           </div>
-          <div className="text-base text-black">(Ký tên)</div>
-          <div className="h-16"></div>
+          <div className="h-16 flex items-center justify-center">
+            {lesseeSignature ? (
+              <Image
+                src={lesseeSignature}
+                alt="Chữ ký bên B"
+                width={200}
+                height={64}
+                className="h-16 object-contain"
+              />
+            ) : (
+              <SignaturePad
+                ref={sigPadRef}
+                penColor="black"
+                canvasProps={{
+                  width: 200,
+                  height: 64,
+                  className: "border",
+                }}
+                onEnd={() => {
+                  const canvas = sigPadRef.current?.getCanvas();
+                  if (canvas) {
+                    canvas.toBlob((blob) => {
+                      if (blob) {
+                        const url = URL.createObjectURL(blob);
+                        setLesseeSignature(url);
+                      }
+                    }, "image/png");
+                  }
+                }}
+              />
+            )}
+          </div>
           <div className="font-semibold text-base text-black">
             {contractData.lesseeName || "_________________"}
           </div>
@@ -330,8 +370,8 @@ export default function ContractForm({
           className="font-bold text-black cursor-pointer text-base"
         >
           Tôi xác nhận đã đọc, hiểu rõ và đồng ý với tất cả các điều khoản trong
-          hợp đồng thuê cây này. Tôi cam kết thực hiện đúng nghĩa vụ và quyền
-          lợi đã được quy định.
+          hợp đồng thuê cây này. <br />
+          Tôi cam kết thực hiện đúng nghĩa vụ và quyền lợi đã được quy định.
         </label>
       </div>
     </div>

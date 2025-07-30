@@ -47,6 +47,8 @@ export interface Farm {
     month: number;
     activities: string[];
   }>;
+
+  signatureUrl?: string;
 }
 
 export type FarmItem = NFTItem | DungItem;

@@ -288,7 +288,7 @@ export default function OrderSummary({
           !contractData.lesseePhone
         }
       >
-        {isLoading ? "Đang xử lý..." : "Ký hợp đồng & Thanh toán"}
+        {isLoading ? "Đang xử lý..." : "Xác nhận"}
       </button>
     </div>
   );
