@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { getValidAccessToken } from "../utils/auth";
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const [showModal, setShowModal] = useState(false);
@@ -15,7 +14,9 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     async function checkToken() {
-      const token = await getValidAccessToken();
+      const userData = localStorage.getItem("user");
+      const userObj = userData ? JSON.parse(userData) : null;
+      const token = userObj?.accessToken;
       // Kiểm tra nếu đang ở trong cụm trang auth thì không hiển thị modal
       const isAuthPage =
         pathname?.startsWith("/login") ||

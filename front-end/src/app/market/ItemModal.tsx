@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import { X, Store, Package, DollarSign } from "lucide-react";
-import type { Item } from "./ItemList";
+import { Item } from "./types/market";
 
 interface ItemModalProps {
   item: Item | null;

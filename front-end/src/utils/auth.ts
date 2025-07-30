@@ -1,5 +1,3 @@
-console.log("DCM CUOC DOI");
-
 export function saveAuth(data: Record<string, unknown>) {
   localStorage.setItem("user", JSON.stringify(data));
 }
