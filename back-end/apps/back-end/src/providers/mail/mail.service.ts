@@ -24,7 +24,7 @@ export class MailService implements OnModuleInit {
     });
   }
 
-  async emailVerification(data: {
+  async sendEmailVerification(data: {
     email: string;
     name: string;
     otp: string;

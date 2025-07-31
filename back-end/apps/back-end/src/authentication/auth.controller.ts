@@ -53,15 +53,15 @@ export class AuthController {
     return this.authService.verifyEmail(accountVerificationDto);
   }
 
-  // @Post('resend-verification-email')
-  // resendVerificationEmail(
-  //   @Body() emailVerificationDto: EmailVerificationDto,
-  // ): Promise<{
-  //   message: string;
-  //   email: string;
-  // }> {
-  //   return this.authService.resendVerificationEmail(emailVerificationDto);
-  // }
+  @Post('resend-verification-email')
+  resendVerificationEmail(
+    @Body() emailVerificationDto: EmailVerificationDto,
+  ): Promise<{
+    message: string;
+    email: string;
+  }> {
+    return this.authService.resendVerificationEmail(emailVerificationDto);
+  }
 
   // @Post('forgot-password')
   // forgotPassword(@Body() emailVerificationDto: EmailVerificationDto): Promise<{
@@ -89,11 +89,15 @@ export class AuthController {
   //   return this.authService.resendForgotPassword(emailVerificationDto);
   // }
 
-  // @Post('refresh-token')
-  // refreshToken(@Body() refreshTokenDto: RefreshTokenDto): Promise<{
-  //   accessToken: string;
-  //   expiresIn: string;
-  // }> {
-  //   return this.authService.refreshToken(refreshTokenDto);
-  // }
+  @Post('refresh-token')
+  refreshToken(@Body() refreshTokenDto: RefreshTokenDto): Promise<{
+    message: string;
+    accessToken: string;
+    accessTokenExpiresIn: string;
+    refreshToken: string;
+    refreshTokenExpiresIn: string;
+    user: UserResponseDto;
+  }> {
+    return this.authService.refreshToken(refreshTokenDto);
+  }
 }

@@ -142,7 +142,7 @@ export class AuthService {
       }),
     ]);
 
-    await this.mailService.emailVerification({
+    await this.mailService.sendEmailVerification({
       email: user.email,
       name: user.name,
       otp,
@@ -197,32 +197,53 @@ export class AuthService {
     return { message: 'Xác thực email thành công', email: user.email };
   }
 
-  // async resendVerificationEmail({ email }: EmailVerificationDto): Promise<{
-  //   message: string;
-  //   email: string;
-  // }> {
-  //   const user = await this.findByEmail(email);
+  async resendVerificationEmail({ email }: EmailVerificationDto): Promise<{
+    message: string;
+    email: string;
+  }> {
+    const user = await this.findByEmail(email);
+    const otpRecord = await this.prisma.otp.findFirst({
+      where: {
+        email,
+        used: false,
+        expiresAt: {
+          gt: new Date(),
+        },
+      },
+    });
 
-  //   if (!user) {
-  //     throw new BadRequestException('Không tìm thấy người dùng');
-  //   }
+    if (!user) {
+      throw new BadRequestException('Không tìm thấy người dùng');
+    }
 
-  //   if (user.isEmailVerified) {
-  //     throw new BadRequestException('Email đã được xác thực');
-  //   }
+    if (user.emailVerified) {
+      throw new BadRequestException('Email đã được xác thực');
+    }
 
-  //   if (!user.otp) {
-  //     throw new BadRequestException('Người dùng không có mã xác thực email');
-  //   }
+    if (!otpRecord || otpRecord.expiresAt < new Date()) {
+      const { otp, expires } = this.createOtp();
+      await this.prisma.otp.create({
+        data: {
+          email,
+          otp: await bcrypt.hash(otp, 10),
+          expiresAt: expires,
+        },
+      });
+      await this.mailService.sendEmailVerification({
+        email,
+        otp,
+        name: user.name,
+      });
+    } else {
+      await this.mailService.sendEmailVerification({
+        email,
+        otp: otpRecord.otp,
+        name: user.name,
+      });
+    }
 
-  //   await this.mailService.sendEmailVerification(
-  //     user.email,
-  //     user.otp,
-  //     user.name,
-  //   );
-
-  //   return { message: 'Đã gửi lại email xác thực', email: user.email };
-  // }
+    return { message: 'Đã gửi lại email xác thực', email: user.email };
+  }
 
   // async forgotPassword({ email }: EmailVerificationDto): Promise<{
   //   message: string;
@@ -318,32 +339,53 @@ export class AuthService {
   //   return { message: 'Đã gửi lại email đặt lại mật khẩu', email: user.email };
   // }
 
-  // async refreshToken({ refreshToken }: RefreshTokenDto): Promise<{
-  //   accessToken: string;
-  //   expiresIn: string;
-  // }> {
-  //   let payload: { id: string; role: UserRole };
+  async refreshToken({ refreshToken }: RefreshTokenDto): Promise<{
+    message: string;
+    accessToken: string;
+    accessTokenExpiresIn: string;
+    refreshToken: string;
+    refreshTokenExpiresIn: string;
+    user: UserResponseDto;
+  }> {
+    let payload: { id: string; role: UserRole };
 
-  //   try {
-  //     payload = await this.jwtService.verifyAsync(refreshToken, {
-  //       ignoreExpiration: false,
-  //     });
-  //   } catch {
-  //     throw new UnauthorizedException(
-  //       'Refresh token không hợp lệ hoặc đã hết hạn',
-  //     );
-  //   }
+    try {
+      payload = await this.jwtService.verifyAsync(refreshToken, {
+        ignoreExpiration: false,
+      });
+    } catch {
+      throw new UnauthorizedException(
+        'Refresh token không hợp lệ hoặc đã hết hạn',
+      );
+    }
 
-  //   const user = await this.findById(payload.id);
+    const user = await this.findById(payload.id);
 
-  //   if (!user) {
-  //     throw new NotFoundException('Người dùng không tồn tại');
-  //   }
+    if (!user) {
+      throw new NotFoundException('Người dùng không tồn tại');
+    }
 
-  //   const accessPayload = { id: user.id, role: user.role };
-  //   const accessToken = await this.jwtService.signAsync(accessPayload);
-  //   const expiresIn = this.configService.get<string>('JWT_REFRESH_EXPIRATION')!;
+    const accessPayload = { id: user.id, role: user.role };
 
-  //   return { accessToken, expiresIn };
-  // }
+    const accessToken = await this.jwtService.signAsync(accessPayload);
+    const accessTokenExpiresIn =
+      this.configService.get<string>('JWT_EXPIRATION')!;
+    const refreshTokenExpiresIn = this.configService.get<string>(
+      'JWT_REFRESH_EXPIRATION',
+    )!;
+    const newRefreshToken = await this.jwtService.signAsync(accessPayload, {
+      expiresIn: refreshTokenExpiresIn,
+    });
+
+    return {
+      message: 'Đăng nhập thành công',
+      accessToken,
+      accessTokenExpiresIn,
+      refreshToken: newRefreshToken,
+      refreshTokenExpiresIn,
+      user: plainToInstance(UserResponseDto, user, {
+        excludeExtraneousValues: true,
+      }),
+    };
+  }
 }
