@@ -115,7 +115,7 @@ export default function FarmItemModal({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-md mx-auto border-2 border-black bg-white">
+      <DialogContent className="max-w-md mx-auto bg-white">
         <DialogHeader className="pb-4 border-b border-gray-200">
           <DialogTitle className="text-xl font-bold text-black uppercase tracking-wide">
             {mode === "edit" ? "SỬA VẬT PHẨM" : "THÊM VẬT PHẨM"}

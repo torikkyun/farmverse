@@ -15,27 +15,29 @@ interface UseFarmItemsProps {
   type: "Phân bón" | "Cây trồng";
   page?: number;
   pageSize?: number;
+  search?: string;
 }
 
-// Thêm interface cho API response
-interface ApiItem {
+type ApiItemType = "FERTILIZER" | "TREE";
+type ApiItem = {
   id: string;
   name: string;
   description?: string;
+  type: ApiItemType;
   images?: string[];
   price?: number;
-  quantity?: number;
-}
+  stock?: number;
+};
 
-interface ApiResponse {
-  items?: ApiItem[];
-}
+const mapApiTypeToVN = (type: ApiItemType) =>
+  type === "FERTILIZER" ? "Phân bón" : "Cây trồng";
 
 export function useFarmItems({
   farmId,
   type,
   page = 1,
   pageSize = 10,
+  search = "",
 }: UseFarmItemsProps) {
   const [items, setItems] = useState<FarmItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -43,48 +45,41 @@ export function useFarmItems({
 
   useEffect(() => {
     if (!farmId) return;
+    setLoading(true);
+    setError(null);
 
-    const fetchItems = async () => {
-      setLoading(true);
-      setError(null);
+    const apiType = type === "Phân bón" ? "FERTILIZER" : "TREE";
+    const params = new URLSearchParams({
+      page: page.toString(),
+      pageSize: pageSize.toString(),
+      ...(search ? { search } : {}),
+      type: apiType,
+    });
 
-      try {
-        const endpoint = type === "Cây trồng" ? "trees" : "fertilizers";
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/farms/${farmId}/${endpoint}?page=${page}&pageSize=${pageSize}`
-        );
-
-        if (!response.ok) {
-          throw new Error(`Không thể tải ${type.toLowerCase()}`);
-        }
-
-        const data: ApiResponse = await response.json();
-
-        const transformedItems: FarmItem[] =
-          data.items?.map((item: ApiItem) => ({
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/items/farm/${farmId}?${params}`)
+      .then((res) => {
+        if (!res.ok) throw new Error(`Không thể tải ${type.toLowerCase()}`);
+        return res.json();
+      })
+      .then((data) => {
+        setItems(
+          data?.data?.items?.map((item: ApiItem) => ({
             id: item.id,
             name: item.name,
             description: item.description || "",
-            type: type,
-            images: Array.isArray(item.images) ? item.images : [],
+            type: mapApiTypeToVN(item.type),
+            images: item.images || [],
             price: item.price || 0,
-            quantity: item.quantity || 0,
-          })) || [];
-
-        setItems(transformedItems);
-      } catch (err) {
-        console.error("Error fetching farm items:", err);
-        setError(
-          err instanceof Error ? err.message : "Có lỗi xảy ra khi tải dữ liệu"
+            quantity: item.stock || 0,
+          })) || []
         );
+      })
+      .catch((err) => {
+        setError(err.message || "Có lỗi xảy ra khi tải dữ liệu");
         setItems([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchItems();
-  }, [farmId, type, page, pageSize]);
+      })
+      .finally(() => setLoading(false));
+  }, [farmId, type, page, pageSize, search]);
 
   return { items, loading, error };
 }

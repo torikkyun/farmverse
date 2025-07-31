@@ -42,6 +42,26 @@ export default function ProfileTabForm({
     message: string;
   } | null>(null);
 
+  // Thêm đoạn này để tự động lấy user từ localStorage khi vào trang
+  useEffect(() => {
+    const userStr = localStorage.getItem("user");
+    if (userStr) {
+      try {
+        const userObj = JSON.parse(userStr);
+        const info = userObj?.user;
+        if (info) {
+          setForm((prev) => ({
+            ...prev,
+            name: info.name || "",
+            email: info.email || "",
+            phone: info.phone || "",
+            avatar: info.avatar || "",
+          }));
+        }
+      } catch {}
+    }
+  }, [setForm]);
+
   // Tự động ẩn thông báo sau 1 giây
   useEffect(() => {
     if (alert) {

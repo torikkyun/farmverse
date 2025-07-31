@@ -1,54 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useEffect, useState } from "react";
+import { useFarmerFarm } from "./useFarmerFarm";
+import type { Address } from "./useFarmerFarm";
 
-interface Farm {
-  id: string;
-  name: string;
-  location?: string;
-  size?: number;
-  images?: string[];
-  crops?: string[];
-  user?: {
-    name?: string;
-  };
-}
+export default function FarmerFarmCard() {
+  const { userFarm: farm } = useFarmerFarm();
 
-interface FarmerFarmCardProps {
-  farmId: string;
-}
-
-export default function FarmerFarmCard({ farmId }: FarmerFarmCardProps) {
-  const [farm, setFarm] = useState<Farm | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchFarm = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/farms/${farmId}`
-        );
-
-        if (!response.ok) {
-          throw new Error("Không thể tải thông tin nông trại");
-        }
-
-        const farmData = await response.json();
-        setFarm(farmData);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Có lỗi xảy ra");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (farmId) {
-      fetchFarm();
-    }
-  }, [farmId]);
-
-  if (loading) {
+  if (!farm) {
     return (
       <div className="flex justify-center items-center w-full min-h-[60vh]">
         <Card className="w-full max-w-2xl bg-white border-2 border-black shadow-lg rounded-lg">
@@ -64,29 +21,23 @@ export default function FarmerFarmCard({ farmId }: FarmerFarmCardProps) {
     );
   }
 
-  if (error || !farm) {
+  // Helper để hiển thị địa chỉ
+  const renderAddress = (address?: Address) => {
+    if (!address)
+      return <span className="italic text-gray-400">Chưa cập nhật</span>;
+    const { houseNumber, street, commune, city } = address;
     return (
-      <div className="flex justify-center items-center w-full min-h-[60vh]">
-        <Card className="w-full max-w-2xl bg-white border-2 border-black shadow-lg rounded-lg">
-          <CardHeader className="pt-8 pb-2 px-8">
-            <CardTitle className="text-2xl font-bold text-center text-black uppercase tracking-wide">
-              Không tìm thấy nông trại
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="px-8 pb-8">
-            <div className="text-center text-gray-600">
-              {error ||
-                "Vui lòng kiểm tra lại thông tin hoặc chọn nông trại khác."}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <span>
+        {[houseNumber, street, commune, city].filter(Boolean).join(", ") || (
+          <span className="italic text-gray-400">Chưa cập nhật</span>
+        )}
+      </span>
     );
-  }
+  };
 
   return (
     <div className="flex justify-center items-center w-full min-h-[60vh]">
-      <Card className="w-full max-w-2xl bg-white border-2 border-black shadow-lg rounded-lg">
+      <Card className="w-full max-w-2xl bg-white shadow-lg rounded-lg">
         <CardHeader className="pt-8 pb-4 px-8 bg-black text-white rounded-t-lg">
           <CardTitle className="text-3xl font-bold text-center uppercase tracking-wide">
             {farm.name}
@@ -107,9 +58,7 @@ export default function FarmerFarmCard({ farmId }: FarmerFarmCardProps) {
                   Địa chỉ
                 </div>
                 <div className="text-lg text-black font-semibold">
-                  {farm.location || (
-                    <span className="italic text-gray-400">Chưa cập nhật</span>
-                  )}
+                  {renderAddress(farm.address)}
                 </div>
               </div>
               <div>
@@ -126,15 +75,13 @@ export default function FarmerFarmCard({ farmId }: FarmerFarmCardProps) {
               </div>
             </div>
 
-            {/* Cây trồng */}
+            {/* Mô tả */}
             <div>
               <div className="text-xs font-bold text-gray-600 uppercase mb-2 tracking-wide">
-                Cây trồng
+                Mô tả
               </div>
-              <div className="text-lg text-black font-semibold">
-                {farm.crops && farm.crops.length > 0 ? (
-                  farm.crops.join(", ")
-                ) : (
+              <div className="text-base text-black">
+                {farm.description || (
                   <span className="italic text-gray-400">Chưa cập nhật</span>
                 )}
               </div>

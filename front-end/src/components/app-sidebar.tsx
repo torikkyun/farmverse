@@ -36,11 +36,11 @@ const data = {
       url: "/market",
       icon: ShoppingBasket,
     },
-    // {
-    //   title: "Nông trại",
-    //   url: "/farm",
-    //   icon: Tractor,
-    // },
+    {
+      title: "Nông trại",
+      url: "/farm",
+      icon: Tractor,
+    },
     {
       title: "Cây thuê",
       url: "/tree",

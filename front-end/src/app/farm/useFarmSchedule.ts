@@ -1,17 +1,8 @@
 import { useState, useCallback } from "react";
-import { getFarmSchedules } from "../api/farmScheduleApi";
 
 export interface Schedule {
-  id: string;
-  name: string;
-  description: string;
-  startTime: string;
-  endTime: string;
-  status: boolean;
-  farm: {
-    id: string;
-    name: string;
-  };
+  month: number;
+  activities: string[];
 }
 
 export function useFarmSchedule(farmId?: string) {
@@ -22,11 +13,13 @@ export function useFarmSchedule(farmId?: string) {
   const reloadSchedules = useCallback(() => {
     if (!farmId) return;
     setLoading(true);
-    getFarmSchedules(String(farmId))
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/farms/${farmId}`)
+      .then((res) => res.json())
       .then((data) => {
-        const schArr =
-          Array.isArray(data?.data?.schedules) && data.data.schedules;
-        setSchedules(schArr ?? []);
+        const schArr = Array.isArray(data?.data?.schedule)
+          ? data.data.schedule
+          : [];
+        setSchedules(schArr);
         setError(null);
       })
       .catch(() => setError("Không lấy được lịch chăm sóc!"))

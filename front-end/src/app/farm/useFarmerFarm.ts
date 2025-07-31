@@ -2,6 +2,18 @@ import { useEffect, useState } from "react";
 
 const apiURL = process.env.NEXT_PUBLIC_API_URL;
 
+export interface User {
+  name?: string;
+}
+
+export interface Address {
+  houseNumber?: string;
+  street?: string;
+  commune?: string;
+  city?: string;
+  country?: string;
+}
+
 export interface Farm {
   id: string | number;
   name: string;
@@ -10,55 +22,46 @@ export interface Farm {
   size?: string | number;
   images?: string[] | string;
   ownerId?: string;
+  user?: User;
+  address?: Address;
 }
 
-export function useFarmerFarm() {
+export function useFarmerFarm(ownerId?: string) {
   const [userFarm, setUserFarm] = useState<Farm | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
 
   useEffect(() => {
     const userData = localStorage.getItem("user");
-    if (userData) {
-      const userObj = JSON.parse(userData);
-      setUserRole(userObj.user?.role || null);
-    }
-  }, []);
+    const userObj = userData ? JSON.parse(userData) : null;
+    const role = userObj?.user?.role || null;
+    setUserRole(role);
 
-  useEffect(() => {
-    if (userRole && userRole !== "FARMER") {
+    if (role !== "FARMER") {
       window.location.href = "/";
+      return;
     }
-  }, [userRole]);
 
-  useEffect(() => {
-    const fetchFarmByOwner = async () => {
+    const fetchFarm = async () => {
+      const id = ownerId || userObj?.user?.id;
+      if (!id) return setUserFarm(null);
       try {
-        const userData = localStorage.getItem("user");
-        const userObj = userData ? JSON.parse(userData) : null;
-        const ownerId = userObj?.user?.id;
-        const token = userObj?.accessToken;
-        if (!ownerId) {
-          setUserFarm(null);
-          return;
-        }
-        const url = `${apiURL}/farms/owner/${ownerId}`;
-        const res = await fetch(url, {
+        const res = await fetch(`${apiURL}/farms/owner/${id}`, {
           headers: {
             "Content-Type": "application/json",
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            ...(userObj?.accessToken
+              ? { Authorization: `Bearer ${userObj.accessToken}` }
+              : {}),
           },
         });
         const json = await res.json();
-        const farm = json.data?.farm;
-        setUserFarm(farm && farm.id ? farm : null);
+        setUserFarm(json.data?.farm?.id ? json.data.farm : null);
       } catch {
         setUserFarm(null);
       }
     };
-    if (userRole === "FARMER") {
-      fetchFarmByOwner();
-    }
-  }, [userRole]);
+
+    fetchFarm();
+  }, [ownerId]);
 
   return { userFarm, userRole };
 }
