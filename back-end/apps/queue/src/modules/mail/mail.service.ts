@@ -22,7 +22,7 @@ export class MailService {
     email: string;
     name: string;
     otp: string;
-  }) {
+  }): Promise<void> {
     await this.mailerService.sendMail({
       to: email,
       subject: 'Xác thực tài khoản - FarmVerse',
@@ -34,7 +34,13 @@ export class MailService {
     });
   }
 
-  async sendWelcomeEmail({ email, name }: { email: string; name: string }) {
+  async sendWelcomeEmail({
+    email,
+    name,
+  }: {
+    email: string;
+    name: string;
+  }): Promise<void> {
     const loginUrl = `${this.frontendUrl}/login`;
     await this.mailerService.sendMail({
       to: email,

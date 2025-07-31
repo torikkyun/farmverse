@@ -136,7 +136,7 @@ export class AuthService {
       this.prisma.otp.create({
         data: {
           email,
-          otp,
+          otp: await bcrypt.hash(otp, 10),
           expiresAt: expires,
         },
       }),
@@ -155,21 +155,27 @@ export class AuthService {
     };
   }
 
-  async verifyEmail({ otp }: AccountVerificationDto): Promise<{
+  async verifyEmail({ email, otp }: AccountVerificationDto): Promise<{
     message: string;
     email: string;
   }> {
     const otpRecord = await this.prisma.otp.findFirst({
       where: {
-        otp: otp,
+        email,
         expiresAt: {
           gt: new Date(),
         },
+        used: false,
       },
     });
 
     if (!otpRecord) {
-      throw new BadRequestException('Mã xác thực không hợp lệ hoặc đã hết hạn');
+      throw new BadRequestException('Mã xác thực đã hết hạn hoặc không hợp lệ');
+    }
+
+    const isOtpValid = await bcrypt.compare(otp, otpRecord.otp);
+    if (!isOtpValid) {
+      throw new BadRequestException('Mã xác thực không đúng');
     }
 
     const [_, user] = await this.prisma.$transaction([
@@ -183,7 +189,11 @@ export class AuthService {
       }),
     ]);
 
-    // await this.mailService.sendWelcomeEmail(user.email, user.name);
+    await this.mailService.sendWelcomeEmail({
+      email: user.email,
+      name: user.name,
+    });
+
     return { message: 'Xác thực email thành công', email: user.email };
   }
 
