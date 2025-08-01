@@ -102,17 +102,6 @@ export class TransactionsService {
         throw new Error('Giao dịch không thành công, vui lòng thử lại sau');
       }
 
-      await this.prisma.transaction.update({
-        where: { id: transactionId },
-        data: {
-          transactionHash: tx.hash,
-          blockNumber: receipt.blockNumber,
-          fromAddress: tx.from,
-          toAddress: tx.to,
-          status: TransactionStatus.SUCCESS,
-        },
-      });
-
       await this.prisma.user.update({
         where: { id: userId },
         data: { fvtBalance: { decrement: totalPrice } },
@@ -181,6 +170,11 @@ export class TransactionsService {
       await this.prisma.transaction.update({
         where: { id: transactionId },
         data: {
+          transactionHash: tx.hash,
+          blockNumber: receipt.blockNumber,
+          fromAddress: tx.from,
+          toAddress: tx.to,
+          status: TransactionStatus.SUCCESS,
           details: detailsArr,
         },
       });
