@@ -13,7 +13,6 @@ import { ContractDto } from '@app/models/transactions/dto/create-contract.dto';
 @Injectable()
 export class TransactionsService {
   private staticUrl: string;
-  private puppeteerOptions: { args?: string[]; executablePath?: string } = {};
 
   constructor(
     private readonly blockchainService: BlockchainService,
@@ -21,15 +20,6 @@ export class TransactionsService {
     private readonly configService: ConfigService,
   ) {
     this.staticUrl = this.configService.get<string>('STATIC_URL')!;
-
-    if (this.configService.get<string>('NODE_ENV') === 'production') {
-      this.puppeteerOptions = {
-        args: ['--no-sandbox', '--disable-setuid-sandbox'],
-        executablePath: this.configService.get<string>(
-          'PUPPETEER_EXECUTABLE_PATH',
-        ),
-      };
-    }
   }
 
   private parseDate(dateStr: string): Date {
@@ -237,7 +227,7 @@ export class TransactionsService {
     // const pdfPath = path.join(outputDir, `${transactionId}.pdf`);
     const imgPath = path.join(outputDir, `${transactionId}.png`);
 
-    const browser = await puppeteer.launch(this.puppeteerOptions);
+    const browser = await puppeteer.launch({});
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: 'networkidle0' });
     await page.waitForSelector('img');
