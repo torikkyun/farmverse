@@ -136,7 +136,7 @@ export function ItemModal({ item, onClose, onPurchase }: ItemModalProps) {
                     </span>
                   </div>
                   <p className="text-lg sm:text-xl font-bold text-black">
-                    {item.quantity ?? "∞"}
+                    {item.stock ?? "∞"}
                   </p>
                 </div>
               </div>
@@ -154,9 +154,7 @@ export function ItemModal({ item, onClose, onPurchase }: ItemModalProps) {
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">Trạng thái:</span>
                     <span className="font-bold text-black">
-                      {item.quantity && item.quantity > 0
-                        ? "Còn hàng"
-                        : "Hết hàng"}
+                      {item.stock && item.stock > 0 ? "Còn hàng" : "Hết hàng"}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
@@ -182,14 +180,14 @@ export function ItemModal({ item, onClose, onPurchase }: ItemModalProps) {
             </button>
             <button
               onClick={handlePurchase}
-              disabled={item.quantity === 0}
+              disabled={item.stock === 0}
               className={`w-full sm:w-auto px-4 sm:px-6 py-2 font-bold rounded-lg transition-colors text-sm sm:text-base order-1 sm:order-2 ${
-                item.quantity === 0
+                item.stock === 0
                   ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                   : "bg-black text-white hover:bg-gray-800 border border-black"
               }`}
             >
-              {item.quantity === 0 ? "Hết hàng" : "Mua ngay"}
+              {item.stock === 0 ? "Hết hàng" : "Mua ngay"}
             </button>
           </div>
         </div>
