@@ -40,7 +40,7 @@ export interface Item {
   farm?: Farm;
   images?: string[];
   price?: number;
-  quantity?: number | null;
+  stock: number;
 }
 
 export interface FarmMarket {

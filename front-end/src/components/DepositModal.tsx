@@ -34,10 +34,10 @@ export default function DepositModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md p-0">
         {/* Header */}
-        <div className="bg-black text-white p-6 rounded-t-lg">
-          <div className="flex items-center justify-center gap-3 mb-2">
+        <div className="bg-black text-white rounded-t-lg px-3 py-1">
+          <div className="flex items-center justify-center mb-2">
             <Wallet className="w-8 h-8" />
-            <DialogTitle className="text-2xl font-bold uppercase tracking-wide">
+            <DialogTitle className="text-2xl uppercase tracking-wide">
               NẠP TIỀN
             </DialogTitle>
           </div>

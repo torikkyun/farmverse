@@ -8,6 +8,7 @@ import { ItemCard } from "./ItemCard";
 import { ItemFormModal } from "./ItemFormModal";
 import { ItemSearchBar } from "./ItemSearchBar";
 import Pagination from "@/components/ui/pagination";
+import DepositModal from "@/components/DepositModal"; // Thêm dòng này
 
 // Sửa type WarehouseItem để có trường images là mảng string
 type WarehouseItem = {
@@ -93,6 +94,28 @@ export default function WarehousePage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<WarehouseItem | null>(null);
 
+  // State cho modal nạp tiền
+  const [openDeposit, setOpenDeposit] = useState(false);
+  const [amount, setAmount] = useState("");
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string>("");
+
+  // Hàm xử lý nạp tiền (giả lập, bạn có thể thay bằng API thực tế)
+  const handleDeposit = () => {
+    if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
+      setError("Vui lòng nhập số tiền hợp lệ!");
+      setSuccess(false);
+      return;
+    }
+    setError("");
+    setSuccess(true);
+    setTimeout(() => {
+      setOpenDeposit(false);
+      setAmount("");
+      setSuccess(false);
+    }, 1500);
+  };
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     // Lọc dữ liệu fake theo search và type
@@ -160,7 +183,8 @@ export default function WarehousePage() {
     >
       <AppSidebar variant="inset" />
       <SidebarInset>
-        <SiteHeader />
+        <SiteHeader onOpenDeposit={() => setOpenDeposit(true)} />{" "}
+        {/* Thêm prop này */}
         <div className="flex flex-1 flex-col bg-white dark:bg-black min-h-screen transition-colors">
           <div className="w-full mx-auto sm:px-4 py-6 flex-1 flex flex-col gap-8">
             {/* Thanh tìm kiếm và lọc */}
@@ -192,11 +216,11 @@ export default function WarehousePage() {
                       >
                         <ItemCard
                           item={{ ...item, images: [item.image] }}
-                          onEdit={() => {}} 
-                          onDelete={() => {}} 
-                          showMenu={null} 
-                          setShowMenu={() => {}} 
-                          onOpenDetail={() => {}} 
+                          onEdit={() => {}}
+                          onDelete={() => {}}
+                          showMenu={null}
+                          setShowMenu={() => {}}
+                          onOpenDetail={() => {}}
                         />
                       </div>
                     ))}
@@ -226,6 +250,15 @@ export default function WarehousePage() {
           }
           setForm={() => {}}
           isEdit={false}
+        />
+        <DepositModal
+          open={openDeposit}
+          onOpenChange={setOpenDeposit}
+          amount={amount}
+          setAmount={setAmount}
+          success={success}
+          error={error}
+          handleDeposit={handleDeposit}
         />
       </SidebarInset>
     </SidebarProvider>

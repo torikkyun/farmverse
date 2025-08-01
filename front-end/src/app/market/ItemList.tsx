@@ -101,7 +101,7 @@ export function ItemList({
                           SL:
                         </span>
                         <span className="font-bold text-base">
-                          {item.quantity ?? "∞"}
+                          {item.stock ?? "∞"}
                         </span>
                       </div>
                     </div>

@@ -11,6 +11,7 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Search, Clipboard } from "lucide-react";
 import { TreeCard } from "./TreeCard";
 import type { TreeItem } from "./types";
+import DepositModal from "@/components/DepositModal"; // Thêm dòng này
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -46,6 +47,28 @@ export default function TreePage() {
   const [status, setStatus] = useState("");
   const [trees, setTrees] = useState<RentedTree[]>([]);
   const [loadingTrees, setLoadingTrees] = useState(false);
+
+  // State cho modal nạp tiền
+  const [openDeposit, setOpenDeposit] = useState(false);
+  const [amount, setAmount] = useState("");
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string>("");
+
+  // Hàm xử lý nạp tiền (giả lập, bạn có thể thay bằng API thực tế)
+  const handleDeposit = () => {
+    if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
+      setError("Vui lòng nhập số tiền hợp lệ!");
+      setSuccess(false);
+      return;
+    }
+    setError("");
+    setSuccess(true);
+    setTimeout(() => {
+      setOpenDeposit(false);
+      setAmount("");
+      setSuccess(false);
+    }, 1500);
+  };
 
   const fetchTrees = async () => {
     setLoadingTrees(true);
@@ -165,7 +188,8 @@ export default function TreePage() {
     >
       <AppSidebar variant="inset" />
       <SidebarInset>
-        <SiteHeader />
+        <SiteHeader onOpenDeposit={() => setOpenDeposit(true)} />{" "}
+        {/* Thêm prop này */}
         <div className="flex flex-1 flex-col bg-gray-50 min-h-screen">
           <div className="w-full px-2 sm:px-4 py-8 flex-1 flex flex-col gap-6">
             {/* Thanh tìm kiếm và lọc */}
@@ -233,7 +257,7 @@ export default function TreePage() {
                         monthlyRent: 0,
                         totalPaid: 0,
                         remainingMonths: 0,
-                        schedule: [], // Nếu có trường schedule thì lấy, không thì để []
+                        schedule: [],
                       };
                       return (
                         <TreeCard
@@ -296,6 +320,15 @@ export default function TreePage() {
             </div>
           )}
         </div>
+        <DepositModal
+          open={openDeposit}
+          onOpenChange={setOpenDeposit}
+          amount={amount}
+          setAmount={setAmount}
+          success={success}
+          error={error}
+          handleDeposit={handleDeposit}
+        />
       </SidebarInset>
     </SidebarProvider>
   );

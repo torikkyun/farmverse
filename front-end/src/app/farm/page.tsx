@@ -8,13 +8,36 @@ import { useAddFarmForm } from "./useFarmActions";
 import { useFarmerFarm } from "./useFarmerFarm";
 import FarmMenu from "./FarmMenu";
 import FarmContent from "./FarmContent";
+import DepositModal from "@/components/DepositModal"; // Thêm dòng này
 
 export default function FarmPage() {
   const [selectedMenu, setSelectedMenu] = useState<string>("farm-info");
   const [token, setToken] = useState<string | null>(null);
-  const [isTokenLoaded, setIsTokenLoaded] = useState(false); // Thêm state này
+  const [isTokenLoaded, setIsTokenLoaded] = useState(false);
   const { userFarm, userRole } = useFarmerFarm();
   const addFarm = useAddFarmForm();
+
+  // State cho modal nạp tiền
+  const [openDeposit, setOpenDeposit] = useState(false);
+  const [amount, setAmount] = useState("");
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string>("");
+
+  // Hàm xử lý nạp tiền (giả lập, bạn có thể thay bằng API thực tế)
+  const handleDeposit = () => {
+    if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
+      setError("Vui lòng nhập số tiền hợp lệ!");
+      setSuccess(false);
+      return;
+    }
+    setError("");
+    setSuccess(true);
+    setTimeout(() => {
+      setOpenDeposit(false);
+      setAmount("");
+      setSuccess(false);
+    }, 1500);
+  };
 
   // Lấy token safely sau khi component mount
   useEffect(() => {
@@ -114,7 +137,8 @@ export default function FarmPage() {
     >
       <AppSidebar variant="inset" />
       <SidebarInset>
-        <SiteHeader />
+        <SiteHeader onOpenDeposit={() => setOpenDeposit(true)} />{" "}
+        {/* Thêm prop này */}
         <div className="w-full flex flex-1 flex-col bg-white dark:bg-black min-h-screen transition-colors">
           <div className="w-full px-2 sm:px-4 py-6 flex-1 flex flex-col gap-3">
             {userRole === "FARMER" && (
@@ -153,6 +177,15 @@ export default function FarmPage() {
             )}
           </div>
         </div>
+        <DepositModal
+          open={openDeposit}
+          onOpenChange={setOpenDeposit}
+          amount={amount}
+          setAmount={setAmount}
+          success={success}
+          error={error}
+          handleDeposit={handleDeposit}
+        />
       </SidebarInset>
     </SidebarProvider>
   );

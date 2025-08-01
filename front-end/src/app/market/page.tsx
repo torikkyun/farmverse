@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import FarmList from "./FarmList";
 import { ItemList } from "./ItemList";
 import { Input } from "@/components/ui/input";
+import DepositModal from "@/components/DepositModal"; // Thêm dòng này
+
 import {
   Select,
   SelectContent,
@@ -24,6 +26,13 @@ import { useSearch } from "./useSearch";
 export default function MarketPage() {
   const [showResults, setShowResults] = useState(false);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [openDeposit, setOpenDeposit] = useState(false); // Thêm state này
+
+  // State cho modal nạp tiền
+  const [amount, setAmount] = useState("");
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string>("");
+
   const router = useRouter();
 
   const {
@@ -140,12 +149,30 @@ export default function MarketPage() {
     "--header-height": "calc(var(--spacing) * 12)",
   } as React.CSSProperties;
 
+  // Hàm xử lý nạp tiền (giả lập, bạn có thể thay bằng API thực tế)
+  const handleDeposit = useCallback(() => {
+    if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
+      setError("Vui lòng nhập số tiền hợp lệ!");
+      setSuccess(false);
+      return;
+    }
+    setError("");
+    setSuccess(true);
+    // Sau khi nạp thành công, có thể reset hoặc đóng modal
+    setTimeout(() => {
+      setOpenDeposit(false);
+      setAmount("");
+      setSuccess(false);
+    }, 1500);
+  }, [amount]);
+
   if (showResults) {
     return (
       <SidebarProvider style={sidebarStyle}>
         <AppSidebar variant="inset" />
         <SidebarInset>
-          <SiteHeader />
+          <SiteHeader onOpenDeposit={() => setOpenDeposit(true)} />{" "}
+          {/* Sửa dòng này */}
           <div className="w-full flex flex-1 flex-col bg-gray-50 dark:bg-gray-900 min-h-screen">
             <SearchResultsHeader
               search={search}
@@ -248,6 +275,15 @@ export default function MarketPage() {
               </div>
             </div>
           </div>
+          <DepositModal
+            open={openDeposit}
+            onOpenChange={setOpenDeposit}
+            amount={amount}
+            setAmount={setAmount}
+            success={success}
+            error={error}
+            handleDeposit={handleDeposit}
+          />
         </SidebarInset>
       </SidebarProvider>
     );
@@ -257,7 +293,8 @@ export default function MarketPage() {
     <SidebarProvider style={sidebarStyle}>
       <AppSidebar variant="inset" />
       <SidebarInset>
-        <SiteHeader />
+        <SiteHeader onOpenDeposit={() => setOpenDeposit(true)} />{" "}
+        {/* Sửa dòng này */}
         <div className="w-full flex flex-1 flex-col bg-white dark:bg-black min-h-screen">
           {/* Hero Section */}
           <div className="bg-gradient-to-br from-green-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 px-4 md:px-8 py-12">
@@ -373,6 +410,15 @@ export default function MarketPage() {
             </div>
           </div>
         </div>
+        <DepositModal
+          open={openDeposit}
+          onOpenChange={setOpenDeposit}
+          amount={amount}
+          setAmount={setAmount}
+          success={success}
+          error={error}
+          handleDeposit={handleDeposit}
+        />
       </SidebarInset>
     </SidebarProvider>
   );

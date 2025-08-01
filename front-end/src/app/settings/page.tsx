@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import SettingsTabMenu from "./SettingsTabMenu";
 import ProfileTabForm from "./ProfileTabForm";
 import AccountTabForm from "./AccountTabForm";
+import DepositModal from "@/components/DepositModal"; // Thêm dòng này
 
 interface User {
   name: string;
@@ -29,6 +30,28 @@ export default function SettingsPage() {
   });
   const [activeTab, setActiveTab] = useState<"profile" | "account">("profile");
 
+  // State cho modal nạp tiền
+  const [openDeposit, setOpenDeposit] = useState(false);
+  const [amount, setAmount] = useState("");
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string>("");
+
+  // Hàm xử lý nạp tiền (giả lập, bạn có thể thay bằng API thực tế)
+  const handleDeposit = () => {
+    if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
+      setError("Vui lòng nhập số tiền hợp lệ!");
+      setSuccess(false);
+      return;
+    }
+    setError("");
+    setSuccess(true);
+    setTimeout(() => {
+      setOpenDeposit(false);
+      setAmount("");
+      setSuccess(false);
+    }, 1500);
+  };
+
   useEffect(() => {
     const userStr = localStorage.getItem("user");
     if (!userStr) return;
@@ -47,7 +70,7 @@ export default function SettingsPage() {
             name: data.name || "",
             email: data.email || "",
             phone: data.phone || "",
-            avatar: data.avatar ? data.avatar : "/avatar.png", // Sửa dòng này
+            avatar: data.avatar ? data.avatar : "/avatar.png",
           });
         });
     } catch (e) {
@@ -66,7 +89,8 @@ export default function SettingsPage() {
     >
       <AppSidebar variant="inset" />
       <SidebarInset>
-        <SiteHeader />
+        <SiteHeader onOpenDeposit={() => setOpenDeposit(true)} />{" "}
+        {/* Thêm prop này */}
         <div className="flex flex-1 flex-col items-center py-8 px-0 bg-white min-h-screen">
           <div className="flex flex-row w-full gap-4 min-h-[500px] px-6">
             <div className="w-full max-w-xs md:w-[320px] mb-6 md:mb-0 h-full flex">
@@ -87,6 +111,15 @@ export default function SettingsPage() {
             </div>
           </div>
         </div>
+        <DepositModal
+          open={openDeposit}
+          onOpenChange={setOpenDeposit}
+          amount={amount}
+          setAmount={setAmount}
+          success={success}
+          error={error}
+          handleDeposit={handleDeposit}
+        />
       </SidebarInset>
     </SidebarProvider>
   );
