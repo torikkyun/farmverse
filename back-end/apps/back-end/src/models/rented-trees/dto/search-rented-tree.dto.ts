@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { PaginationQueryDto } from '@app/common/dto/pagination.dto';
 import { IsOptional } from 'class-validator';
-import { statusRentedTree } from 'generated/prisma';
+import { statusTree } from 'generated/prisma';
 
 export class SearchRentedTreesQueryDto extends PaginationQueryDto {
   @IsOptional()
@@ -14,7 +14,7 @@ export class SearchRentedTreesQueryDto extends PaginationQueryDto {
   @IsOptional()
   @ApiProperty({
     required: false,
-    enum: statusRentedTree,
+    enum: statusTree,
   })
-  status?: statusRentedTree;
+  status?: statusTree;
 }

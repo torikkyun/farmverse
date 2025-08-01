@@ -1,5 +1,5 @@
 import { Expose } from 'class-transformer';
-import { statusRentedTree } from 'generated/prisma';
+import { statusTree } from 'generated/prisma';
 import { FarmResponseDto } from './farm.dto';
 
 export class RentedTreeBaseResponseDto {
@@ -16,7 +16,7 @@ export class RentedTreeBaseResponseDto {
   images: string[];
 
   @Expose()
-  status: statusRentedTree;
+  status: statusTree;
 
   @Expose()
   totalProfit: number;
