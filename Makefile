@@ -22,4 +22,4 @@ dev:
 	docker compose -f docker-compose-dev.yml up -d --build
 	
 prod:
-	docker compose -f docker-compose.yml up -d --build
+	docker compose -f docker-compose.yml --env-file .env.production.local up -d --build

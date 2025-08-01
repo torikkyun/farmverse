@@ -1,5 +1,8 @@
 FROM node:22-alpine AS builder
 
+ARG MONGODB_URL
+ENV MONGODB_URL=$MONGODB_URL
+
 WORKDIR /app
 
 RUN npm install -g pnpm@latest-10
@@ -14,6 +17,7 @@ COPY apps ./apps
 
 RUN pnpm install
 RUN pnpm dlx prisma generate
+RUN pnpm dlx prisma db push
 RUN pnpm run build
 
 FROM builder AS release
@@ -26,6 +30,5 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
 
 EXPOSE 2412
-EXPOSE 2413
 
 CMD ["pnpm", "start:prod"]

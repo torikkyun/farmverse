@@ -3,28 +3,36 @@ services:
     container_name: back-end
     build:
       context: ./back-end
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.back-end
+      args:
+        MONGODB_URL: ${MONGODB_URL}
     ports:
-      - ${PORT:-2412}:2412
+      - ${BACK_END_PORT:-2412}:2412
     env_file:
       - ./back-end/.env.production.local
     networks:
       - farmverse-net
     volumes:
-      - ./static:/app/static
+      - ./static:/static
 
   queue:
     container_name: queue
     build:
       context: ./back-end
-      dockerfile: Dockerfile
-    command: pnpm queue:prod
+      dockerfile: Dockerfile.queue
+      args:
+        MONGODB_URL: ${MONGODB_URL}
     ports:
       - ${QUEUE_PORT:-2413}:2413
     env_file:
       - ./back-end/.env.production.local
     networks:
       - farmverse-net
+    volumes:
+      - ./static:/static
+    depends_on:
+      - back-end
+      - rabbitmq
 
   front-end:
     container_name: front-end
@@ -32,7 +40,7 @@ services:
       context: ./front-end
       dockerfile: Dockerfile
     ports:
-      - ${PORT:-3000}:3000
+      - ${FRONT_END_PORT:-3000}:3000
     env_file:
       - ./front-end/.env.production.local
     networks:

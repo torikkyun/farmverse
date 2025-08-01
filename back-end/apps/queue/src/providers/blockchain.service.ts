@@ -9,22 +9,22 @@ export class BlockchainService {
   private loggerContract: ethers.Contract;
 
   constructor(private readonly configService: ConfigService) {
-    const infuraKey = this.configService.get<string>('INFURA_RPC_KEY');
+    const infuraKey = this.configService.get<string>('INFURA_RPC_KEY')!;
     const metamaskPrivateKey = this.configService.get<string>(
       'METAMASK_WALLET_PRIVATE_KEY',
-    );
+    )!;
     const transactionLoggerAddress = this.configService.get<string>(
       'TRANSACTION_LOGGER_ADDRESS',
-    );
+    )!;
 
     this.provider = new ethers.JsonRpcProvider(
       `https://sepolia.infura.io/v3/${infuraKey}`,
-    );
+    )!;
 
-    this.wallet = new ethers.Wallet(metamaskPrivateKey!, this.provider);
+    this.wallet = new ethers.Wallet(metamaskPrivateKey, this.provider);
 
     this.loggerContract = new ethers.Contract(
-      transactionLoggerAddress!,
+      transactionLoggerAddress,
       ['function recordTransaction(uint8 txType, uint256 amount) external'],
       this.wallet,
     );

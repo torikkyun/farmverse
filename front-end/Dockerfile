@@ -19,7 +19,7 @@ COPY public ./public
 
 RUN npm run build
 
-FROM builder AS release
+FROM node:22-alpine AS release
 
 WORKDIR /app
 

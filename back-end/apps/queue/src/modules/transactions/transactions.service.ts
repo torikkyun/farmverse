@@ -2,13 +2,8 @@ import { ContractQueuePayload } from '@app/common/types/contract-payload.type';
 import { PrismaService } from '@app/providers/prisma.service';
 import { BadGatewayException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { RpcException } from '@nestjs/microservices';
 import { BlockchainService } from '@queue/providers/blockchain.service';
-import {
-  ItemType,
-  statusRentedTree,
-  TransactionStatus,
-} from 'generated/prisma';
+import { ItemType, statusTree, TransactionStatus } from 'generated/prisma';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as Handlebars from 'handlebars';
@@ -17,15 +12,25 @@ import { ContractDto } from '@app/models/transactions/dto/create-contract.dto';
 
 @Injectable()
 export class TransactionsService {
+  private staticUrl: string;
+  private puppeteerOptions: { args?: string[]; executablePath?: string } = {};
+
   constructor(
     private readonly blockchainService: BlockchainService,
     private readonly prisma: PrismaService,
     private readonly configService: ConfigService,
   ) {
     this.staticUrl = this.configService.get<string>('STATIC_URL')!;
-  }
 
-  private staticUrl: string;
+    if (this.configService.get<string>('NODE_ENV') === 'production') {
+      this.puppeteerOptions = {
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        executablePath: this.configService.get<string>(
+          'PUPPETEER_EXECUTABLE_PATH',
+        ),
+      };
+    }
+  }
 
   private parseDate(dateStr: string): Date {
     const [day, month, year] = dateStr.split('-').map(Number);
@@ -94,9 +99,7 @@ export class TransactionsService {
         await this.blockchainService.recordContract(totalPrice);
 
       if (!receipt || !tx.to) {
-        throw new RpcException(
-          'Giao dịch không thành công, vui lòng thử lại sau',
-        );
+        throw new Error('Giao dịch không thành công, vui lòng thử lại sau');
       }
 
       await this.prisma.transaction.update({
@@ -147,7 +150,7 @@ export class TransactionsService {
               (v) => v !== null,
             ),
             cameraUrl: null,
-            status: statusRentedTree.GROWING,
+            status: statusTree.GROWING,
             totalProfit: 0,
             harvest: [],
             startDate: startDateObj,
@@ -181,7 +184,9 @@ export class TransactionsService {
           details: detailsArr,
         },
       });
-    } catch {
+    } catch (error) {
+      console.error('Lỗi khi xử lý giao dịch hợp đồng:', error);
+
       await this.prisma.transaction.update({
         where: { id: transactionId },
         data: { status: 'FAILED' },
@@ -238,7 +243,7 @@ export class TransactionsService {
     // const pdfPath = path.join(outputDir, `${transactionId}.pdf`);
     const imgPath = path.join(outputDir, `${transactionId}.png`);
 
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch(this.puppeteerOptions);
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: 'networkidle0' });
     await page.waitForSelector('img');

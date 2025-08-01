@@ -1,0 +1,51 @@
+FROM node:22-alpine AS builder
+
+ARG MONGODB_URL
+ENV MONGODB_URL=$MONGODB_URL
+
+WORKDIR /app
+
+RUN npm install -g pnpm@latest-10
+
+RUN apk add --no-cache \
+  chromium \
+  nss \
+  freetype \
+  harfbuzz \
+  ca-certificates \
+  ttf-freefont
+
+COPY package*.json ./
+COPY pnpm-lock.yaml ./
+COPY tsconfig*.json ./
+COPY nest-cli.json ./
+COPY prisma ./prisma
+COPY apps ./apps
+
+RUN pnpm install
+RUN pnpm dlx prisma generate
+RUN pnpm dlx prisma db push
+RUN pnpm run build
+
+FROM builder AS release
+
+WORKDIR /app
+
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/apps ./apps
+COPY --from=builder /app/tsconfig*.json ./
+COPY --from=builder /app/nest-cli.json ./
+COPY --from=builder /app/pnpm-lock.yaml ./
+
+COPY --from=builder /usr/bin/chromium-browser /usr/bin/chromium-browser
+COPY --from=builder /usr/lib/chromium /usr/lib/chromium
+COPY --from=builder /usr/lib/lib* /usr/lib/
+COPY --from=builder /usr/share/fonts /usr/share/fonts
+COPY --from=builder /etc/fonts /etc/fonts
+
+EXPOSE 2413
+
+CMD ["pnpm", "queue:prod"]
