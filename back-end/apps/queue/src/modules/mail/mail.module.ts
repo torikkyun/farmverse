@@ -34,15 +34,7 @@ import { MailController } from './mail.controller';
             from: `"${mailFromName}" <${mailFromEmail}>`,
           },
           template: {
-            dir: join(
-              process.cwd(),
-              'apps',
-              'queue',
-              'src',
-              'modules',
-              'mail',
-              'templates',
-            ),
+            dir: join(process.cwd(), 'dist', 'modules', 'mail', 'templates'),
             adapter: new HandlebarsAdapter(),
             options: {
               strict: true,

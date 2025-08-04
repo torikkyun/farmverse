@@ -6,7 +6,7 @@ import { SearchRentedTreesQueryDto } from './dto/search-rented-tree.dto';
 import {
   RentedTreeBaseResponseDto,
   RentedTreeResponseDto,
-} from '@app/common/dto/response/rentedTree.dto';
+} from '@app/common/dtos/response/rentedTree.dto';
 
 @Controller('api/rented-trees')
 @ApiTags('rented-trees')

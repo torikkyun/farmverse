@@ -8,11 +8,9 @@ import { JwtGuard } from './common/guards/jwt.guard';
 import { ItemsModule } from './models/items/items.module';
 import { RolesGuard } from './common/guards/roles.guard';
 import { SeedModule } from './seed/seed.module';
-import { QueueModule } from './providers/queue/queue.module';
 import { TransactionsModule } from './models/transactions/transactions.module';
 import { RentedTreesModule } from './models/rented-trees/rented-trees.module';
 import { InventoryModule } from './models/inventory/inventory.module';
-import { MailModule } from './providers/mail/mail.module';
 
 @Module({
   imports: [
@@ -22,9 +20,7 @@ import { MailModule } from './providers/mail/mail.module';
       expandVariables: true,
     }),
     AuthModule,
-    MailModule,
     SeedModule,
-    QueueModule,
     UsersModule,
     FarmsModule,
     ItemsModule,

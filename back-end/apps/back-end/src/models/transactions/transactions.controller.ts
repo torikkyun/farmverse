@@ -13,7 +13,7 @@ import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { DepositDto } from './dto/deposit.dto';
 import { CreateContractDto } from './dto/create-contract.dto';
 import { SearchTransactionsQueryDto } from './dto/search-transaction.dto';
-import { TransactionBaseResponseDto } from '@app/common/dto/response/transaction.dto';
+import { TransactionBaseResponseDto } from '@app/common/dtos/response/transaction.dto';
 import { CurrentUser } from '@app/common/decorators/current-user.decorator';
 import { PurchaseItemsDto } from './dto/purchase-items.dto';
 import { FileInterceptor } from '@nestjs/platform-express';

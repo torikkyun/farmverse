@@ -22,7 +22,7 @@ import { FileValidationPipe } from '@app/common/pipes/file-validation.pipe';
 import {
   FarmBaseResponseDto,
   FarmResponseDto,
-} from '@app/common/dto/response/farm.dto';
+} from '@app/common/dtos/response/farm.dto';
 import { Public } from '@app/common/decorators/public.decorator';
 
 @Controller('api/farms')

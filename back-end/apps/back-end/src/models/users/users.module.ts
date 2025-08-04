@@ -5,7 +5,7 @@ import { MulterModule } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { v4 as uuidv4 } from 'uuid';
-import { PrismaService } from '@app/providers/prisma.service';
+import { PrismaService } from 'shared/providers/prisma.service';
 
 @Module({
   imports: [

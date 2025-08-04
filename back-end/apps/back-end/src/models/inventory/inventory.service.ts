@@ -1,13 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '@app/providers/prisma.service';
+import { PrismaService } from '@shared/providers/prisma.service';
 import { SearchInventoriesQueryDto } from './dto/search-inventory.dto';
-import { InventoryResponseDto } from '@app/common/dto/response/inventory.dto';
+import { InventoryResponseDto } from '@app/common/dtos/response/inventory.dto';
 import { plainToInstance } from 'class-transformer';
 import { Prisma } from '@prisma/client';
 import {
   PaginationMetaDto,
   PaginationResponseDto,
-} from '@app/common/dto/pagination.dto';
+} from '@app/common/dtos/pagination.dto';
 
 @Injectable()
 export class InventoryService {

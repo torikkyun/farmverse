@@ -1,4 +1,4 @@
-import { PrismaService } from '@app/providers/prisma.service';
+import { PrismaService } from 'shared/providers/prisma.service';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';

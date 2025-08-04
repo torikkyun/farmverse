@@ -9,7 +9,7 @@ import { AccountVerificationDto } from './dto/account-verification.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { Public } from '@app/common/decorators/public.decorator';
 import { LocalGuard } from '@app/common/guards/local.guard';
-import { UserResponseDto } from '@app/common/dto/response/user.dto';
+import { UserResponseDto } from '@app/common/dtos/response/user.dto';
 
 @Controller('api/auth')
 @Public()

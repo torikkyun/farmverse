@@ -5,12 +5,12 @@ import { plainToInstance } from 'class-transformer';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { SearchUsersQueryDto } from './dto/search-user.dto';
 import * as bcrypt from 'bcrypt';
-import { PrismaService } from '@app/providers/prisma.service';
-import { UserResponseDto } from '@app/common/dto/response/user.dto';
+import { PrismaService } from 'shared/providers/prisma.service';
+import { UserResponseDto } from '@app/common/dtos/response/user.dto';
 import {
   PaginationMetaDto,
   PaginationResponseDto,
-} from '@app/common/dto/pagination.dto';
+} from '@app/common/dtos/pagination.dto';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()

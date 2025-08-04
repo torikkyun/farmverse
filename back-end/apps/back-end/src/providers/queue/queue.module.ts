@@ -1,9 +1,28 @@
 import { Module } from '@nestjs/common';
-import { QueueService } from './queue.service';
-import { PrismaService } from '../prisma.service';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ClientsModule, Transport } from '@nestjs/microservices';
+import { MailClientService } from './mail-client/mail-client.service';
+import { TransactionClientService } from './transaction-client/transaction-client.service';
 
 @Module({
-  providers: [QueueService, PrismaService],
-  exports: [QueueService],
+  imports: [
+    ClientsModule.registerAsync([
+      {
+        name: 'FARMVERSE_QUEUE',
+        imports: [ConfigModule],
+        useFactory: (configService: ConfigService) => ({
+          transport: Transport.RMQ,
+          options: {
+            urls: [configService.get<string>('RABBITMQ_URL')!],
+            queue: 'farmverse_queue',
+            queueOptions: { durable: true },
+          },
+        }),
+        inject: [ConfigService],
+      },
+    ]),
+  ],
+  providers: [MailClientService, TransactionClientService],
+  exports: [MailClientService, TransactionClientService],
 })
 export class QueueModule {}

@@ -1,17 +1,17 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '@app/providers/prisma.service';
+import { PrismaService } from '@shared/providers/prisma.service';
 import { SearchRentedTreesQueryDto } from './dto/search-rented-tree.dto';
 import {
   RentedTreeBaseResponseDto,
   RentedTreeResponseDto,
-} from '@app/common/dto/response/rentedTree.dto';
+} from '@app/common/dtos/response/rentedTree.dto';
 import { Prisma } from '@prisma/client';
 import {
   PaginationMetaDto,
   PaginationResponseDto,
-} from '@app/common/dto/pagination.dto';
+} from '@app/common/dtos/pagination.dto';
 import { plainToInstance } from 'class-transformer';
-import { FarmResponseDto } from '@app/common/dto/response/farm.dto';
+import { FarmResponseDto } from '@app/common/dtos/response/farm.dto';
 
 @Injectable()
 export class RentedTreesService {

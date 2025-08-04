@@ -3,7 +3,7 @@ import { InventoryService } from './inventory.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { SearchInventoriesQueryDto } from './dto/search-inventory.dto';
 import { CurrentUser } from '@app/common/decorators/current-user.decorator';
-import { InventoryResponseDto } from '@app/common/dto/response/inventory.dto';
+import { InventoryResponseDto } from '@app/common/dtos/response/inventory.dto';
 
 @Controller('api/inventory')
 @ApiTags('inventory')

@@ -17,15 +17,15 @@ import { randomBytes } from 'crypto';
 import { AccountVerificationDto } from './dto/account-verification.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { ConfigService } from '@nestjs/config';
-import { PrismaService } from '@app/providers/prisma.service';
-import { UserResponseDto } from '@app/common/dto/response/user.dto';
-import { MailService } from '@app/providers/mail/mail.service';
+import { PrismaService } from '@shared/providers/prisma.service';
+import { UserResponseDto } from '@app/common/dtos/response/user.dto';
+import { MailClientService } from '@app/providers/queue/mail-client/mail-client.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly mailService: MailService,
+    private readonly mailClientService: MailClientService,
     private readonly prisma: PrismaService,
     private readonly configService: ConfigService,
   ) {}
@@ -142,7 +142,7 @@ export class AuthService {
       }),
     ]);
 
-    await this.mailService.sendEmailVerification({
+    await this.mailClientService.sendEmailVerification({
       email: user.email,
       name: user.name,
       otp,
@@ -189,7 +189,7 @@ export class AuthService {
       }),
     ]);
 
-    await this.mailService.sendWelcomeEmail({
+    await this.mailClientService.sendWelcomeEmail({
       email: user.email,
       name: user.name,
     });
@@ -229,13 +229,13 @@ export class AuthService {
           expiresAt: expires,
         },
       });
-      await this.mailService.sendEmailVerification({
+      await this.mailClientService.sendEmailVerification({
         email,
         otp,
         name: user.name,
       });
     } else {
-      await this.mailService.sendEmailVerification({
+      await this.mailClientService.sendEmailVerification({
         email,
         otp: otpRecord.otp,
         name: user.name,

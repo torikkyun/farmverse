@@ -22,7 +22,7 @@ import { FileValidationPipe } from '@app/common/pipes/file-validation.pipe';
 import {
   ItemBaseResponseDto,
   ItemResponseDto,
-} from '@app/common/dto/response/item.dto';
+} from '@app/common/dtos/response/item.dto';
 import { Public } from '@app/common/decorators/public.decorator';
 
 @Controller('api/items')

@@ -12,7 +12,7 @@ import {
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
-import { UserResponseDto } from '@app/common/dto/response/user.dto';
+import { UserResponseDto } from '@app/common/dtos/response/user.dto';
 import { SearchUsersQueryDto } from './dto/search-user.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { CurrentUser } from '@app/common/decorators/current-user.decorator';

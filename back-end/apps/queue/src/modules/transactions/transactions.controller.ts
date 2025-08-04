@@ -1,7 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { TransactionsService } from './transactions.service';
-import { ContractQueuePayload } from '@app/common/types/contract-payload.type';
+import { ContractQueuePayload } from '@shared/types/contract-payload.type';
 import { ContractDto } from '@app/models/transactions/dto/create-contract.dto';
 
 @Controller()

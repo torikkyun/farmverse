@@ -3,26 +3,26 @@ import { Prisma, TransactionStatus, TransactionType } from 'generated/prisma';
 import { DepositDto } from './dto/deposit.dto';
 import { plainToInstance } from 'class-transformer';
 import { CreateContractDto } from './dto/create-contract.dto';
-import { PrismaService } from '@app/providers/prisma.service';
-import { QueueService } from '@app/providers/queue/queue.service';
+import { PrismaService } from '@shared/providers/prisma.service';
 import {
   TransactionBaseResponseDto,
   TransactionResponseDto,
-} from '@app/common/dto/response/transaction.dto';
-import { UserResponseDto } from '@app/common/dto/response/user.dto';
-import { FarmResponseDto } from '@app/common/dto/response/farm.dto';
+} from '@app/common/dtos/response/transaction.dto';
+import { UserResponseDto } from '@app/common/dtos/response/user.dto';
+import { FarmResponseDto } from '@app/common/dtos/response/farm.dto';
 import { SearchTransactionsQueryDto } from './dto/search-transaction.dto';
 import {
   PaginationMetaDto,
   PaginationResponseDto,
-} from '@app/common/dto/pagination.dto';
+} from '@app/common/dtos/pagination.dto';
 import { PurchaseItemsDto } from './dto/purchase-items.dto';
+import { TransactionClientService } from '@app/providers/queue/transaction-client/transaction-client.service';
 
 @Injectable()
 export class TransactionsService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly queueService: QueueService,
+    private readonly transactionClientService: TransactionClientService,
   ) {}
 
   private toTransactionBaseResponse(
@@ -78,7 +78,7 @@ export class TransactionsService {
       },
     });
 
-    await this.queueService.deposit({
+    await this.transactionClientService.deposit({
       transactionId: transaction.id,
       userId: id,
       amount,
@@ -152,7 +152,7 @@ export class TransactionsService {
       },
     });
 
-    await this.queueService.contract(
+    await this.transactionClientService.contract(
       {
         transactionId: transaction.id,
         userId: id,
@@ -203,7 +203,7 @@ export class TransactionsService {
       },
     });
 
-    await this.queueService.purchaseItems({
+    await this.transactionClientService.purchaseItems({
       transactionId: transaction.id,
       userId: id,
       items,

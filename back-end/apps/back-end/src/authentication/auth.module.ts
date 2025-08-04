@@ -6,12 +6,12 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
-import { PrismaService } from '@app/providers/prisma.service';
-import { MailModule } from '@app/providers/mail/mail.module';
+import { PrismaService } from '@shared/providers/prisma.service';
+import { QueueModule } from '@app/providers/queue/queue.module';
 
 @Module({
   imports: [
-    MailModule,
+    QueueModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       imports: [ConfigModule],

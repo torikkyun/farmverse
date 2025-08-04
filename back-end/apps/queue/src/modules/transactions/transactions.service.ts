@@ -1,5 +1,5 @@
-import { ContractQueuePayload } from '@app/common/types/contract-payload.type';
-import { PrismaService } from '@app/providers/prisma.service';
+import { ContractQueuePayload } from '@shared/types/contract-payload.type';
+import { PrismaService } from '@shared/providers/prisma.service';
 import { BadGatewayException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { BlockchainService } from '@queue/providers/blockchain.service';

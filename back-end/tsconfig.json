@@ -34,13 +34,13 @@
         "apps/back-end/src/models/*"
       ],
       "@dto/*": [
-        "apps/back-end/src/common/dto/*"
+        "apps/back-end/src/common/dtos/*"
       ],
       "@providers/*": [
         "apps/back-end/src/providers/*"
       ],
-      "@static/*": [
-        "static/*"
+      "@shared/*": [
+        "shared/*"
       ]
     }
   }

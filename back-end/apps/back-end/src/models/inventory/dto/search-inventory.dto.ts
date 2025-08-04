@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { PaginationQueryDto } from '@app/common/dto/pagination.dto';
+import { PaginationQueryDto } from '@app/common/dtos/pagination.dto';
 import { IsOptional } from 'class-validator';
 import { ItemType } from 'generated/prisma';
 

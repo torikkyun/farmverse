@@ -9,17 +9,17 @@ import { UpdateItemDto } from './dto/update-item.dto';
 import { plainToInstance } from 'class-transformer';
 import { Prisma } from 'generated/prisma';
 import { SearchItemsQueryDto } from './dto/search-item.dto';
-import { PrismaService } from '@app/providers/prisma.service';
+import { PrismaService } from '@shared/providers/prisma.service';
 import {
   ItemBaseResponseDto,
   ItemResponseDto,
-} from '@app/common/dto/response/item.dto';
-import { UserResponseDto } from '@app/common/dto/response/user.dto';
-import { FarmResponseDto } from '@app/common/dto/response/farm.dto';
+} from '@app/common/dtos/response/item.dto';
+import { UserResponseDto } from '@app/common/dtos/response/user.dto';
+import { FarmResponseDto } from '@app/common/dtos/response/farm.dto';
 import {
   PaginationMetaDto,
   PaginationResponseDto,
-} from '@app/common/dto/pagination.dto';
+} from '@app/common/dtos/pagination.dto';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()

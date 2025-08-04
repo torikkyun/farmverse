@@ -7,18 +7,18 @@ import { CreateFarmDto } from './dto/create-farm.dto';
 import { UpdateFarmDto } from './dto/update-farm.dto';
 import { plainToInstance } from 'class-transformer';
 import { SearchFarmsQueryDto } from './dto/search-farm.dto';
-import { PrismaService } from '@app/providers/prisma.service';
 import {
   FarmBaseResponseDto,
   FarmResponseDto,
-} from '@app/common/dto/response/farm.dto';
-import { UserResponseDto } from '@app/common/dto/response/user.dto';
+} from '@app/common/dtos/response/farm.dto';
+import { UserResponseDto } from '@app/common/dtos/response/user.dto';
 import { Prisma } from '@prisma/client';
 import {
   PaginationMetaDto,
   PaginationResponseDto,
-} from '@app/common/dto/pagination.dto';
+} from '@app/common/dtos/pagination.dto';
 import { ConfigService } from '@nestjs/config/dist/config.service';
+import { PrismaService } from '@shared/providers/prisma.service';
 
 @Injectable()
 export class FarmsService {

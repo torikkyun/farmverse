@@ -1,15 +1,16 @@
 import { Module } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
 import { TransactionsController } from './transactions.controller';
-import { PrismaService } from '@app/providers/prisma.service';
-import { QueueService } from '@app/providers/queue/queue.service';
+import { PrismaService } from '@shared/providers/prisma.service';
 import { MulterModule } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { v4 as uuidv4 } from 'uuid';
+import { QueueModule } from '@app/providers/queue/queue.module';
 
 @Module({
   imports: [
+    QueueModule,
     MulterModule.register({
       storage: diskStorage({
         destination: '../static/signatures',
@@ -23,6 +24,6 @@ import { v4 as uuidv4 } from 'uuid';
     }),
   ],
   controllers: [TransactionsController],
-  providers: [TransactionsService, PrismaService, QueueService],
+  providers: [TransactionsService, PrismaService],
 })
 export class TransactionsModule {}
