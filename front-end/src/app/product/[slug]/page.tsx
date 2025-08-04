@@ -11,13 +11,13 @@ import FarmTabs from "./FarmTabs";
 import ModalCheckout from "../components/ModalCheckout";
 import { useFarmDetail } from "./useFarmDetail";
 import { useFarmItems } from "./useFarmItems";
-import { NFTItem, DungItem } from "./types"; // Import cả 2 types
+import { NFTItem, DungItem } from "./types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "";
 
 export default function ProductDetailPage() {
-  const { slug } = useParams();
-  const farmId = slug as string;
+  const params = useParams();
+  const farmId = params?.slug as string;
 
   // Lấy dữ liệu farm từ API
   const { loading, error, farm } = useFarmDetail(API_URL, farmId);
@@ -35,7 +35,6 @@ export default function ProductDetailPage() {
     setSelectedItems([]);
   }, [farmId]);
 
-  // Thêm useEffect này để clear selectedItems khi chuyển tab
   React.useEffect(() => {
     setSelectedItems([]);
   }, [activeTab]);
@@ -44,22 +43,34 @@ export default function ProductDetailPage() {
     setSelectedItems((prev) => {
       const exists = prev.find((item) => item.id === id);
       if (exists) {
-        // Nếu đã có thì bỏ chọn
         return prev.filter((item) => item.id !== id);
       } else {
-        // Nếu chưa có thì thêm mới với quantity mặc định là 1
         return [...prev, { id, quantity: 1 }];
       }
     });
   };
 
-  // Sửa tabItems để có thể là cả NFTItem hoặc DungItem
-  const tabItems: (NFTItem | DungItem)[] = activeTab === 1 ? dungs : items; // Thêm type annotation
+  const tabItems: (NFTItem | DungItem)[] = activeTab === 1 ? dungs : items;
 
   const totalQuantity = selectedItems.reduce(
     (sum, item) => sum + (item.quantity ?? 1),
     0
   );
+
+  // Early return nếu chưa có farmId
+  if (!farmId) {
+    return (
+      <SidebarProvider>
+        <AppSidebar variant="inset" />
+        <SidebarInset>
+          <SiteHeader />
+          <div className="flex flex-1 flex-col bg-white min-h-screen items-center justify-center">
+            <p className="text-gray-500">Loading...</p>
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
+    );
+  }
 
   return (
     <SidebarProvider>
@@ -67,12 +78,7 @@ export default function ProductDetailPage() {
       <SidebarInset>
         <SiteHeader />
         <div className="flex flex-1 flex-col bg-white min-h-screen">
-          <HeaderFarmInfo
-            farmId={farmId}
-            loading={loading}
-            error={error}
-            // currentUserId={userId}
-          />
+          <HeaderFarmInfo farmId={farmId} loading={loading} error={error} />
           <FarmTabs
             activeTab={activeTab}
             setActiveTab={setActiveTab}
