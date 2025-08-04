@@ -1,10 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import { AlertTriangle } from "lucide-react";
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const [showModal, setShowModal] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [countdown, setCountdown] = useState(3);
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
 
@@ -13,47 +14,29 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    async function checkToken() {
-      const userData = localStorage.getItem("user");
-      const userObj = userData ? JSON.parse(userData) : null;
-      const token = userObj?.accessToken;
-      // Kiểm tra nếu đang ở trong cụm trang auth thì không hiển thị modal
-      const isAuthPage =
-        pathname?.startsWith("/login") ||
-        pathname?.startsWith("/signup") ||
-        pathname?.startsWith("/forgot") ||
-        pathname?.startsWith("/confirm");
-
-      if (!token && !isAuthPage) {
-        setShowModal(true);
-        const timeout = setTimeout(() => {
-          window.location.href = "/login";
-        }, 2000);
-        return () => clearTimeout(timeout);
-      } else {
-        setShowModal(false);
-      }
-      setIsLoading(false);
-    }
-    checkToken();
+    const user = localStorage.getItem("user");
+    const token = user ? JSON.parse(user)?.accessToken : null;
+    const isAuthPage = ["/login", "/signup", "/forgot", "/confirm"].some((p) =>
+      pathname?.startsWith(p)
+    );
+    if (!token && !isAuthPage) {
+      setShowModal(true);
+      setCountdown(3);
+      const timer = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            window.location.href = "/login";
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      return () => clearInterval(timer);
+    } else setShowModal(false);
   }, [pathname]);
 
-  // Kiểm tra isAuthPage một lần duy nhất
-  const isAuthPage =
-    pathname?.startsWith("/login") ||
-    pathname?.startsWith("/signup") ||
-    pathname?.startsWith("/forgot") ||
-    pathname?.startsWith("/confirm");
-
-  if (!mounted) return null; // Chỉ render trên client
-
-  if (isLoading) {
-    return <div>Loading...</div>; // Hoặc loading spinner
-  }
-
-  if (isAuthPage) {
-    return <>{children}</>;
-  }
+  if (!mounted) return null;
 
   return (
     <>
@@ -65,7 +48,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
             left: 0,
             width: "100vw",
             height: "100vh",
-            background: "rgba(0,0,0,0.6)",
+            background: "grey",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -75,51 +58,85 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
           <div
             style={{
               background: "#fff",
-              padding: "40px 32px",
-              borderRadius: "16px",
-              boxShadow: "0 4px 24px rgba(0,0,0,0.18)",
+              padding: 32,
+              borderRadius: 16,
+              boxShadow: "0 10px 40px rgba(0,0,0,0.2)",
               textAlign: "center",
-              minWidth: 320,
+              minWidth: 400,
               maxWidth: "90vw",
             }}
           >
-            <svg
-              width="48"
-              height="48"
-              fill="none"
-              viewBox="0 0 24 24"
-              style={{ marginBottom: 12 }}
-            >
-              <circle cx="12" cy="12" r="12" fill="#FDE68A" />
-              <path
-                d="M12 8v4m0 4h.01"
-                stroke="#B45309"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-            <h2
+            <div
               style={{
-                color: "#B45309",
-                fontWeight: 700,
-                fontSize: 22,
-                marginBottom: 8,
+                width: 64,
+                height: 64,
+                background: "#000",
+                borderRadius: "50%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                margin: "0 auto 20px",
               }}
             >
-              Bạn cần đăng nhập để tiếp tục
+              <AlertTriangle size={32} color="#fff" strokeWidth={2} />
+            </div>
+            <h2
+              style={{
+                color: "#111",
+                fontWeight: 700,
+                fontSize: 24,
+                marginBottom: 12,
+              }}
+            >
+              Phiên đăng nhập đã hết hạn
             </h2>
             <p
               style={{
-                color: "#444",
+                color: "#333",
                 fontSize: 16,
-                marginBottom: 0,
+                marginBottom: 20,
+                lineHeight: 1.5,
               }}
             >
-              Vui lòng đăng nhập để sử dụng các tính năng của Farmverse.
-              <br />
-              Đang chuyển hướng đến trang đăng nhập...
+              Để bảo mật tài khoản, bạn cần đăng nhập lại để tiếp tục sử dụng
+              các tính năng của <strong>Farmverse</strong>.
             </p>
+            <div
+              style={{
+                background: "#f3f3f3",
+                padding: "12px 16px",
+                borderRadius: 8,
+                marginBottom: 24,
+                border: "1px solid #222",
+                color: "#222",
+                fontWeight: 500,
+                fontSize: 15,
+              }}
+            >
+              Tự động chuyển hướng sau{" "}
+              <span style={{ fontWeight: 700, fontSize: 16, color: "#000" }}>
+                {countdown}
+              </span>{" "}
+              giây
+            </div>
+            <button
+              onClick={() => (window.location.href = "/login")}
+              style={{
+                background: "#000",
+                color: "#fff",
+                border: "none",
+                padding: "12px 24px",
+                borderRadius: 8,
+                fontSize: 16,
+                fontWeight: 600,
+                cursor: "pointer",
+                transition: "all 0.2s",
+              }}
+              onMouseOver={(e) => (e.currentTarget.style.background = "#222")}
+              onMouseOut={(e) => (e.currentTarget.style.background = "#000")}
+            >
+              Đăng nhập ngay
+            </button>
           </div>
         </div>
       )}
