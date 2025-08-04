@@ -8,7 +8,7 @@ import React, { useState } from "react";
 import SelectedBar from "../components/selected-bar";
 import HeaderFarmInfo from "./HeaderFarmInfo";
 import FarmTabs from "./FarmTabs";
-import ModalCheckout from "../components/ModalCheckout";
+import ModalCheckout from "../modal/ModalCheckout";
 import { useFarmDetail } from "./useFarmDetail";
 import { useFarmItems } from "./useFarmItems";
 import { NFTItem, DungItem } from "./types";
@@ -94,7 +94,7 @@ export default function ProductDetailPage() {
               selectedItems={selectedItems}
               setSelectedItems={setSelectedItems}
               activeTab={activeTab}
-              onCheckout={() => setShowCheckout(true)}
+              // onCheckout={() => setShowCheckout(true)}
               farm={farm}
             />
           )}

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { classifyItems, calculateTotal } from "../utils/checkoutUtils";
-import ContractForm from "./ContractForm";
-import OrderSummary from "./OrderSummary";
-import LoadingOverlay from "./LoadingOverlay";
-import AlertMessage from "./AlertMessage";
+import ContractForm from "../components/ContractForm";
+import OrderSummary from "../components/OrderSummary";
+import LoadingOverlay from "../ui/LoadingOverlay";
+import AlertMessage from "../ui/AlertMessage";
 import { FarmItem, Farm } from "../[slug]/types";
 
 interface ModalCheckoutProps {

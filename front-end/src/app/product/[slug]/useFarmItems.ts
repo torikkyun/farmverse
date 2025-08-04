@@ -44,7 +44,6 @@ export function useFarmItems(API_URL: string, farmId: string) {
     fetch(url)
       .then((res) => res.json())
       .then((json) => {
-        console.log("== API FERTILIZER response ==", json?.data?.items);
         setDungs(
           (json?.data?.items || []).map((item: RawItem) => ({
             id: String(item.id || item._id),
