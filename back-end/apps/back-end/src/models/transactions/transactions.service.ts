@@ -16,7 +16,7 @@ import {
   PaginationResponseDto,
 } from '@app/common/dtos/pagination.dto';
 import { PurchaseItemsDto } from './dto/purchase-items.dto';
-import { TransactionClientService } from '@app/providers/queue/transaction-client/transaction-client.service';
+import { TransactionClientService } from '@app/providers/queue/services/transaction-client.service';
 
 @Injectable()
 export class TransactionsService {

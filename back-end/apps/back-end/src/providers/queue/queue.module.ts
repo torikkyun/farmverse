@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { MailClientService } from './mail-client/mail-client.service';
-import { TransactionClientService } from './transaction-client/transaction-client.service';
+import { MailClientService } from './services/mail-client.service';
+import { TransactionClientService } from './services/transaction-client.service';
 
 @Module({
   imports: [

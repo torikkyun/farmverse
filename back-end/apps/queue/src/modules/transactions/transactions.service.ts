@@ -8,7 +8,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as Handlebars from 'handlebars';
 import puppeteer from 'puppeteer';
-import { ContractDto } from '@app/models/transactions/dto/create-contract.dto';
+import { ContractDto } from '@shared/dtos/contract.dto';
 
 @Injectable()
 export class TransactionsService {

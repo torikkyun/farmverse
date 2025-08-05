@@ -1,4 +1,4 @@
-import { ContractDto } from '@app/common/dtos/contract.dto';
+import { ContractDto } from '@shared/dtos/contract.dto';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {

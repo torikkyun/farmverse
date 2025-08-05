@@ -19,7 +19,7 @@ import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '@shared/providers/prisma.service';
 import { UserResponseDto } from '@app/common/dtos/response/user.dto';
-import { MailClientService } from '@app/providers/queue/mail-client/mail-client.service';
+import { MailClientService } from '@app/providers/queue/services/mail-client.service';
 
 @Injectable()
 export class AuthService {
