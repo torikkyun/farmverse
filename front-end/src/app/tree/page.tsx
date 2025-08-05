@@ -135,7 +135,7 @@ export default function TreePage() {
     >
       <AppSidebar variant="inset" />
       <SidebarInset>
-        <SiteHeader onOpenDeposit={() => setOpenDeposit(true)} />
+        <SiteHeader />
         <div className="flex flex-1 flex-col bg-gray-50 min-h-screen">
           <div className="w-full px-2 sm:px-4 py-8 flex-1 flex flex-col gap-6">
             <TreeSearchBar

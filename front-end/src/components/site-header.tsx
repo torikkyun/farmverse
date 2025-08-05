@@ -3,11 +3,7 @@
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { usePathname } from "next/navigation";
-import { Button } from "@/components/ui/button";
-
-interface SiteHeaderProps {
-  onOpenDeposit?: () => void;
-}
+import { ConnectWallet } from "./connect-wallet";
 
 const routeTitles: { [key: string]: string } = {
   "/dashboard": "Quản lý trang trại",
@@ -19,7 +15,7 @@ const routeTitles: { [key: string]: string } = {
   // Thêm các route khác ở đây
 };
 
-export function SiteHeader({ onOpenDeposit }: SiteHeaderProps) {
+export function SiteHeader() {
   const pathname = usePathname();
   const safePathname = pathname ?? ""; // fallback nếu null
   const title =
@@ -38,14 +34,7 @@ export function SiteHeader({ onOpenDeposit }: SiteHeaderProps) {
         />
         <h1 className="text-base font-medium">{title}</h1>
         <div className="ml-auto flex items-center gap-2">
-          {onOpenDeposit && (
-            <Button
-              className="bg-black text-white font-bold"
-              onClick={onOpenDeposit}
-            >
-              Nạp tiền
-            </Button>
-          )}
+          <ConnectWallet />
         </div>
       </div>
     </header>

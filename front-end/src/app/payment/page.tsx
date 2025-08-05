@@ -37,7 +37,7 @@ export default function PaymentPage() {
     >
       <AppSidebar variant="inset" />
       <SidebarInset>
-        <SiteHeader onOpenDeposit={() => setOpenDeposit(true)} />
+        <SiteHeader />
         <div className="flex min-h-screen bg-white">
           <div className="flex px-4 py-4 gap-5 w-full">
             <div className="w-full">

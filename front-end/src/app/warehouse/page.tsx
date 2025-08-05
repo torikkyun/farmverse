@@ -183,8 +183,7 @@ export default function WarehousePage() {
     >
       <AppSidebar variant="inset" />
       <SidebarInset>
-        <SiteHeader onOpenDeposit={() => setOpenDeposit(true)} />{" "}
-        {/* Thêm prop này */}
+        <SiteHeader /> {/* Thêm prop này */}
         <div className="flex flex-1 flex-col bg-white dark:bg-black min-h-screen transition-colors">
           <div className="w-full mx-auto sm:px-4 py-6 flex-1 flex flex-col gap-8">
             {/* Thanh tìm kiếm và lọc */}

@@ -89,8 +89,7 @@ export default function SettingsPage() {
     >
       <AppSidebar variant="inset" />
       <SidebarInset>
-        <SiteHeader onOpenDeposit={() => setOpenDeposit(true)} />{" "}
-        {/* Thêm prop này */}
+        <SiteHeader /> {/* Thêm prop này */}
         <div className="flex flex-1 flex-col items-center py-8 px-0 bg-white min-h-screen">
           <div className="flex flex-row w-full gap-4 min-h-[500px] px-6">
             <div className="w-full max-w-xs md:w-[320px] mb-6 md:mb-0 h-full flex">

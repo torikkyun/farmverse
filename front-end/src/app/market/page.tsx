@@ -166,7 +166,7 @@ export default function MarketPage() {
     <SidebarProvider style={sidebarStyle}>
       <AppSidebar variant="inset" />
       <SidebarInset>
-        <SiteHeader onOpenDeposit={() => setOpenDeposit(true)} />
+        <SiteHeader />
         <div
           className={`w-full flex flex-1 flex-col ${
             showResults
