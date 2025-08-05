@@ -1,6 +1,5 @@
 "use client";
 
-import { MetamaskButton } from "./MetamaskButton";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { usePathname } from "next/navigation";
@@ -39,15 +38,12 @@ export function SiteHeader({ onOpenDeposit }: SiteHeaderProps) {
         />
         <h1 className="text-base font-medium">{title}</h1>
         <div className="ml-auto flex items-center gap-2">
-          {onOpenDeposit && (
-            <Button
-              className="bg-black text-white font-bold"
-              onClick={onOpenDeposit}
-            >
-              Nạp tiền
-            </Button>
-          )}
-          <MetamaskButton />
+          <Button
+            className="bg-black text-white font-bold"
+            onClick={onOpenDeposit}
+          >
+            Nạp tiền
+          </Button>
         </div>
       </div>
     </header>

@@ -9,7 +9,6 @@ import {
   Package,
   Coins,
   Warehouse,
-  ChevronDown,
   ChevronUp,
   Flower2,
   Sprout,
@@ -198,20 +197,6 @@ export function ItemList({
           </div>
         ))}
       </div>
-
-      {/* Show More/Less Buttons */}
-      {sortedItems.length > maxShow && !showAll && (
-        <div className="flex justify-center mt-12">
-          <Button
-            size="lg"
-            className="px-12 py-4 text-lg rounded-2xl font-semibold bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 flex items-center gap-3"
-            onClick={() => setShowAll(true)}
-          >
-            <ChevronDown className="w-5 h-5" />
-            Xem thêm sản phẩm
-          </Button>
-        </div>
-      )}
 
       {showAll && (
         <div className="flex justify-center mt-8">

@@ -172,24 +172,7 @@ export default function ProfileTabForm({
           disabled
         />
       </div>
-      <div>
-        <Label htmlFor="phone" className="mb-2 block">
-          Số điện thoại
-        </Label>
-        <Input
-          id="phone"
-          value={form.phone}
-          onChange={(e) =>
-            setForm((f) => ({
-              ...f,
-              phone: e.target.value,
-            }))
-          }
-          placeholder="Nhập số điện thoại"
-          disabled={loading}
-        />
-      </div>
-      <div>
+       <div>
         <Label htmlFor="avatar" className="mb-2 block">
           Avatar
         </Label>
