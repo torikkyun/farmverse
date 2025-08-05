@@ -1,6 +1,6 @@
 "use client";
 import { Tractor } from "lucide-react";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 // import Image from "next/image";
 
 import { LoginForm } from "@/components/login-form";
@@ -8,7 +8,6 @@ import { saveAuth } from "@/utils/auth";
 
 export default function LoginPage() {
   const apiURL = process.env.NEXT_PUBLIC_API_URL;
-  const router = useRouter();
 
   const handleLogin = async ({
     email,
@@ -29,9 +28,6 @@ export default function LoginPage() {
     if (data.data) {
       saveAuth(data.data);
     }
-
-    // Chuyển hướng sang dashboard
-    router.replace("/dashboard");
 
     return data;
   };

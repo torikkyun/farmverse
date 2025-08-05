@@ -16,10 +16,19 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const user = localStorage.getItem("user");
     const token = user ? JSON.parse(user)?.accessToken : null;
-    const isAuthPage = ["/login", "/signup", "/forgot", "/confirm"].some((p) =>
-      pathname?.startsWith(p)
-    );
-    if (!token && !isAuthPage) {
+
+    // Chỉ check token cho các trang cần authentication
+    const requiresAuth = [
+      "/market",
+      "/farm",
+      "/tree",
+      "/warehouse",
+      "/settings",
+      "/profile",
+      "/dashboard",
+    ].some((p) => pathname?.startsWith(p));
+
+    if (!token && requiresAuth) {
       setShowModal(true);
       setCountdown(3);
       const timer = setInterval(() => {
@@ -33,7 +42,9 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
         });
       }, 1000);
       return () => clearInterval(timer);
-    } else setShowModal(false);
+    } else {
+      setShowModal(false);
+    }
   }, [pathname]);
 
   if (!mounted) return null;
@@ -48,7 +59,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
             left: 0,
             width: "100vw",
             height: "100vh",
-            background: "grey",
+            background: "rgba(0, 0, 0, 0.5)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
