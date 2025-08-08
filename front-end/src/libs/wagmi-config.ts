@@ -1,11 +1,11 @@
-import { createConfig, http } from "@wagmi/core";
-import { polygonAmoy } from "@wagmi/core/chains";
-import { metaMask } from "@wagmi/connectors";
+import { http, createConfig } from "wagmi";
+import { sepolia } from "wagmi/chains";
+import { metaMask } from "wagmi/connectors";
 
-export const config = createConfig({
-  chains: [polygonAmoy],
+export const wagmiConfig = createConfig({
+  chains: [sepolia],
   connectors: [metaMask()],
   transports: {
-    [polygonAmoy.id]: http(),
+    [sepolia.id]: http(),
   },
 });
