@@ -1,4 +1,4 @@
-import { TrendingUp, Archive } from "lucide-react";
+import { TrendingUp } from "lucide-react";
 import { HarvestMode } from "./types";
 
 type HarvestModeSelectorProps = {
@@ -16,12 +16,6 @@ export function HarvestModeSelector({
       icon: TrendingUp,
       title: "Bán ngay",
       description: "Nhận FVT ngay lập tức",
-    },
-    {
-      key: "storage" as const,
-      icon: Archive,
-      title: "Lưu kho",
-      description: "Nhận vật phẩm thực tế",
     },
   ];
 

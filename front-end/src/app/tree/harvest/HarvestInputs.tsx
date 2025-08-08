@@ -31,27 +31,22 @@ export function HarvestInputs({
         <Input
           type="number"
           value={quantity}
-          onChange={(e) => onQuantityChange(Number(e.target.value))}
+          onChange={(e) => {
+            const val = e.target.value;
+            if (val === "") {
+              onQuantityChange(0);
+            } else {
+              // Đảm bảo không vượt quá maxQuantity
+              const num = Number(val);
+              onQuantityChange(num > maxQuantity ? maxQuantity : num);
+            }
+          }}
           min={0}
           max={maxQuantity}
           className="w-full h-10 text-base font-medium rounded-lg border bg-white border-gray-300 focus:border-black text-gray-900 hover:border-gray-400 transition-all"
         />
         <div className="flex justify-between items-center mt-2">
           <p className="text-xs text-gray-500">Tối đa: {maxQuantity} kg</p>
-          <div className="flex gap-2">
-            <button
-              onClick={() => onQuantityChange(Math.floor(maxQuantity * 0.5))}
-              className="px-2 py-1 text-xs bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
-            >
-              50%
-            </button>
-            <button
-              onClick={() => onQuantityChange(maxQuantity)}
-              className="px-2 py-1 text-xs bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
-            >
-              Max
-            </button>
-          </div>
         </div>
       </div>
 
