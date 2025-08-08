@@ -18,11 +18,14 @@ import {
   RentedTree,
 } from "./treeHooks";
 import { Clipboard } from "lucide-react";
+import SellPriceModal from "./price/SellPriceModal";
+// import { Button } from "@/components/ui/button";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export default function TreePage() {
   const [open, setOpen] = useState(false);
+  const [sellPrice, setSellPrice] = useState(0);
   const [harvestOpen, setHarvestOpen] = useState(false);
   const [selectedTree, setSelectedTree] = useState<RentedTree | null>(null);
   const [meta, setMeta] = useState({
@@ -41,6 +44,8 @@ export default function TreePage() {
   const [status, setStatus] = useState("");
   const [trees, setTrees] = useState<RentedTree[]>([]);
   const [loadingTrees, setLoadingTrees] = useState(false);
+  const [sellModalOpen, setSellModalOpen] = useState(false);
+  const [role, setRole] = useState<string | null>(null);
 
   const {
     openDeposit,
@@ -85,6 +90,15 @@ export default function TreePage() {
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [meta.currentPage, search, status]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const userStr = localStorage.getItem("user");
+      const userObj = userStr ? JSON.parse(userStr) : null;
+      setRole(userObj?.user?.role || null);
+      console.log("PAGE role:", userObj?.user?.role);
+    }
+  }, []);
 
   const handleOpenModal = (item: RentedTree) => {
     setSelectedTree(item);
@@ -158,6 +172,11 @@ export default function TreePage() {
                   loading={loadingTrees}
                   onDetail={handleOpenModal}
                   onHarvest={handleOpenHarvestModal}
+                  role={role}
+                  onOpenSellPriceModal={(tree) => {
+                    setSelectedTree(tree);
+                    setSellModalOpen(true);
+                  }}
                 />
               </div>
             </div>
@@ -171,6 +190,8 @@ export default function TreePage() {
               setOpen={setHarvestOpen}
               selectedTree={mapRentedTreeToTreeItem(selectedTree)}
               onHarvest={handleHarvest}
+              sellPrice={sellPrice}
+              onSellPriceChange={setSellPrice}
             />
             <Pagination meta={meta} onPageChange={handlePageChange} />
           </div>
@@ -190,6 +211,12 @@ export default function TreePage() {
           success={success}
           error={error}
           handleDeposit={handleDeposit}
+        />
+        <SellPriceModal
+          open={sellModalOpen}
+          onClose={() => setSellModalOpen(false)}
+          onSubmit={(price) => setSellPrice(price)}
+          defaultPrice={sellPrice}
         />
       </SidebarInset>
     </SidebarProvider>

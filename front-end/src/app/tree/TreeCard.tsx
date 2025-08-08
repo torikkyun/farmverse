@@ -6,6 +6,8 @@ type Props = {
   item: TreeItem;
   onDetail: (item: TreeItem) => void;
   onHarvest: (item: TreeItem) => void;
+  role?: string | null; // Thêm role
+  onOpenSellPriceModal?: () => void; // Thêm hàm mở modal
 };
 
 // Function chuyển đổi status sang tiếng Việt
@@ -42,7 +44,13 @@ const getStatusColor = (status: string) => {
   }
 };
 
-export function TreeCard({ item, onDetail, onHarvest }: Props) {
+export function TreeCard({
+  item,
+  onDetail,
+  onHarvest,
+  role,
+  onOpenSellPriceModal,
+}: Props) {
   return (
     <div className="bg-white rounded-lg overflow-hidden shadow-2xl hover:border border-black transition-all duration-200">
       {/* Hình ảnh cây */}
@@ -135,6 +143,15 @@ export function TreeCard({ item, onDetail, onHarvest }: Props) {
               className="flex-1 bg-green-600 text-white py-2 px-3 rounded-lg text-sm font-semibold hover:bg-green-700 transition"
             >
               Thu hoạch
+            </button>
+          )}
+          {/* Nút đặt giá bán vật phẩm chỉ cho FARMER */}
+          {role === "FARMER" && (
+            <button
+              onClick={onOpenSellPriceModal}
+              className="flex-1 bg-yellow-500 text-white py-2 px-3 rounded-lg text-sm font-semibold hover:bg-yellow-600 transition"
+            >
+              Đặt giá bán vật phẩm
             </button>
           )}
         </div>
