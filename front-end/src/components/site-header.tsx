@@ -3,7 +3,9 @@
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { usePathname } from "next/navigation";
-import ConnectWalletButton from "./connect-wallet";
+import ConnectWalletButton from "./connect-wallet-button";
+import WalletInfo from "./wallet-info";
+import DepositFvtModal from "./deposit-fvt-modal";
 
 const routeTitles: { [key: string]: string } = {
   "/dashboard": "Quản lý trang trại",
@@ -34,6 +36,8 @@ export function SiteHeader() {
         />
         <h1 className="text-base font-medium">{title}</h1>
         <div className="ml-auto flex items-center gap-2">
+          <WalletInfo />
+          <DepositFvtModal />
           <ConnectWalletButton />
         </div>
       </div>

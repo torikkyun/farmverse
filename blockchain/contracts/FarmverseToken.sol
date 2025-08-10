@@ -17,4 +17,11 @@ contract FarmverseToken is ERC20 {
   function withdrawETH() external {
     payable(msg.sender).transfer(address(this).balance);
   }
+
+  function swapETHForFVT() external payable {
+    require(msg.value > 0, 'Phai gui mot luong ETH');
+    uint256 rate = 100_000;
+    uint256 amountFVT = msg.value * rate;
+    _mint(msg.sender, amountFVT);
+  }
 }
