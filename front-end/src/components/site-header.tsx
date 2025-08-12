@@ -14,7 +14,7 @@ const routeTitles: { [key: string]: string } = {
   "/tree": "Cây trồng",
   "/warehouse": "Kho",
   "/settings": "Cài đặt",
-  // Thêm các route khác ở đây
+  "/order": "Quản lý đơn hàng",
 };
 
 export function SiteHeader() {
