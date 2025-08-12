@@ -137,8 +137,7 @@ export default function FarmPage() {
     >
       <AppSidebar variant="inset" />
       <SidebarInset>
-        <SiteHeader onOpenDeposit={() => setOpenDeposit(true)} />{" "}
-        {/* Thêm prop này */}
+        <SiteHeader /> {/* Thêm prop này */}
         <div className="w-full flex flex-1 flex-col bg-white dark:bg-black min-h-screen transition-colors">
           <div className="w-full px-2 sm:px-4 py-6 flex-1 flex flex-col gap-3">
             {userRole === "FARMER" && (

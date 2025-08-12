@@ -190,8 +190,7 @@ export default function TreePage() {
               setOpen={setHarvestOpen}
               selectedTree={mapRentedTreeToTreeItem(selectedTree)}
               onHarvest={handleHarvest}
-              sellPrice={sellPrice}
-              onSellPriceChange={setSellPrice}
+              initialSellPrice={sellPrice}
             />
             <Pagination meta={meta} onPageChange={handlePageChange} />
           </div>

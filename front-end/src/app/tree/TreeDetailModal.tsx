@@ -108,7 +108,6 @@ export default function TreeDetailModal({
                   </div>
                 </div>
               </div>
-              {/* Mobile layout: bạn có thể tái sử dụng các component trên cho mobile */}
             </div>
           </div>
         )}

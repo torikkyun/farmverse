@@ -8,12 +8,17 @@ import { HarvestInputs } from "./harvest/HarvestInputs";
 import { HarvestSummary } from "./harvest/HarvestSummary";
 import { useHarvestLogic } from "./harvest/useHarvestLogic";
 
+type TreeHarvestModalPropsWithPrice = TreeHarvestModalProps & {
+  initialSellPrice?: number;
+};
+
 export function TreeHarvestModal({
   open,
   setOpen,
   selectedTree,
   onHarvest,
-}: TreeHarvestModalProps) {
+  initialSellPrice = 0,
+}: TreeHarvestModalPropsWithPrice) {
   const {
     harvestMode,
     quantity,
@@ -21,7 +26,7 @@ export function TreeHarvestModal({
     setHarvestMode,
     setQuantity,
     setSellPrice,
-  } = useHarvestLogic(open, selectedTree);
+  } = useHarvestLogic(open, selectedTree, initialSellPrice); // truyền vào hook
 
   const handleHarvest = () => {
     if (!selectedTree || quantity <= 0) return;
@@ -129,7 +134,7 @@ export function TreeHarvestModal({
                       : "bg-black text-white hover:bg-gray-800 border border-black"
                   }`}
                 >
-                  {harvestMode === "sell" ? "Xác nhận bán" : "Xác nhận lưu kho"}
+                  {harvestMode === "sell" ? "Xác nhận bán" : "Xác nhận bán"}
                 </Button>
               </div>
             </div>

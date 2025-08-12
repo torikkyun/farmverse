@@ -2,17 +2,21 @@ import { useState, useEffect } from "react";
 import { TreeItem } from "../types";
 import { HarvestMode } from "./types";
 
-export function useHarvestLogic(open: boolean, selectedTree: TreeItem | null) {
+export function useHarvestLogic(
+  open: boolean,
+  selectedTree: TreeItem | null,
+  initialSellPrice: number = 0 // thêm tham số này
+) {
   const [harvestMode, setHarvestMode] = useState<HarvestMode>("sell");
   const [quantity, setQuantity] = useState(0);
-  const [sellPrice, setSellPrice] = useState(0);
+  const [sellPrice, setSellPrice] = useState(initialSellPrice);
 
   useEffect(() => {
     if (open && selectedTree) {
       setQuantity(selectedTree.yield);
-      setSellPrice(selectedTree.yield * 15000);
+      setSellPrice(initialSellPrice || selectedTree.yield * 15000); // ưu tiên giá từ ngoài vào
     }
-  }, [open, selectedTree]);
+  }, [open, selectedTree, initialSellPrice]);
 
   const handleQuantityChange = (newQuantity: number) => {
     if (!selectedTree) return;

@@ -1,6 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Package, DollarSign, TrendingUp } from "lucide-react";
+import { Package, DollarSign } from "lucide-react";
 import { HarvestMode } from "./types";
 
 type HarvestInputsProps = {
@@ -29,6 +29,7 @@ export function HarvestInputs({
           Số lượng thu hoạch (kg)
         </Label>
         <Input
+          readOnly
           type="number"
           value={quantity}
           onChange={(e) => {
@@ -58,16 +59,13 @@ export function HarvestInputs({
             Giá bán (FVT)
           </Label>
           <Input
+            readOnly
             type="number"
             value={sellPrice}
             onChange={(e) => onSellPriceChange(Number(e.target.value))}
             min={0}
             className="w-full h-10 text-base font-medium rounded-lg border bg-white border-gray-300 focus:border-black text-gray-900 hover:border-gray-400 transition-all"
           />
-          <p className="text-xs text-gray-500 mt-2 flex items-center gap-2">
-            <TrendingUp className="w-3 h-3" />
-            Giá thị trường: {(quantity * 15000).toLocaleString()} FVT
-          </p>
         </div>
       )}
     </div>
