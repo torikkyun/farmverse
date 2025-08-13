@@ -30,7 +30,7 @@ export function ItemList({
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
   const [showAll, setShowAll] = useState(false);
 
-  const maxShow = 6;
+  const maxShow = 8;
   const sortedItems = [...items].sort(compareMongoIdDesc);
   const displayItems = showAll ? sortedItems : sortedItems.slice(0, maxShow);
 
@@ -73,6 +73,8 @@ export function ItemList({
     }
     return stock.toString();
   };
+
+  console.log("Số phân bón hiển thị:", displayItems.length, displayItems);
 
   return (
     <div className="@container/main flex flex-1 flex-col gap-8">
