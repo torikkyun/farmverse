@@ -1,5 +1,6 @@
 import { useEffect } from "react";
-import { useFarmSchedule } from "../useFarmSchedule"; // import đúng đường dẫn
+import { Calendar, Clock, Leaf, ChevronRight } from "lucide-react";
+import { useFarmSchedule } from "../useFarmSchedule";
 
 interface Props {
   farmId: string;
@@ -14,36 +15,84 @@ export default function ScheduleSection({ farmId }: Props) {
   }, [reloadSchedules]);
 
   return (
-    <div className="bg-white border-2 border-black rounded-lg p-4 sm:p-6 md:p-8">
-      <div className="flex items-center justify-between mb-4 sm:mb-6">
-        <h2 className="text-xl sm:text-2xl font-bold text-black uppercase tracking-wide">
-          DANH SÁCH CÔNG VIỆC CHĂM SÓC CÂY TRỒNG
-        </h2>
+    <div className="bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-2xl shadow-lg p-6">
+      {/* Header Section */}
+      <div className="flex items-center gap-3 mb-6">
+        <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-xl">
+          <Calendar className="w-6 h-6 text-green-600 dark:text-green-400" />
+        </div>
+        <div>
+          <h2 className="text-2xl font-bold text-black dark:text-white">
+            Lịch Chăm Sóc Cây Trồng
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400 text-sm">
+            Theo dõi tiến độ chăm sóc hàng tháng
+          </p>
+        </div>
       </div>
 
       {loading ? (
-        <div className="text-center text-gray-500 italic py-8">
-          Đang tải lịch trình chăm sóc...
+        <div className="flex items-center justify-center py-12">
+          <div className="flex items-center gap-3 text-gray-500 dark:text-gray-400">
+            <Clock className="w-5 h-5 animate-spin" />
+            <span>Đang tải lịch trình...</span>
+          </div>
         </div>
       ) : error ? (
-        <div className="text-center text-red-500 italic py-8">{error}</div>
+        <div className="text-center py-12">
+          <div className="text-red-500 dark:text-red-400 font-medium">
+            {error}
+          </div>
+        </div>
       ) : schedules.length === 0 ? (
-        <div className="text-center text-gray-500 italic py-8">
-          Không có lịch trình chăm sóc nào cho nông trại này.
+        <div className="text-center py-12">
+          <div className="mb-4">
+            <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto">
+              <Leaf className="w-8 h-8 text-gray-400 dark:text-gray-600" />
+            </div>
+          </div>
+          <h3 className="text-lg font-semibold text-black dark:text-white mb-2">
+            Chưa có lịch chăm sóc
+          </h3>
+          <p className="text-gray-500 dark:text-gray-400">
+            Trang trại này chưa có lịch trình chăm sóc nào.
+          </p>
         </div>
       ) : (
         <div className="space-y-4">
           {schedules.map((schedule, idx) => (
             <div
               key={idx}
-              className="border-2 border-gray-300 rounded-lg p-4 bg-gray-50 hover:bg-gray-100 transition-colors"
+              className="group border border-gray-200 dark:border-gray-800 rounded-xl p-5 bg-gray-50 dark:bg-gray-900/50 hover:bg-gray-100 dark:hover:bg-gray-800/50 transition-all duration-300 hover:shadow-md"
             >
-              <div className="font-bold text-lg text-black mb-2">
-                Tháng {schedule.month}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                    <Calendar className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg text-black dark:text-white">
+                      Tháng {schedule.month}
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-400 text-sm">
+                      {schedule.activities.length} hoạt động
+                    </p>
+                  </div>
+                </div>
+                <ChevronRight className="w-5 h-5 text-gray-400 dark:text-gray-600 group-hover:text-black dark:group-hover:text-white transition-colors" />
               </div>
-              <div className="text-sm text-gray-700 mb-1">
-                <span className="font-medium">Hoạt động:</span>{" "}
-                {schedule.activities.join(", ")}
+
+              <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div className="flex flex-wrap gap-2">
+                  {schedule.activities.map((activity, activityIdx) => (
+                    <span
+                      key={activityIdx}
+                      className="px-3 py-1.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-lg text-sm font-medium"
+                    >
+                      {activity}
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
           ))}
