@@ -8,12 +8,11 @@ import { useAddFarmForm } from "./useFarmActions";
 import { useFarmerFarm } from "./useFarmerFarm";
 import FarmMenu from "./FarmMenu";
 import FarmContent from "./FarmContent";
-import DepositModal from "@/components/DepositModal"; // Thêm dòng này
+import DepositModal from "@/components/DepositModal";
 
 export default function FarmPage() {
   const [selectedMenu, setSelectedMenu] = useState<string>("farm-info");
   const [token, setToken] = useState<string | null>(null);
-  const [isTokenLoaded, setIsTokenLoaded] = useState(false);
   const { userFarm, userRole } = useFarmerFarm();
   const addFarm = useAddFarmForm();
 
@@ -42,19 +41,15 @@ export default function FarmPage() {
   // Lấy token safely sau khi component mount
   useEffect(() => {
     const userData = localStorage.getItem("user");
-
     if (userData) {
       try {
         const parsed = JSON.parse(userData);
-
         const accessToken = parsed.accessToken || parsed.accessToken;
-
         setToken(accessToken || null);
       } catch {
         setToken(null);
       }
     }
-    setIsTokenLoaded(true);
   }, []);
 
   const handleAddFarm = async (e: React.FormEvent) => {
@@ -112,19 +107,7 @@ export default function FarmPage() {
     }
   };
 
-  // Hiển thị loading khi chưa load token hoặc chưa có thông tin nông trại
-  if (!isTokenLoaded || (userRole === "FARMER" && !userFarm)) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-white dark:bg-black">
-        <div className="flex flex-col items-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-black dark:border-white mb-6"></div>
-          <div className="text-black dark:text-white text-xl font-bold">
-            Đang tải thông tin nông trại...
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // Đã bỏ toàn bộ phần xử lý overload/loading
 
   return (
     <SidebarProvider
@@ -137,7 +120,7 @@ export default function FarmPage() {
     >
       <AppSidebar variant="inset" />
       <SidebarInset>
-        <SiteHeader /> {/* Thêm prop này */}
+        <SiteHeader />
         <div className="w-full flex flex-1 flex-col bg-white dark:bg-black min-h-screen transition-colors">
           <div className="w-full px-2 sm:px-4 py-6 flex-1 flex flex-col gap-3">
             {userRole === "FARMER" && (

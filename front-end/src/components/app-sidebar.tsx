@@ -5,9 +5,10 @@ import * as React from "react";
 import {
   Tractor,
   ShoppingBasket,
-  TreePine,
   Warehouse,
   CircleUser,
+  History,
+  Sprout,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -42,9 +43,14 @@ const data = {
       icon: Tractor,
     },
     {
-      title: "Cây thuê",
+      title: "Thuê cây",
       url: "/tree",
-      icon: TreePine,
+      icon: Sprout,
+    },
+    {
+      title: "Lịch sử thu hoạch",
+      url: "/history",
+      icon: History,
     },
     {
       title: "Kho vật phẩm",
