@@ -1,25 +1,26 @@
 import Image from "next/image";
 import { NFTItem } from "../[slug]/types";
+import { ShoppingCart, Check, Sprout, Package } from "lucide-react";
 
 interface NFTCardProps {
   item: NFTItem;
   selected: boolean;
-  onSelect: (id: string) => void; // Thay đổi từ number sang string
+  onSelect: (id: string) => void;
 }
 
 export default function NFTCard({ item, selected, onSelect }: NFTCardProps) {
   return (
     <div
       onClick={(e) => e.stopPropagation()}
-      className={`group bg-white border rounded-lg p-0 flex flex-col items-stretch text-black relative overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer
+      className={`group bg-white border-2 rounded-2xl overflow-hidden flex flex-col h-full relative shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:scale-[1.02]
         ${
           selected
-            ? "border-black ring-2 ring-gray-300"
-            : "border-gray-200 hover:border-gray-400"
-        }
-        h-full w-full`}
+            ? "border-black ring-2 ring-gray-300 shadow-gray-200"
+            : "border-gray-200 hover:border-gray-300"
+        }`}
     >
-      <div className="relative">
+      {/* Image Section */}
+      <div className="relative overflow-hidden">
         <Image
           src={
             Array.isArray(item.images) && item.images.length > 0
@@ -27,68 +28,129 @@ export default function NFTCard({ item, selected, onSelect }: NFTCardProps) {
               : "/no-image.png"
           }
           alt={item.name}
-          width={200}
-          height={160}
-          className="w-full h-60 object-cover rounded-t-lg transition-all duration-300 group-hover:scale-105"
+          width={300}
+          height={200}
+          className="w-full h-48 object-cover transition-all duration-500 group-hover:scale-110"
           priority
         />
+
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+        {/* Select Button */}
         <button
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            onSelect(item.id); // Đảm bảo item.id là string
+            onSelect(item.id);
           }}
-          className={`absolute top-2 right-2 rounded-full w-8 h-8 flex items-center justify-center transition-all duration-200 shadow-md
+          className={`absolute top-3 right-3 rounded-full w-10 h-10 flex items-center justify-center transition-all duration-300 shadow-lg backdrop-blur-sm border
             ${
               selected
-                ? "bg-black text-white opacity-100 scale-100"
-                : "bg-white/95 text-gray-700 opacity-0 group-hover:opacity-100 hover:bg-gray-100 hover:text-black scale-90 group-hover:scale-100"
+                ? "bg-black text-white border-gray-700 scale-100 opacity-100"
+                : "bg-white/90 text-gray-700 border-white/50 opacity-0 group-hover:opacity-100 hover:bg-white hover:scale-110"
             }
           `}
-          title={selected ? "Bỏ chọn" : "Thêm vào giỏ hàng"}
+          title={selected ? "Đã chọn" : "Thêm vào giỏ hàng"}
         >
           {selected ? (
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-              <path
-                fillRule="evenodd"
-                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                clipRule="evenodd"
-              />
-            </svg>
+            <Check className="w-5 h-5" />
           ) : (
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-              <path
-                fillRule="evenodd"
-                d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-                clipRule="evenodd"
-              />
-            </svg>
+            <ShoppingCart className="w-5 h-5" />
           )}
         </button>
-      </div>
 
-      <div className="flex-1 flex flex-col px-3 py-3 gap-1">
-        <h3 className="font-medium text-sm text-gray-900 truncate group-hover:text-black transition-colors leading-tight">
-          {item.name}
-        </h3>
-
-        <div className="flex items-center justify-between text-xs text-gray-600 mt-1">
-          <span className="bg-gray-100 px-2 py-1 rounded-full">
-            SL: {item.stock ?? 1}
-          </span>
+        {/* Type Badge */}
+        <div className="absolute top-3 left-3">
+          <div className="bg-amber-500 text-white px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 shadow-md">
+            <Sprout className="w-3 h-3" />
+            Cây trồng
+          </div>
         </div>
 
-        <div className="mt-2 pt-1 border-t border-gray-200">
-          <div className="flex items-center justify-center">
-            <span className="font-bold text-base text-black">
-              {item.price}
-              <span className="text-base font-medium text-gray-600 ml-1">
-                FVT/ cây
-              </span>
-            </span>
+        {/* Stock Badge */}
+        {item.stock && item.stock > 0 && (
+          <div className="absolute bottom-3 left-3">
+            <div className="bg-black/80 text-white px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-1.5 backdrop-blur-sm">
+              <Package className="w-4 h-4" />
+              SL: {item.stock}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Content Section */}
+      <div className="flex-1 flex flex-col p-4">
+        {/* Title */}
+        <div className="flex-1">
+          <h3 className="font-bold text-lg text-gray-900 line-clamp-2 group-hover:text-black transition-colors duration-300 leading-tight mb-2">
+            {item.name}
+          </h3>
+
+          {/* Description if available */}
+          {item.description && (
+            <p className="text-sm text-gray-600 line-clamp-2 mb-3">
+              {item.description}
+            </p>
+          )}
+        </div>
+
+        {/* Price Section */}
+        <div className="mt-auto">
+          <div className="bg-gray-50 rounded-xl p-3 border border-gray-100">
+            <div className="flex items-center justify-center">
+              <div className="text-center">
+                <div className="flex items-baseline justify-center gap-1">
+                  <span className="text-2xl font-black text-green-600">
+                    {item.price}
+                  </span>
+                  <span className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
+                    FVT
+                  </span>
+                </div>
+                <span className="text-xs text-gray-500 font-medium">
+                  mỗi cây giống
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Action Button */}
+          <div className="mt-3 text-center">
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onSelect(item.id);
+              }}
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium transition-all duration-300 cursor-pointer hover:scale-105 shadow-md
+              ${
+                selected
+                  ? "bg-black text-white border border-gray-700 hover:bg-gray-800"
+                  : "bg-black text-white border border-black hover:bg-gray-800"
+              }`}
+              title={selected ? "Đã thêm vào giỏ" : "Thêm vào giỏ hàng"}
+            >
+              {selected ? (
+                <>
+                  <Check className="w-4 h-4" />
+                  Đã thêm vào giỏ
+                </>
+              ) : (
+                <>
+                  <ShoppingCart className="w-4 h-4" />
+                  Thêm vào giỏ hàng
+                </>
+              )}
+            </button>
           </div>
         </div>
       </div>
+
+      {/* Selection Overlay */}
+      {selected && (
+        <div className="absolute inset-0 bg-black/5 rounded-2xl pointer-events-none" />
+      )}
     </div>
   );
 }

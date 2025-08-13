@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { DungItem } from "../[slug]/types";
+import { ShoppingCart, Check, Sprout, Package } from "lucide-react";
 
 interface DungCardProps {
   dungs: DungItem;
@@ -11,15 +12,14 @@ export default function DungCard({ dungs, selected, onSelect }: DungCardProps) {
   return (
     <div
       onClick={(e) => e.stopPropagation()}
-      className={`group bg-white border-2 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer transform hover:-translate-y-2
+      className={`group bg-white border-2 rounded-2xl overflow-hidden flex flex-col h-full relative shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:scale-[1.02]
         ${
           selected
-            ? "border-black ring-4 ring-black/20 shadow-2xl scale-105"
-            : "border-gray-200 hover:border-black/50"
-        }
-        h-full w-full`}
+            ? "border-black ring-2 ring-gray-300 shadow-gray-200"
+            : "border-gray-200 hover:border-gray-300"
+        }`}
     >
-      {/* Image Container */}
+      {/* Image Section */}
       <div className="relative overflow-hidden">
         <Image
           src={
@@ -28,20 +28,14 @@ export default function DungCard({ dungs, selected, onSelect }: DungCardProps) {
               : "/no-image.png"
           }
           alt={dungs.name}
-          width={280}
-          height={220}
-          className={`w-full h-48 object-cover transition-all duration-500 ${
-            selected ? "scale-110" : "group-hover:scale-110"
-          }`}
+          width={300}
+          height={200}
+          className="w-full h-48 object-cover transition-all duration-500 group-hover:scale-110"
           priority
         />
 
-        {/* Overlay */}
-        <div
-          className={`absolute inset-0 transition-all duration-300 ${
-            selected ? "bg-black/20" : "bg-black/0 group-hover:bg-black/10"
-          }`}
-        />
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
         {/* Select Button */}
         <button
@@ -50,89 +44,113 @@ export default function DungCard({ dungs, selected, onSelect }: DungCardProps) {
             e.stopPropagation();
             onSelect(dungs.id);
           }}
-          className={`absolute top-3 right-3 rounded-full w-10 h-10 flex items-center justify-center transition-all duration-300 border-2
+          className={`absolute top-3 right-3 rounded-full w-10 h-10 flex items-center justify-center transition-all duration-300 shadow-lg backdrop-blur-sm border
             ${
               selected
-                ? "bg-black text-white border-black scale-100 opacity-100"
-                : "bg-white/90 text-black border-white/50 backdrop-blur-sm opacity-0 group-hover:opacity-100 scale-75 group-hover:scale-100 hover:bg-black hover:text-white"
+                ? "bg-black text-white border-gray-700 scale-100 opacity-100"
+                : "bg-white/90 text-gray-700 border-white/50 opacity-0 group-hover:opacity-100 hover:bg-white hover:scale-110"
             }
           `}
-          title={selected ? "Bỏ chọn" : "Thêm vào giỏ hàng"}
+          title={selected ? "Đã chọn" : "Thêm vào giỏ hàng"}
         >
           {selected ? (
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-              <path
-                fillRule="evenodd"
-                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                clipRule="evenodd"
-              />
-            </svg>
+            <Check className="w-5 h-5" />
           ) : (
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-              />
-            </svg>
+            <ShoppingCart className="w-5 h-5" />
           )}
         </button>
 
+        {/* Type Badge */}
+        <div className="absolute top-3 left-3">
+          <div className="bg-amber-500 text-white px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 shadow-md">
+            <Sprout className="w-3 h-3" />
+            Phân bón
+          </div>
+        </div>
+
         {/* Stock Badge */}
-        <div className="absolute bottom-3 left-3">
-          <div className="bg-white/90 backdrop-blur-sm text-black px-3 py-1 rounded-full border border-black/20">
-            <span className="text-xs font-semibold">
-              Còn lại: {dungs.stock}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className="p-4 space-y-3">
-        {/* Title */}
-        <h3 className="font-bold text-lg text-black leading-tight group-hover:text-gray-800 transition-colors">
-          {dungs.name}
-        </h3>
-
-        {/* Separator */}
-        <div
-          className={`w-full h-px transition-all duration-300 ${
-            selected ? "bg-black" : "bg-gray-200 group-hover:bg-black/50"
-          }`}
-        />
-
-        {/* Price */}
-        <div className="flex items-center justify-center">
-          <div
-            className={`px-4 py-2 rounded-xl transition-all duration-300 ${
-              selected
-                ? "bg-black text-white"
-                : "bg-gray-100 text-black group-hover:bg-black group-hover:text-white"
-            }`}
-          >
-            <span className="font-black text-xl">
-              {dungs.price.toLocaleString()}
-            </span>
-            <span className="text-sm font-medium ml-2 opacity-80">FVT</span>
-          </div>
-        </div>
-
-        {/* Selection Indicator */}
-        {selected && (
-          <div className="flex items-center justify-center pt-2">
-            <div className="bg-black/10 text-black px-3 py-1 rounded-full border border-black/20">
-              <span className="text-xs font-bold">✓ Đã chọn</span>
+        {dungs.stock && dungs.stock > 0 && (
+          <div className="absolute bottom-3 left-3">
+            <div className="bg-black/80 text-white px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-1.5 backdrop-blur-sm">
+              <Package className="w-4 h-4" />
+              SL: {dungs.stock}
             </div>
           </div>
         )}
       </div>
+
+      {/* Content Section */}
+      <div className="flex-1 flex flex-col p-4">
+        {/* Title */}
+        <div className="flex-1">
+          <h3 className="font-bold text-lg text-gray-900 line-clamp-2 group-hover:text-black transition-colors duration-300 leading-tight mb-2">
+            {dungs.name}
+          </h3>
+
+          {/* Description if available */}
+          {dungs.description && (
+            <p className="text-sm text-gray-600 line-clamp-2 mb-3">
+              {dungs.description}
+            </p>
+          )}
+        </div>
+
+        {/* Price Section */}
+        <div className="mt-auto">
+          <div className="bg-gray-50 rounded-xl p-3 border border-gray-100">
+            <div className="flex items-center justify-center">
+              <div className="text-center">
+                <div className="flex items-baseline justify-center gap-1">
+                  <span className="text-2xl font-black text-green-600">
+                    {dungs.price}
+                  </span>
+                  <span className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
+                    FVT
+                  </span>
+                </div>
+                <span className="text-xs text-gray-500 font-medium">
+                  mỗi gói phân
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Action Button */}
+          <div className="mt-3 text-center">
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onSelect(dungs.id);
+              }}
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium transition-all duration-300 cursor-pointer hover:scale-105 shadow-md
+              ${
+                selected
+                  ? "bg-black text-white border border-gray-700 hover:bg-gray-800"
+                  : "bg-black text-white border border-black hover:bg-gray-800"
+              }`}
+              title={selected ? "Đã thêm vào giỏ" : "Thêm vào giỏ hàng"}
+            >
+              {selected ? (
+                <>
+                  <Check className="w-4 h-4" />
+                  Đã thêm vào giỏ
+                </>
+              ) : (
+                <>
+                  <ShoppingCart className="w-4 h-4" />
+                  Thêm vào giỏ hàng
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Selection Overlay */}
+      {selected && (
+        <div className="absolute inset-0 bg-black/5 rounded-2xl pointer-events-none" />
+      )}
     </div>
   );
 }

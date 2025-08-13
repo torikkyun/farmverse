@@ -9,6 +9,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Plus, Trash2, Eye, Package } from "lucide-react";
 
 interface SelectedBarProps {
   items: NFTItem[] | DungItem[];
@@ -38,6 +39,7 @@ export default function SelectedBar({
   useEffect(() => {
     setVisible(activeTab === 0 || activeTab === 1);
   }, [activeTab]);
+
   if (!visible) return null;
 
   const selectedItemObjects = items
@@ -59,101 +61,137 @@ export default function SelectedBar({
   }, 0);
   const totalPrice = formatPrice(totalPriceNumber);
 
-  const rentLabel =
-    selectedItems.length > 0
-      ? activeTab === 0
-        ? `Thuê ${totalQuantity} cây trồng`
-        : `Mua ${selectedItems.length} bao phân bón`
-      : activeTab === 0
-      ? "Thuê cây trồng"
-      : "Mua bao phân bón";
+  const hasSelectedItems = selectedItems.length > 0;
 
   return (
     <>
-      <div className="fixed bottom-0 left-0 w-full bg-gradient-to-r from-black via-neutral-900 to-black text-white flex items-center px-3 md:px-8 py-3 md:py-4 z-50 shadow-2xl border-t border-white/10 transition-all duration-300">
-        {/* Nút thêm sản phẩm */}
-        <button
-          className="flex items-center justify-center bg-black/60 border border-white/20 rounded-full px-4 py-2 mr-3 font-semibold hover:bg-white/10 transition-all"
-          onClick={() => setShowAddItems(true)}
-        >
-          + Thêm
-        </button>
-        {/* Desktop: avatar, clear */}
-        <div className="hidden md:flex items-center gap-3">
-          <div className="flex items-center gap-2 mx-5 overflow-x-auto max-w-[220px] scrollbar-thin scrollbar-thumb-white/30">
-            <TooltipProvider>
-              {selectedItems.slice(0, 4).map((selected, idx) => {
-                const selectedId = selected.id;
-                const quantity = selected.quantity ?? 1;
-                const item = items.find(
-                  (i) => String(i.id) === String(selectedId)
-                );
-                if (!item)
-                  return (
-                    <span
-                      key={`notfound-${selectedId}-${idx}`}
-                      className="text-red-500"
-                    >
-                      Không tìm thấy: {selectedId}
-                    </span>
+      <div className="fixed bottom-0 left-0 w-full bg-white border-t-2 border-gray-200 shadow-2xl z-50 transition-all duration-300">
+        {/* Glass effect background */}
+        <div className="absolute inset-0 bg-white/95 backdrop-blur-sm"></div>
+
+        {/* Main content */}
+        <div className="relative flex items-center justify-between px-4 md:px-8 py-4 gap-4 max-w-7xl mx-auto">
+          {/* Left Section: Add Button + Item Preview */}
+          <div className="flex items-center gap-4">
+            {/* Selected Items Preview */}
+            <div className="hidden md:flex items-center gap-3">
+              <TooltipProvider>
+                {selectedItems.slice(0, 3).map((selected, idx) => {
+                  const item = items.find(
+                    (i) => String(i.id) === String(selected.id)
                   );
-                return (
-                  <Tooltip key={`selected-item-${item.id}-${idx}`}>
-                    <TooltipTrigger asChild>
-                      <div className="relative flex items-center">
-                        <Image
-                          src={
-                            Array.isArray(item.images) && item.images.length > 0
-                              ? item.images[0]
-                              : "/no-image.png"
-                          }
-                          alt={item.name}
-                          width={36}
-                          height={36}
-                          className="w-9 h-9 rounded-full border-2 border-white object-cover shadow-md"
-                        />
-                        <span className="ml-1 text-white font-bold text-base">
-                          x {quantity}
-                        </span>
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent className="bg-white text-black border border-gray-200">
-                      {item.name}
-                    </TooltipContent>
-                  </Tooltip>
-                );
-              })}
-            </TooltipProvider>
-            {selectedItems.length > 10 && (
-              <span className="ml-2 text-xs text-white/80 min-w-[32px] font-semibold">
-                +{selectedItems.length - 10}
+                  if (!item) return null;
+
+                  return (
+                    <Tooltip key={`selected-item-${item.id}-${idx}`}>
+                      <TooltipTrigger asChild>
+                        <div className="relative group/item">
+                          <Image
+                            src={
+                              Array.isArray(item.images) &&
+                              item.images.length > 0
+                                ? item.images[0]
+                                : "/no-image.png"
+                            }
+                            alt={item.name}
+                            width={48}
+                            height={48}
+                            className="w-12 h-12 rounded-xl border-2 border-gray-200 object-cover shadow-md group-hover/item:border-black transition-all duration-300"
+                          />
+                          {/* Quantity badge */}
+                          <div className="absolute -top-2 -right-2 bg-black text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow-lg">
+                            {selected.quantity ?? 1}
+                          </div>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent className="bg-black text-white border border-gray-700 rounded-lg p-3">
+                        <p className="font-bold text-sm">{item.name}</p>
+                        <p className="text-xs opacity-80 mt-1">
+                          Số lượng: {selected.quantity ?? 1}
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  );
+                })}
+              </TooltipProvider>
+
+              {selectedItems.length > 3 && (
+                <div className="flex items-center justify-center w-12 h-12 bg-gray-100 border-2 border-gray-200 rounded-xl">
+                  <span className="text-sm font-bold text-gray-600">
+                    +{selectedItems.length - 3}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Add Button */}
+            <button
+              className="group flex items-center justify-center bg-black hover:bg-gray-800 text-white rounded-2xl px-5 py-3 font-bold transition-all duration-300 hover:scale-105 shadow-lg"
+              onClick={() => setShowAddItems(true)}
+            >
+              <Plus className="w-5 h-5 mr-2 group-hover:rotate-90 transition-transform duration-300" />
+              <span className="hidden sm:inline">Thêm</span>
+              <span className="sm:hidden">Thêm</span>
+            </button>
+          </div>
+
+          {/* Center Section: Summary Info */}
+          <div className="flex items-center gap-3">
+            {/* Items Count */}
+            <div className="flex items-center gap-2 bg-gray-100 rounded-xl px-4 py-3 border border-gray-200">
+              <Package className="w-5 h-5 text-gray-600" />
+              <div className="text-center">
+                <div className="font-bold text-gray-900 text-sm">
+                  {hasSelectedItems ? totalQuantity : 0}
+                </div>
+                <div className="text-xs text-gray-500 font-medium">
+                  sản phẩm
+                </div>
+              </div>
+            </div>
+
+            {/* Total Price */}
+            <div className="bg-black text-white rounded-xl px-4 py-3 border border-gray-300">
+              <div className="text-center">
+                <div className="text-lg font-black">{totalPrice}</div>
+                <div className="text-xs font-bold opacity-80 uppercase tracking-wide">
+                  FVT
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Section: Action Buttons */}
+          <div className="flex items-center gap-3">
+            {/* Main Action Button */}
+            <button
+              className="group bg-black hover:bg-gray-800 text-white font-bold px-6 py-3 rounded-xl transition-all duration-300 hover:scale-105 shadow-lg flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+              onClick={() => setShowCheckout(true)}
+              disabled={!hasSelectedItems}
+            >
+              <Eye className="w-5 h-5" />
+              <span className="hidden lg:inline">
+                {activeTab === 0 ? "Thuê ngay" : "Mua ngay"}
               </span>
+              <span className="lg:hidden">
+                {activeTab === 0 ? "Thuê" : "Mua"}
+              </span>
+            </button>
+
+            {/* Clear Button */}
+            {hasSelectedItems && (
+              <button
+                className="group bg-gray-100 hover:bg-red-50 text-gray-600 hover:text-red-600 rounded-xl p-3 transition-all duration-300 hover:scale-105 border border-gray-200 hover:border-red-200"
+                onClick={() => setSelectedItems([])}
+                title="Xóa tất cả"
+              >
+                <Trash2 className="w-5 h-5 group-hover:animate-bounce" />
+              </button>
             )}
           </div>
         </div>
-        {/* Số lượng (mobile) */}
-        <span className="font-semibold text-base md:hidden mr-3 bg-white/10 px-2 py-1 rounded-full">
-          {totalQuantity}
-        </span>
-        {/* Nút thuê/mua */}
-        <button
-          className="flex-1 md:flex-none cursor-pointer bg-white text-black font-bold px-4 md:px-7 py-2 rounded-full text-base transition-all duration-200 mr-2 md:mr-5 whitespace-nowrap shadow-md border border-white"
-          onClick={() => setShowCheckout(true)}
-        >
-          {rentLabel}
-        </button>
-        {/* Tổng số FVT */}
-        <span className="font-semibold text-base md:text-lg mr-2 md:mr-5 whitespace-nowrap bg-white/10 px-3 py-1 rounded-full border border-white/20">
-          {totalPrice} FVT
-        </span>
-        {/* Clear (desktop) */}
-        <button
-          className="hidden md:inline text-white ml-auto transition-all duration-200 cursor-pointer"
-          onClick={() => setSelectedItems([])}
-        >
-          Xoá
-        </button>
       </div>
+
       {/* Modal Add Items */}
       {showAddItems && (
         <ModalAddItems
@@ -164,6 +202,7 @@ export default function SelectedBar({
           onClose={() => setShowAddItems(false)}
         />
       )}
+
       {/* Modal Checkout */}
       {showCheckout && (
         <ModalCheckout
