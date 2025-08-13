@@ -13,6 +13,7 @@ contract TreeRental {
     uint256 endTime;
     uint256 cost;
     bool canceled;
+    string contractHash;
   }
 
   Rental[] public rentals;
@@ -21,7 +22,11 @@ contract TreeRental {
     token = IERC20(_token);
   }
 
-  function rentTree(uint256 treeId, uint256 costPerYear) external {
+  function rentTree(
+    uint256 treeId,
+    uint256 costPerYear,
+    string memory contractHash
+  ) external {
     uint256 duration = 365 days;
     require(
       token.transferFrom(msg.sender, address(this), costPerYear),
@@ -35,9 +40,11 @@ contract TreeRental {
         block.timestamp,
         block.timestamp + duration,
         costPerYear,
-        false
+        false,
+        contractHash
       )
     );
+    emit TreeRented(msg.sender, treeId, rentals.length - 1, contractHash);
   }
 
   function cancel(uint256 rentalId) external {
@@ -47,4 +54,12 @@ contract TreeRental {
 
     rental.canceled = true;
   }
+
+  event TreeRented(
+    address indexed renter,
+    uint256 indexed treeId,
+    uint256 rentalId,
+    string contractHash
+  );
+  event RentalCanceled(address indexed renter, uint256 indexed rentalId);
 }

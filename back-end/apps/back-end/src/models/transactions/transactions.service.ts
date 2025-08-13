@@ -1,6 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { Prisma, TransactionStatus, TransactionType } from 'generated/prisma';
-import { DepositDto } from './dto/deposit.dto';
 import { plainToInstance } from 'class-transformer';
 import { CreateContractDto } from './dto/create-contract.dto';
 import { PrismaService } from '@shared/providers/prisma.service';
@@ -17,12 +16,16 @@ import {
 } from '@app/common/dtos/pagination.dto';
 import { PurchaseItemsDto } from './dto/purchase-items.dto';
 import { TransactionClientService } from '@app/providers/queue/services/transaction-client.service';
+import * as crypto from 'crypto';
+import * as fs from 'fs';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class TransactionsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly transactionClientService: TransactionClientService,
+    private readonly configService: ConfigService,
   ) {}
 
   private toTransactionBaseResponse(
@@ -58,44 +61,17 @@ export class TransactionsService {
     return transactionResponse;
   }
 
-  async deposit(
-    { id }: { id: string },
-    { amount }: DepositDto,
-  ): Promise<{
-    message: string;
-    transaction: TransactionResponseDto;
-  }> {
-    const transaction = await this.prisma.transaction.create({
-      data: {
-        type: TransactionType.DEPOSIT,
-        status: TransactionStatus.PENDING,
-        totalPrice: amount,
-        userId: id,
-        transactionHash: '',
-        blockNumber: 0,
-        fromAddress: '',
-        toAddress: '',
-      },
-    });
-
-    await this.transactionClientService.deposit({
-      transactionId: transaction.id,
-      userId: id,
-      amount,
-    });
-
-    return {
-      message: 'Đang xỷ lý giao dịch nạp tiền',
-      transaction: this.toTransactionResponse(transaction),
-    };
-  }
-
   async contract(
     { id }: { id: string },
     { items, contract }: CreateContractDto,
   ): Promise<{
     message: string;
     transaction: TransactionResponseDto;
+    payment: {
+      amount: number;
+      toAddress: string;
+      transactionId: string;
+    };
   }> {
     const userRecord = await this.prisma.user.findUnique({
       where: { id },
@@ -152,33 +128,46 @@ export class TransactionsService {
       },
     });
 
-    await this.transactionClientService.contract(
-      {
-        transactionId: transaction.id,
-        userId: id,
-        items,
-        totalPrice: contract.totalPrice,
-        itemRecords: itemRecords.filter((item) => item !== null),
-        farmRecord,
-        startDate: contract.startDate,
-        endDate: contract.endDate,
-      },
-      contract,
-    );
+    // await this.transactionClientService.contract(
+    //   {
+    //     transactionId: transaction.id,
+    //     userId: id,
+    //     items,
+    //     totalPrice: contract.totalPrice,
+    //     itemRecords: itemRecords.filter((item) => item !== null),
+    //     farmRecord,
+    //     startDate: contract.startDate,
+    //     endDate: contract.endDate,
+    //   },
+    //   contract,
+    // );
 
     return {
-      message: 'Đang xỷ lý giao dịch hợp đồng',
+      message: 'Tạo hợp đồng thành công, vui lòng thanh toán FVT',
       transaction: this.toTransactionResponse(transaction),
+      payment: {
+        amount: contract.totalPrice,
+        toAddress: this.configService.get<string>('FARMVERSE_TOKEN_ADDRESS')!,
+        transactionId: transaction.id,
+      },
     };
   }
 
   uploadSignatureImage(signatureImage: Express.Multer.File): {
     message: string;
     signatureFileName: string;
+    signatureHash: string;
   } {
+    const fileBuffer = fs.readFileSync(signatureImage.path);
+    const signatureHash = crypto
+      .createHash('sha256')
+      .update(fileBuffer)
+      .digest('hex');
+
     return {
       message: 'Tải lên chữ ký thành công',
       signatureFileName: signatureImage.filename,
+      signatureHash,
     };
   }
 

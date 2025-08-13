@@ -27,7 +27,6 @@ interface PaymentTx {
   from: string;
   to: string;
   blockNumber: string;
-  // Add other fields as needed
 }
 
 function PaymentHistory({

@@ -66,7 +66,7 @@ export class ItemsService {
     images?: Array<Express.Multer.File>,
   ): Promise<{ message: string; item: ItemResponseDto }> {
     const farm = await this.prisma.farm.findUnique({
-      where: { id },
+      where: { userId: id },
       include: { user: true },
     });
 

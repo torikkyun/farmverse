@@ -10,7 +10,6 @@ import {
 } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
-import { DepositDto } from './dto/deposit.dto';
 import { CreateContractDto } from './dto/create-contract.dto';
 import { SearchTransactionsQueryDto } from './dto/search-transaction.dto';
 import { TransactionBaseResponseDto } from '@app/common/dtos/response/transaction.dto';
@@ -23,15 +22,6 @@ import { FileValidationPipe } from '@app/common/pipes/file-validation.pipe';
 @ApiTags('transactions')
 export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}
-
-  @Post('deposit')
-  @ApiBearerAuth()
-  async deposit(
-    @CurrentUser() user: { id: string },
-    @Body() depositDto: DepositDto,
-  ): Promise<{ message: string; transaction: TransactionBaseResponseDto }> {
-    return await this.transactionsService.deposit(user, depositDto);
-  }
 
   @Post('contract')
   @ApiBearerAuth()
@@ -60,7 +50,11 @@ export class TransactionsController {
   })
   uploadSignatureImage(
     @UploadedFile(new FileValidationPipe()) signatureImage: Express.Multer.File,
-  ) {
+  ): {
+    message: string;
+    signatureFileName: string;
+    signatureHash: string;
+  } {
     return this.transactionsService.uploadSignatureImage(signatureImage);
   }
 

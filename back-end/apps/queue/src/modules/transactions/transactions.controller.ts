@@ -8,13 +8,6 @@ import { ContractDto } from '@shared/dtos/contract.dto';
 export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}
 
-  @MessagePattern('deposit')
-  async handleDeposit(
-    @Payload() data: { transactionId: string; userId: string; amount: number },
-  ): Promise<void> {
-    await this.transactionsService.handleDeposit(data);
-  }
-
   @MessagePattern('contract')
   async handleContract(
     @Payload()

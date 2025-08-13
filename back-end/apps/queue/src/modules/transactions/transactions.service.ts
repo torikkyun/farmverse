@@ -1,6 +1,6 @@
 import { ContractQueuePayload } from '@shared/types/contract-payload.type';
 import { PrismaService } from '@shared/providers/prisma.service';
-import { BadGatewayException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { BlockchainService } from '@queue/providers/blockchain.service';
 import { ItemType, statusTree, TransactionStatus } from 'generated/prisma';
@@ -25,50 +25,6 @@ export class TransactionsService {
   private parseDate(dateStr: string): Date {
     const [day, month, year] = dateStr.split('-').map(Number);
     return new Date(year, month - 1, day);
-  }
-
-  async handleDeposit({
-    transactionId,
-    userId,
-    amount,
-  }: {
-    transactionId: string;
-    userId: string;
-    amount: number;
-  }): Promise<void> {
-    try {
-      const { tx, receipt } =
-        await this.blockchainService.recordDeposit(amount);
-
-      if (!receipt || !tx.to) {
-        throw new BadGatewayException(
-          'Giao dịch không thành công, vui lòng thử lại sau',
-        );
-      }
-
-      await this.prisma.transaction.update({
-        where: { id: transactionId },
-        data: {
-          totalPrice: amount,
-          transactionHash: tx.hash,
-          blockNumber: receipt.blockNumber,
-          fromAddress: tx.from,
-          toAddress: tx.to,
-          status: TransactionStatus.SUCCESS,
-          userId,
-        },
-      });
-
-      await this.prisma.user.update({
-        where: { id: userId },
-        data: { fvtBalance: { increment: amount } },
-      });
-    } catch {
-      await this.prisma.transaction.update({
-        where: { id: transactionId },
-        data: { status: 'FAILED' },
-      });
-    }
   }
 
   async handleContract({
@@ -248,43 +204,4 @@ export class TransactionsService {
       },
     });
   }
-
-  // async purchaseItems(
-  //   userId: string,
-  //   transactionId: string,
-  //   totalPrice: number,
-  //   items: any,
-  // ) {
-  //   try {
-  //     const { tx, receipt } =
-  //       await this.blockchainService.recordPurchase(totalPrice);
-
-  //     if (!receipt || !tx.to) {
-  //       throw new RpcException(
-  //         'Giao dịch không thành công, vui lòng thử lại sau',
-  //       );
-  //     }
-
-  //     await this.prisma.transaction.update({
-  //       where: { id: transactionId },
-  //       data: {
-  //         transactionHash: tx.hash,
-  //         blockNumber: receipt.blockNumber,
-  //         fromAddress: tx.from,
-  //         toAddress: tx.to,
-  //         status: TransactionStatus.SUCCESS,
-  //       },
-  //     });
-
-  //     await this.prisma.user.update({
-  //       where: { id: userId },
-  //       data: { fvtBalance: { decrement: totalPrice } },
-  //     });
-  //   } catch {
-  //     await this.prisma.transaction.update({
-  //       where: { id: transactionId },
-  //       data: { status: 'FAILED' },
-  //     });
-  //   }
-  // }
 }

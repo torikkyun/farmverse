@@ -10,14 +10,6 @@ export class TransactionClientService {
     @Inject('FARMVERSE_QUEUE') private readonly client: ClientProxy,
   ) {}
 
-  async deposit(data: {
-    transactionId: string;
-    userId: string;
-    amount: number;
-  }): Promise<void> {
-    await lastValueFrom(this.client.emit('deposit', data));
-  }
-
   async contract(
     data: ContractQueuePayload,
     contract: ContractDto,
@@ -28,14 +20,5 @@ export class TransactionClientService {
         contract,
       }),
     );
-  }
-
-  async purchaseItems(data: {
-    transactionId: string;
-    userId: string;
-    items: any[];
-    totalPrice: number;
-  }): Promise<void> {
-    await lastValueFrom(this.client.emit('purchase_items', data));
   }
 }
