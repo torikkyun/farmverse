@@ -57,6 +57,20 @@ export class TransactionsController {
     return this.transactionsService.uploadSignatureImage(signatureImage);
   }
 
+  @Post('contract/confirm-payment')
+  @ApiBearerAuth()
+  async confirmPayment(
+    @CurrentUser() user: { id: string },
+    @Body() body: { transactionId: string; transactionHash: string },
+  ): Promise<{ message: string }> {
+    await this.transactionsService.confirmPayment(
+      user,
+      body.transactionId,
+      body.transactionHash,
+    );
+    return { message: 'Xác nhận thanh toán thành công!' };
+  }
+
   @Get()
   @ApiBearerAuth()
   async getAllTransactions(

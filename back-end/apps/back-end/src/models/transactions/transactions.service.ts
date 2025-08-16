@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Prisma, TransactionStatus, TransactionType } from 'generated/prisma';
 import { plainToInstance } from 'class-transformer';
 import { CreateContractDto } from './dto/create-contract.dto';
@@ -66,11 +70,6 @@ export class TransactionsService {
   ): Promise<{
     message: string;
     transaction: TransactionResponseDto;
-    payment: {
-      amount: number;
-      toAddress: string;
-      transactionId: string;
-    };
   }> {
     const userRecord = await this.prisma.user.findUnique({
       where: { id },
@@ -144,11 +143,6 @@ export class TransactionsService {
     return {
       message: 'Tạo hợp đồng thành công, vui lòng thanh toán FVT',
       transaction: this.toTransactionResponse(transaction),
-      payment: {
-        amount: contract.totalPrice,
-        toAddress: this.configService.get<string>('FARMVERSE_TOKEN_ADDRESS')!,
-        transactionId: transaction.id,
-      },
     };
   }
 
@@ -168,6 +162,28 @@ export class TransactionsService {
       signatureFileName: signatureImage.filename,
       signatureHash,
     };
+  }
+
+  async confirmPayment(
+    { id }: { id: string },
+    transactionId: string,
+    transactionHash: string,
+  ): Promise<void> {
+    const transaction = await this.prisma.transaction.findUnique({
+      where: { id: transactionId, userId: id },
+    });
+
+    if (!transaction) {
+      throw new NotFoundException('Giao dịch không tìm thấy');
+    }
+
+    await this.prisma.transaction.update({
+      where: { id: transactionId },
+      data: {
+        status: TransactionStatus.SUCCESS,
+        transactionHash,
+      },
+    });
   }
 
   async getAllTransactions(
