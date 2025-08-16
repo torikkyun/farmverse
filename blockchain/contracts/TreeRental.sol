@@ -8,58 +8,37 @@ contract TreeRental {
 
   struct Rental {
     address renter;
-    uint256 treeId;
-    uint256 startTime;
-    uint256 endTime;
-    uint256 cost;
-    bool canceled;
-    string contractHash;
+    string ipfsHash;
   }
 
   Rental[] public rentals;
+
+  event TreeRented(
+    address indexed renter,
+    uint256 indexed rentalId,
+    string ipfsHash
+  );
+  event RentalCanceled(address indexed renter, uint256 indexed rentalId);
 
   constructor(address _token) {
     token = IERC20(_token);
   }
 
-  function rentTree(
-    uint256 treeId,
-    uint256 costPerYear,
-    string memory contractHash
-  ) external {
-    uint256 duration = 365 days;
+  function rentTree(string memory ipfsHash, uint256 rentAmount) external {
     require(
-      token.transferFrom(msg.sender, address(this), costPerYear),
+      token.transferFrom(msg.sender, address(this), rentAmount),
       'Payment failed'
     );
 
-    rentals.push(
-      Rental(
-        msg.sender,
-        treeId,
-        block.timestamp,
-        block.timestamp + duration,
-        costPerYear,
-        false,
-        contractHash
-      )
-    );
-    emit TreeRented(msg.sender, treeId, rentals.length - 1, contractHash);
+    rentals.push(Rental({renter: msg.sender, ipfsHash: ipfsHash}));
+    emit TreeRented(msg.sender, rentals.length - 1, ipfsHash);
   }
 
-  function cancel(uint256 rentalId) external {
-    Rental storage rental = rentals[rentalId];
-    require(msg.sender == rental.renter, 'Not your rental');
-    require(block.timestamp < rental.endTime, 'Already expired');
-
-    rental.canceled = true;
+  function getRental(uint256 rentalId) external view returns (Rental memory) {
+    return rentals[rentalId];
   }
 
-  event TreeRented(
-    address indexed renter,
-    uint256 indexed treeId,
-    uint256 rentalId,
-    string contractHash
-  );
-  event RentalCanceled(address indexed renter, uint256 indexed rentalId);
+  function totalRentals() external view returns (uint256) {
+    return rentals.length;
+  }
 }

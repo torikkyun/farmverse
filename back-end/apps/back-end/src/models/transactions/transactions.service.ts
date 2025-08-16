@@ -14,7 +14,6 @@ import {
   PaginationMetaDto,
   PaginationResponseDto,
 } from '@app/common/dtos/pagination.dto';
-import { PurchaseItemsDto } from './dto/purchase-items.dto';
 import { TransactionClientService } from '@app/providers/queue/services/transaction-client.service';
 import * as crypto from 'crypto';
 import * as fs from 'fs';
@@ -168,40 +167,6 @@ export class TransactionsService {
       message: 'Tải lên chữ ký thành công',
       signatureFileName: signatureImage.filename,
       signatureHash,
-    };
-  }
-
-  async purchaseItems(
-    { id }: { id: string },
-    { items, totalPrice }: PurchaseItemsDto,
-  ): Promise<{
-    message: string;
-    transaction: TransactionResponseDto;
-  }> {
-    const transaction = await this.prisma.transaction.create({
-      data: {
-        type: TransactionType.PURCHASE,
-        status: TransactionStatus.PENDING,
-        totalPrice,
-        userId: id,
-        transactionHash: '',
-        blockNumber: 0,
-        fromAddress: '',
-        toAddress: '',
-        details: items as unknown as Prisma.InputJsonValue[],
-      },
-    });
-
-    await this.transactionClientService.purchaseItems({
-      transactionId: transaction.id,
-      userId: id,
-      items,
-      totalPrice,
-    });
-
-    return {
-      message: 'Đang xỷ lý giao dịch mua hàng',
-      transaction: this.toTransactionResponse(transaction),
     };
   }
 

@@ -1,7 +1,7 @@
 import { buildModule } from '@nomicfoundation/hardhat-ignition/modules';
 
 export default buildModule('TreeRentalModule', (m) => {
-  const tokenAddress = '0x2328087a12aF46F8678EbD3D60d201366D308781';
+  const tokenAddress = '0xE878E123125eBd89dAD65cCE3bD88a38749E8087';
 
   const treeRental = m.contract('TreeRental', [tokenAddress]);
   return { treeRental };

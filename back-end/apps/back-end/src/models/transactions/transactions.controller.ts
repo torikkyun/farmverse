@@ -14,7 +14,6 @@ import { CreateContractDto } from './dto/create-contract.dto';
 import { SearchTransactionsQueryDto } from './dto/search-transaction.dto';
 import { TransactionBaseResponseDto } from '@app/common/dtos/response/transaction.dto';
 import { CurrentUser } from '@app/common/decorators/current-user.decorator';
-import { PurchaseItemsDto } from './dto/purchase-items.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FileValidationPipe } from '@app/common/pipes/file-validation.pipe';
 
@@ -56,15 +55,6 @@ export class TransactionsController {
     signatureHash: string;
   } {
     return this.transactionsService.uploadSignatureImage(signatureImage);
-  }
-
-  @Post('purchase-items')
-  @ApiBearerAuth()
-  async purchaseItems(
-    @CurrentUser() user: { id: string },
-    @Body() purchaseItemsDto: PurchaseItemsDto,
-  ): Promise<{ message: string; transaction: TransactionBaseResponseDto }> {
-    return await this.transactionsService.purchaseItems(user, purchaseItemsDto);
   }
 
   @Get()

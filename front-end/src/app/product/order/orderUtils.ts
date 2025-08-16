@@ -38,7 +38,7 @@ export function calcGrandTotal(treeItems: Item[], fertilizerItems: Item[]) {
   );
   const totalTreePrice = calcTotal(treeItems);
   const totalFertilizerPrice = calcTotal(fertilizerItems);
-  const iotPrice = totalTreeQuantity * 500;
+  const iotPrice = totalTreeQuantity * 0.05;
   return {
     totalTreeQuantity,
     totalTreePrice,

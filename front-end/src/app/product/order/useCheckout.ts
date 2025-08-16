@@ -2,6 +2,9 @@ import { useRouter } from "next/navigation";
 import { formatDate, dataURLtoFile } from "../order/orderUtils";
 import { Item } from "../utils/checkoutUtils";
 import { useCallback } from "react";
+import { useAccount } from "wagmi";
+import { useTreeRental } from "@/libs/blockchain/hooks/useTreeRental";
+import { useApproveFVT } from "@/libs/blockchain/hooks/useApproveFVT";
 
 interface Farm {
   name: string;
@@ -34,6 +37,8 @@ type UseCheckoutProps = {
   setLoading: (v: boolean) => void;
 };
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 export function useCheckout({
   itemsByTypeWithQuantity,
   totalTreeQuantity,
@@ -46,6 +51,12 @@ export function useCheckout({
   setLoading,
 }: UseCheckoutProps) {
   const router = useRouter();
+  const { address } = useAccount();
+  const { rentTree } = useTreeRental();
+  const { approveFVT } = useApproveFVT();
+  const tokenAddress = process.env.NEXT_PUBLIC_FVT_ADDRESS as `0x${string}`;
+  const contractAddress = process.env
+    .NEXT_PUBLIC_TREE_RENTAL_ADDRESS as `0x${string}`;
 
   return useCallback(async () => {
     setAlert({ type: "success", message: null });
@@ -69,7 +80,7 @@ export function useCheckout({
         dataURLtoFile(lesseeSignature, "signature.png")
       );
       const signRes = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/transactions/contract/signature`,
+        `${API_URL}/transactions/contract/signature`,
         {
           method: "POST",
           headers: { Authorization: `Bearer ${token}` },
@@ -123,28 +134,55 @@ export function useCheckout({
         },
       };
 
-      // Send contract
-      const contractRes = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/transactions/contract`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(contractPayload),
-        }
-      );
+      const contractRes = await fetch(`${API_URL}/transactions/contract`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(contractPayload),
+      });
       const contractJson = await contractRes.json();
       if (!contractRes.ok)
         throw new Error(contractJson.message || "Gửi hợp đồng thất bại!");
+
+      const signatureHash = signJson.data.signatureHash;
+
+      if (!address) throw new Error("Vui lòng kết nối ví!");
+
+      await approveFVT({
+        tokenAddress,
+        spender: contractAddress,
+        amount: grandTotal.toString(),
+        account: address,
+      });
+
+      const txHash = await rentTree({
+        contractAddress,
+        costPerYear: grandTotal.toString(),
+        contractHash: signatureHash,
+        account: address,
+      });
+
+      // await fetch(`${API_URL}/transactions/contract/confirm-payment`, {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //     Authorization: `Bearer ${token}`,
+      //   },
+      //   body: JSON.stringify({
+      //     transactionId: contractJson.payment.transactionId,
+      //     transactionHash: txHash,
+      //   }),
+      // });
 
       setAlert({
         type: "success",
         message: "Ký hợp đồng thành công! Đang chuyển trang...",
       });
       setTimeout(() => router.push("/tree"), 2000);
-    } catch {
+    } catch (error) {
+      console.log(error);
       setAlert({ type: "error", message: "Có lỗi xảy ra!" });
     } finally {
       setLoading(false);
@@ -160,5 +198,10 @@ export function useCheckout({
     setAlert,
     setLoading,
     router,
+    address,
+    rentTree,
+    approveFVT,
+    contractAddress,
+    tokenAddress,
   ]);
 }
